@@ -75,7 +75,9 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Public methods
-
+        public string GetGasCommand() =>
+            string.Format("GAS:{0};{1};{2}!",
+                _selectedGasTypeCode.Code, _range, _selectedUnitCode.Code);
         #endregion
 
         #region Private methods
@@ -137,10 +139,6 @@ namespace CalibrationTool.ViewModels
                 MessageHandler?.Invoke("读取Excel文件出错：" + e.Message);
             }
         }
-
-        private string GetGasCommand() =>
-            string.Format("GAS:{0};{1};{2}!",
-                _selectedGasTypeCode.Code, _range, _selectedUnitCode.Code);
 
         private string GetVoltCommand()
         {

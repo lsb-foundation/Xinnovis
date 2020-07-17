@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace CalibrationTool.ViewModels
 {
@@ -25,8 +26,9 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _codeToSend, value);
         }
 
-        public RelayCommand ClearDisplayCommand { get; set; }
-        public RelayCommand CopyDisplayContentCommand { get; set; }
+        public ICommand ClearDisplayCommand { get; private set; }
+        public ICommand CopyDisplayContentCommand { get; private set; }
+        public ICommand SendCommand { get; set; }
 
         public MainWindowViewModel()
         {

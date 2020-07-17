@@ -29,10 +29,10 @@ namespace CalibrationTool
     {
         #region ViewModel定义
         private MainWindowViewModel main;
-        private SerialPortViewModel serialPortViewModel;
+        private SerialPortViewModel serialVm;
         private ReadDataViewModel reader;
         private WriteDataViewModel writer;
-        private StatusBarViewModel statusViewModel;
+        private StatusBarViewModel statusVm;
         #endregion
 
         private SerialPort serialPort;
@@ -51,11 +51,11 @@ namespace CalibrationTool
         #region 初始化ViewModel
         private void InitializeSerialPortViewModel()
         {
-            serialPortViewModel = new SerialPortViewModel();
-            serialPort = serialPortViewModel.GetSerialPortInstance();
+            serialVm = new SerialPortViewModel();
+            serialPort = serialVm.GetSerialPortInstance();
             serialPort.DataReceived += SerialPort_DataReceived;
-            serialPortViewModel.MessageHandler = message => statusViewModel.ShowStatus(message);
-            SerialPortTabItem.DataContext = serialPortViewModel;
+            serialVm.MessageHandler = message => statusVm.ShowStatus(message);
+            SerialPortTabItem.DataContext = serialVm;
         }
 
         private void InitializeMainViewModel()
@@ -66,21 +66,19 @@ namespace CalibrationTool
 
         private void InitializeStatusBarViewModel()
         {
-            statusViewModel = new StatusBarViewModel();
-            AppStatusBar.DataContext = statusViewModel;
+            statusVm = new StatusBarViewModel();
+            AppStatusBar.DataContext = statusVm;
         }
 
         private void InitializeReadDataViewModel()
         {
             reader = new ReadDataViewModel();
-            reader.SendDebugCommand = new RelayCommand(
-                o =>
+            reader.SendDebugCommand = new RelayCommand(o =>
                 {
                     Send(CommunicationDataType.ASCII, "DEBUG!");
                     currentAction = ActionType.DEBUG;
                 });
-            reader.SendCaliCommand = new RelayCommand(
-                o =>
+            reader.SendCaliCommand = new RelayCommand(o =>
                 {
                     Send(CommunicationDataType.ASCII, "CALI!");
                     currentAction = ActionType.CALI;
@@ -96,7 +94,24 @@ namespace CalibrationTool
         private void InitializeWriteDataViewModel()
         {
             writer = new WriteDataViewModel();
-
+            writer.SendVoltCommand = new RelayCommand(o =>
+            {
+                if (string.IsNullOrWhiteSpace(writer.VoltCommand)) return;
+                Send(CommunicationDataType.ASCII, writer.VoltCommand);
+                currentAction = ActionType.VOLT;
+            });
+            writer.SendKCommand = new RelayCommand(o =>
+            {
+                if (string.IsNullOrWhiteSpace(writer.KCommand)) return;
+                Send(CommunicationDataType.ASCII, writer.KCommand);
+                currentAction = ActionType.K;
+            });
+            writer.SetGasCommand = new RelayCommand(o =>
+            {
+                if (writer.Range <= 0) return;
+                Send(CommunicationDataType.ASCII, writer.GetGasCommand());
+                currentAction = ActionType.GAS;
+            });
             WriteDataTabItem.DataContext = writer;
         }
         #endregion
@@ -113,6 +128,9 @@ namespace CalibrationTool
                 switch (currentAction)
                 {
                     case ActionType.CALI:
+                    case ActionType.VOLT:
+                    case ActionType.K:
+                    case ActionType.GAS:
                         ResolveStringData();
                         break;
                     case ActionType.DEBUG:
@@ -121,13 +139,16 @@ namespace CalibrationTool
                     case ActionType.READ_FLOW:
                         ResolveFlowData();
                         break;
+                    case ActionType.Custom:
+                        ResolveCustomData();
+                        break;
                     default:
                         return;
                 }
             }
             catch (Exception ex)
             {
-                statusViewModel.Status = ex.Message;
+                statusVm.Status = ex.Message;
             }
         }
 
@@ -139,14 +160,9 @@ namespace CalibrationTool
         #region 串口数据发送
         private void Send(CommunicationDataType type, object data)
         {
-            if (!serialPort.IsOpen)
-            {
-                statusViewModel.ShowStatus("串口未打开");
-                return;
-            }
-
             try
             {
+                serialVm.TryToOpenPort();
                 switch (type)
                 {
                     case CommunicationDataType.ASCII:
@@ -162,8 +178,13 @@ namespace CalibrationTool
             }
             catch(Exception e)
             {
-                statusViewModel.Status = e.Message;
+                statusVm.Status = e.Message;
             }
+        }
+
+        private void SendCustomData()
+        {
+
         }
         #endregion
 
@@ -193,6 +214,11 @@ namespace CalibrationTool
             serialPort.Read(sourceData, 0, count);
             double resolvedData = flowResolve.Resolve(sourceData);
             main.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
+        }
+
+        private void ResolveCustomData()
+        {
+
         }
         #endregion
     }

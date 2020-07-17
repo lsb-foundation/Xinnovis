@@ -79,7 +79,7 @@
     <Compile Include="Models\CommunicationDataType.cs" />
     <Compile Include="ResolveUtils\IResolve.cs" />
     <Compile Include="Models\UnitCode.cs" />
-    <Compile Include="Utils\ConfigHelper.cs" />
+    <Compile Include="Utils\EnumToBoolConverter.cs" />
     <Compile Include="ViewModels\ReadDataViewModel.cs" />
     <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\StatusBarViewModel.cs" />

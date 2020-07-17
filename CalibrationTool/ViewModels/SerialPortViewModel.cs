@@ -5,6 +5,7 @@ using System.Configuration;
 using System.IO.Ports;
 using System.Linq;
 using System.Management;
+using CalibrationTool.Models;
 using CommonLib.Mvvm;
 
 namespace CalibrationTool.ViewModels
@@ -102,6 +103,30 @@ namespace CalibrationTool.ViewModels
         {
             StopBits.None, StopBits.One, StopBits.OnePointFive, StopBits.Two
         };
+
+        //自动换行
+        private bool _autoAddNewLine = true;
+        public bool AutoAddNewLine
+        {
+            get => _autoAddNewLine;
+            set => SetProperty(ref _autoAddNewLine, value);
+        }
+
+        //接收类型：ASCII/Hex
+        private CommunicationDataType _receivedType = CommunicationDataType.ASCII;
+        public CommunicationDataType ReceivedType
+        {
+            get => _receivedType;
+            set => SetProperty(ref _receivedType, value);
+        }
+
+        //发送类型：ASCII/Hex
+        private CommunicationDataType _sendType = CommunicationDataType.ASCII;
+        public CommunicationDataType SendType
+        {
+            get => _sendType;
+            set => SetProperty(ref _sendType, value);
+        }
         #endregion
 
         #region Command
@@ -121,6 +146,22 @@ namespace CalibrationTool.ViewModels
                 serialPort = new SerialPort();
             }
             return serialPort;
+        }
+
+        public void TryToOpenPort()
+        {
+            try
+            {
+                if (!serialPort.IsOpen)
+                {
+                    serialPort.Open();
+                    RaiseProperty(nameof(OpenOrCloseString));
+                }
+            }
+            catch(Exception e)
+            {
+                MessageHandler?.Invoke("端口错误：" + e.Message);
+            }
         }
         #endregion
 
@@ -151,7 +192,7 @@ namespace CalibrationTool.ViewModels
             }
             catch (Exception e)
             {
-                MessageHandler?.Invoke(e.Message);
+                MessageHandler?.Invoke("端口错误：" + e.Message);
             }
         }
 

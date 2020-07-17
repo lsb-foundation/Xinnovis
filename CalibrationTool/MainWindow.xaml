@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CalibrationTool"
         xmlns:models="clr-namespace:CalibrationTool.Models"
+        xmlns:utils="clr-namespace:CalibrationTool.Utils"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d"
         pu:WindowXCaption.Background="#E4E8EB"
-        Title="MFD校准工具" Height="800" Width="800">
+        Title="MFD校准工具" Height="720" Width="1080">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <!--<Setter Property="Background" Value="#C8009BFF"/>-->
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="8,8,8,0"/>
+            <Setter Property="Margin" Value="4,4,4,0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="pu:ButtonHelper.ButtonStyle" Value="Standard"/>
             <Setter Property="pu:ButtonHelper.CornerRadius" Value="5"/>
@@ -22,7 +23,7 @@
             <Setter Property="pu:IconHelper.FontFamily" Value="{StaticResource FontAwesome}"/>
         </Style>
         <Style x:Key="LargerTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="8,8,8,0"/>
+            <Setter Property="Margin" Value="4"/>
             <Setter Property="VerticalContentAlignment" Value="Top"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
@@ -31,17 +32,17 @@
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
         </Style>
         <Style x:Key="NormalTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="8,4,8,0"/>
+            <Setter Property="Margin" Value="4,4,4,0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="pu:TextBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
         </Style>
         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
-            <Setter Property="Margin" Value="8,4,0,0"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
         </Style>
         <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-            <Setter Property="Margin" Value="8,4,8,0"/>
+            <Setter Property="Margin" Value="4,4,4,0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="SelectedIndex" Value="1"/>
             <Setter Property="pu:ComboBoxHelper.CornerRadius" Value="5"/>
@@ -54,6 +55,13 @@
             <Setter Property="pu:GroupBoxHelper.IsSplitLineVisible" Value="True"/>
             <!--<Setter Property="pu:GroupBoxHelper.ShadowColor" Value="LightGray"/>-->
         </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <Style TargetType="RadioButton" BasedOn="{StaticResource {x:Type RadioButton}}">
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <utils:EnumToBoolConverter x:Key="EnumToBoolConverter"/>
     </Window.Resources>
     
     <DockPanel Background="#E4E8EB">
@@ -78,7 +86,7 @@
             </Grid.ColumnDefinitions>
             
             <!--左侧Tab-->
-            <TabControl MinWidth="200" Margin="8"
+            <TabControl Margin="8,4,4,4"
                         pu:TabControlHelper.TabControlStyle="Standard">
                 <TabItem Header="端口" Name="SerialPortTabItem">
                     <StackPanel Orientation="Vertical">
@@ -95,8 +103,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       HorizontalContentAlignment="Center">
+                                <Label Grid.Row="0" Grid.Column="0">
                                     串口
                                 </Label>
                                 <ComboBox Grid.Row="0" Grid.Column="1"
@@ -104,8 +111,7 @@
                                           SelectedIndex="0"
                                           SelectedItem="{Binding PortName}">
                                 </ComboBox>
-                                <Label Grid.Row="1" Grid.Column="0"
-                                       HorizontalContentAlignment="Center">
+                                <Label Grid.Row="1" Grid.Column="0">
                                     波特率
                                 </Label>
                                 <ComboBox Grid.Row="1" Grid.Column="1"
@@ -113,8 +119,7 @@
                                           SelectedIndex="0"
                                           SelectedItem="{Binding BaudRate}">
                                 </ComboBox>
-                                <Label Grid.Row="2" Grid.Column="0"
-                                       HorizontalContentAlignment="Center">
+                                <Label Grid.Row="2" Grid.Column="0">
                                     数据位
                                 </Label>
                                 <ComboBox Grid.Row="2" Grid.Column="1"
@@ -122,8 +127,7 @@
                                           SelectedIndex="0"
                                           SelectedItem="{Binding DataBits}">
                                 </ComboBox>
-                                <Label Grid.Row="3" Grid.Column="0"
-                                       HorizontalContentAlignment="Center">
+                                <Label Grid.Row="3" Grid.Column="0">
                                     校验位
                                 </Label>
                                 <ComboBox Grid.Row="3" Grid.Column="1"
@@ -131,8 +135,7 @@
                                           SelectedIndex="0"
                                           SelectedItem="{Binding Parity}">
                                 </ComboBox>
-                                <Label Grid.Row="4" Grid.Column="0"
-                                       HorizontalContentAlignment="Center">
+                                <Label Grid.Row="4" Grid.Column="0">
                                     停止位
                                 </Label>
                                 <ComboBox Grid.Row="4" Grid.Column="1"
@@ -145,16 +148,20 @@
                         <GroupBox Grid.Row="5" Grid.ColumnSpan="2" 
                                   Header="接收设置">
                             <StackPanel>
-                                <RadioButton Content="ASCII"/>
-                                <RadioButton Content="Hex"/>
-                                <CheckBox Content="自动换行"/>
+                                <RadioButton IsChecked="{Binding Path=ReceivedType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:CommunicationDataType.ASCII}}"
+                                             Content="ASCII"/>
+                                <RadioButton IsChecked="{Binding Path=ReceivedType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:CommunicationDataType.Hex}}"
+                                             Content="Hex"/>
+                                <CheckBox Content="自动换行" IsChecked="{Binding AutoAddNewLine}"/>
                             </StackPanel>
                         </GroupBox>
                         <GroupBox Grid.Row="6" Grid.ColumnSpan="2" 
                                   Header="发送设置">
                             <StackPanel>
-                                <RadioButton Content="ASCII"/>
-                                <RadioButton Content="Hex"/>
+                                <RadioButton IsChecked="{Binding Path=SendType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:CommunicationDataType.ASCII}}"
+                                             Content="ASCII"/>
+                                <RadioButton IsChecked="{Binding Path=SendType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:CommunicationDataType.Hex}}"
+                                             Content="Hex"/>
                             </StackPanel>
                         </GroupBox>
                         <Button Grid.Row="7" Grid.ColumnSpan="2"
@@ -288,22 +295,22 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Name="DisplayTextBox" Margin="8"
+                <TextBox Name="DisplayTextBox"
                          IsReadOnly="True"
                          Text="{Binding ReceivedData, Mode=OneWay}"
                          TextChanged="DisplayTextBox_TextChanged"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                 <StackPanel Orientation="Vertical" Grid.Column="1">
                     <Button Command="{Binding ClearDisplayCommand}"
-                            Width="120"
+                            Width="100"
                             pu:ButtonHelper.Icon="&#xf014;">清空</Button>
                     <Button Command="{Binding CopyDisplayContentCommand}"
-                            Width="120"
+                            Width="100"
                             pu:ButtonHelper.Icon="&#xf0ea;">复制</Button>
                 </StackPanel>
-                <TextBox Grid.Row="1" Height="100" Margin="8"
+                <TextBox Grid.Row="1" Height="100"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                <Button Grid.Row="1" Grid.Column="1" Height="50" Width="120"
+                <Button Grid.Row="1" Grid.Column="1" Height="50" Width="100"
                         pu:ButtonHelper.Icon="&#xf1d8;">发送</Button>
             </Grid>
         </Grid>
