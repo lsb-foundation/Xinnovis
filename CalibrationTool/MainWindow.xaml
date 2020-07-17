@@ -4,52 +4,58 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CalibrationTool"
+        xmlns:models="clr-namespace:CalibrationTool.Models"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
-        mc:Ignorable="d" Closed="Window_Closed"
+        mc:Ignorable="d"
         pu:WindowXCaption.Background="#E4E8EB"
-        Title="MFD校准工具" Height="600" Width="800">
+        Title="MFD校准工具" Height="800" Width="800">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="#C8009BFF"/>
+            <!--<Setter Property="Background" Value="#C8009BFF"/>-->
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Margin" Value="8,8,8,0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="pu:ButtonHelper.ButtonStyle" Value="Standard"/>
-            <Setter Property="pu:ButtonHelper.CornerRadius" Value="6"/>
+            <Setter Property="pu:ButtonHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:ButtonHelper.HoverBrush" Value="#009BFF"/>
             <Setter Property="pu:ButtonHelper.ClickStyle" Value="Sink"/>
             <Setter Property="pu:IconHelper.FontFamily" Value="{StaticResource FontAwesome}"/>
         </Style>
         <Style x:Key="LargerTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="8,4,8,0"/>
-            <Setter Property="pu:TextBoxHelper.CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="8,8,8,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="pu:TextBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
         </Style>
         <Style x:Key="NormalTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Margin" Value="8,4,8,0"/>
             <Setter Property="Height" Value="30"/>
-            <Setter Property="pu:TextBoxHelper.CornerRadius" Value="6"/>
+            <Setter Property="pu:TextBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
         </Style>
         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
-            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Margin" Value="8,4,0,0"/>
         </Style>
         <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
             <Setter Property="Margin" Value="8,4,8,0"/>
             <Setter Property="Height" Value="30"/>
-            <Setter Property="pu:ComboBoxHelper.CornerRadius" Value="6"/>
+            <Setter Property="SelectedIndex" Value="1"/>
+            <Setter Property="pu:ComboBoxHelper.CornerRadius" Value="5"/>
         </Style>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="pu:GroupBoxHelper.CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="8,8,8,0"/>
+            <Setter Property="pu:GroupBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:GroupBoxHelper.HeaderPadding" Value="5,6,0,6"/>
             <Setter Property="pu:GroupBoxHelper.IsSplitLineVisible" Value="True"/>
-            <Setter Property="pu:GroupBoxHelper.ShadowColor" Value="LightGray"/>
+            <!--<Setter Property="pu:GroupBoxHelper.ShadowColor" Value="LightGray"/>-->
         </Style>
     </Window.Resources>
+    
     <DockPanel Background="#E4E8EB">
         
         <!--菜单栏-->
@@ -158,67 +164,118 @@
                     </StackPanel>
                 </TabItem>
 
-                <TabItem Header="读取">
+                <TabItem Header="读取" Name="ReadDataTabItem">
                     <ScrollViewer>
                         <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
-                            <GroupBox Header="DEBUG" Name="DebugGroupBox">
-                                <StackPanel Orientation="Vertical">
-                                    <Button Command="{Binding DebugCommand}">获取信息</Button>
-                                    <Label>SN:</Label>
-                                    <TextBox Text="{Binding SN, Mode=OneWay}"
-                                 Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label>气体类型：</Label>
-                                    <TextBox Text="{Binding GasType, Mode=OneWay}"
-                                 Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label>量程范围：</Label>
-                                    <TextBox Text="{Binding Range, Mode=OneWay}"
-                                 Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label>单位：</Label>
-                                    <TextBox Text="{Binding Unit, Mode=OneWay}"
-                                 Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                </StackPanel>
+                            <GroupBox Header="DEBUG">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.ColumnSpan="2" Command="{Binding SendDebugCommand}">获取信息</Button>
+                                    <Label Grid.Row="1">SN</Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding SN, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="2">气体类型</Label>
+                                    <TextBox Grid.Row="2" Grid.Column="1" 
+                                             Text="{Binding GasType, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="3">量程范围</Label>
+                                    <TextBox Grid.Row="3" Grid.Column="1" 
+                                             Text="{Binding Range, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="4">单位</Label>
+                                    <TextBox Grid.Row="4" Grid.Column="1" 
+                                             Text="{Binding Unit, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Header="CALI">
-                                占位符
+                                <Button Command="{Binding SendCaliCommand}">发送CALI!指令</Button>
                             </GroupBox>
-                            <GroupBox Header="读流量" Name="ReadFlowGroupBox">
+                            <GroupBox Header="读流量">
                                 <StackPanel Orientation="Vertical">
                                     <CheckBox Margin="4" IsChecked="{Binding Repeat}">重复</CheckBox>
                                     <Label>时间间隔(ms):</Label>
                                     <TextBox Text="{Binding Interval}"
                                          Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Button Command="{Binding SendCommand}">发送</Button>
+                                    <Button Command="{Binding ReadFlowCommand}">发送</Button>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="写入">
-                    <StackPanel Orientation="Vertical">
-                        <Button>打开Excel文件</Button>
-                        <GroupBox Header="VOLT">
-                            <StackPanel Orientation="Vertical">
-                                <TextBox Height="100"
-                                         TextWrapping="Wrap"
-                                         VerticalScrollBarVisibility="Auto"
-                                         Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                                <Button>写入VOLT</Button>
-                            </StackPanel>
-                        </GroupBox>
-                        <GroupBox Header="K">
-                            <StackPanel Orientation="Vertical">
-                                <TextBox Height="100"
-                                         TextWrapping="Wrap"
-                                         VerticalScrollBarVisibility="Auto"
-                                         Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                                <Button>写入K</Button>
-                            </StackPanel>
-                        </GroupBox>
-                        <GroupBox Header="GAS">
-                            占位符
-                        </GroupBox>
-                    </StackPanel>
+                <TabItem Header="写入" Name="WriteDataTabItem">
+                    <ScrollViewer>
+                        <StackPanel Orientation="Vertical">
+                            <Button Command="{Binding ReadExcelCommand}">读取Excel文件</Button>
+                            <GroupBox Header="VOLT">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Height="100" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding VoltCommand}"
+                                             Style="{StaticResource LargerTextBoxStyle}"></TextBox>
+                                    <Button>写入VOLT</Button>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="K">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Height="100" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding KCommand}"
+                                             Style="{StaticResource LargerTextBoxStyle}"></TextBox>
+                                    <Button>写入K</Button>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="GAS">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>气体类型</Label>
+                                    <ComboBox Grid.Column="1" 
+                                              ItemsSource="{Binding GasTypeCodeCollection, Mode=OneWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:GasTypeCode}">
+                                                <TextBlock Text="{Binding GasName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Label Grid.Row="1">量程</Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="2">单位</Label>
+                                    <ComboBox Grid.Row="2" Grid.Column="1" 
+                                              ItemsSource="{Binding UnitCodeCollection, Mode=OneWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:UnitCode}">
+                                                <TextBlock Text="{Binding Unit}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Button Grid.Row="3" Grid.ColumnSpan="2"
+                                            Command="{Binding SetGasCommand}">写入GAS信息</Button>
+                                </Grid>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
             
@@ -234,20 +291,19 @@
                 <TextBox Name="DisplayTextBox" Margin="8"
                          IsReadOnly="True"
                          Text="{Binding ReceivedData, Mode=OneWay}"
-                         VerticalScrollBarVisibility="Auto"
                          TextChanged="DisplayTextBox_TextChanged"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                 <StackPanel Orientation="Vertical" Grid.Column="1">
                     <Button Command="{Binding ClearDisplayCommand}"
-                            Width="150"
+                            Width="120"
                             pu:ButtonHelper.Icon="&#xf014;">清空</Button>
                     <Button Command="{Binding CopyDisplayContentCommand}"
-                            Width="150"
+                            Width="120"
                             pu:ButtonHelper.Icon="&#xf0ea;">复制</Button>
                 </StackPanel>
                 <TextBox Grid.Row="1" Height="100" Margin="8"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                <Button Grid.Row="1" Grid.Column="1" Height="50" Width="150"
+                <Button Grid.Row="1" Grid.Column="1" Height="50" Width="120"
                         pu:ButtonHelper.Icon="&#xf1d8;">发送</Button>
             </Grid>
         </Grid>

@@ -28,11 +28,11 @@ namespace CalibrationTool
     public partial class MainWindow : WindowX
     {
         #region ViewModel定义
-        private MainWindowViewModel mainViewModel;
+        private MainWindowViewModel main;
         private SerialPortViewModel serialPortViewModel;
-        private DebugViewModel debugViewModel;
-        private ReadFlowViewModel readFlowViewModel;
-        private StatusBarViewModel statusBarViewModel;
+        private ReadDataViewModel reader;
+        private WriteDataViewModel writer;
+        private StatusBarViewModel statusViewModel;
         #endregion
 
         private SerialPort serialPort;
@@ -44,8 +44,8 @@ namespace CalibrationTool
             InitializeMainViewModel();
             InitializeStatusBarViewModel();
             InitializeSerialPortViewModel();
-            InitializeReadFlowViewModel();
-            InitializeDebugViewModel();
+            InitializeReadDataViewModel();
+            InitializeWriteDataViewModel();
         }
 
         #region 初始化ViewModel
@@ -54,42 +54,50 @@ namespace CalibrationTool
             serialPortViewModel = new SerialPortViewModel();
             serialPort = serialPortViewModel.GetSerialPortInstance();
             serialPort.DataReceived += SerialPort_DataReceived;
-            serialPortViewModel.MessageHandler = message => statusBarViewModel.ShowStatus(message);
+            serialPortViewModel.MessageHandler = message => statusViewModel.ShowStatus(message);
             SerialPortTabItem.DataContext = serialPortViewModel;
-        }
-
-        private void InitializeReadFlowViewModel()
-        {
-            readFlowViewModel = new ReadFlowViewModel(() => 
-            {
-                Send(CommunicationDataType.Hex, new byte[1] { 0x90 });
-                currentAction = ActionType.READ_FLOW;
-            });
-            ReadFlowGroupBox.DataContext = readFlowViewModel;
         }
 
         private void InitializeMainViewModel()
         {
-            mainViewModel = new MainWindowViewModel();
-            ContentGrid.DataContext = mainViewModel;
+            main = new MainWindowViewModel();
+            ContentGrid.DataContext = main;
         }
 
         private void InitializeStatusBarViewModel()
         {
-            statusBarViewModel = new StatusBarViewModel();
-            AppStatusBar.DataContext = statusBarViewModel;
+            statusViewModel = new StatusBarViewModel();
+            AppStatusBar.DataContext = statusViewModel;
         }
 
-        private void InitializeDebugViewModel()
+        private void InitializeReadDataViewModel()
         {
-            debugViewModel = new DebugViewModel();
-            debugViewModel.DebugCommand = new RelayCommand(
-                o => 
+            reader = new ReadDataViewModel();
+            reader.SendDebugCommand = new RelayCommand(
+                o =>
                 {
                     Send(CommunicationDataType.ASCII, "DEBUG!");
                     currentAction = ActionType.DEBUG;
                 });
-            DebugGroupBox.DataContext = debugViewModel;
+            reader.SendCaliCommand = new RelayCommand(
+                o =>
+                {
+                    Send(CommunicationDataType.ASCII, "CALI!");
+                    currentAction = ActionType.CALI;
+                });
+            reader.SetReadFlowCommand(() =>
+            {
+                Send(CommunicationDataType.Hex, new byte[1] { 0x90 });
+                currentAction = ActionType.READ_FLOW;
+            });
+            ReadDataTabItem.DataContext = reader;
+        }
+
+        private void InitializeWriteDataViewModel()
+        {
+            writer = new WriteDataViewModel();
+
+            WriteDataTabItem.DataContext = writer;
         }
         #endregion
 
@@ -119,7 +127,7 @@ namespace CalibrationTool
             }
             catch (Exception ex)
             {
-                statusBarViewModel.Status = ex.Message;
+                statusViewModel.Status = ex.Message;
             }
         }
 
@@ -133,7 +141,7 @@ namespace CalibrationTool
         {
             if (!serialPort.IsOpen)
             {
-                statusBarViewModel.ShowStatus("串口未打开");
+                statusViewModel.ShowStatus("串口未打开");
                 return;
             }
 
@@ -154,7 +162,7 @@ namespace CalibrationTool
             }
             catch(Exception e)
             {
-                statusBarViewModel.Status = e.Message;
+                statusViewModel.Status = e.Message;
             }
         }
         #endregion
@@ -165,7 +173,7 @@ namespace CalibrationTool
             IResolve<string, string> strResolve = new StringDataResolve();
             string sourceData = serialPort.ReadLine();
             string resolvedData = strResolve.Resolve(sourceData);
-            mainViewModel.AppendStringToBuilder(resolvedData);
+            main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
         }
 
         private void ResolveDebugData()
@@ -173,8 +181,8 @@ namespace CalibrationTool
             IResolve<string, KeyValuePair<string, string>> debugResolve = new DebugDataResolve();
             string sourceData = serialPort.ReadLine();
             KeyValuePair<string, string> resolvedData = debugResolve.Resolve(sourceData);
-            mainViewModel.AppendStringToBuilder(string.Format("{0}: {1}{2}", resolvedData.Key, resolvedData.Value, Environment.NewLine));
-            debugViewModel.SetDataProperty(resolvedData);
+            main.AppendStringToBuilder(string.Format("{0}: {1}{2}", resolvedData.Key, resolvedData.Value, Environment.NewLine));
+            reader.SetDebugData(resolvedData);
         }
 
         private void ResolveFlowData()
@@ -184,13 +192,8 @@ namespace CalibrationTool
             byte[] sourceData = new byte[count];
             serialPort.Read(sourceData, 0, count);
             double resolvedData = flowResolve.Resolve(sourceData);
-            mainViewModel.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
+            main.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
         }
         #endregion
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-
-        }
     }
 }

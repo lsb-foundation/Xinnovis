@@ -80,8 +80,7 @@
     <Compile Include="ResolveUtils\IResolve.cs" />
     <Compile Include="Models\UnitCode.cs" />
     <Compile Include="Utils\ConfigHelper.cs" />
-    <Compile Include="ViewModels\DebugViewModel.cs" />
-    <Compile Include="ViewModels\ReadFlowViewModel.cs" />
+    <Compile Include="ViewModels\ReadDataViewModel.cs" />
     <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\StatusBarViewModel.cs" />
     <Compile Include="ViewModels\WriteDataViewModel.cs" />

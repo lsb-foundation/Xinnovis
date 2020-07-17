@@ -10,6 +10,7 @@ namespace CalibrationTool.Models
         GAS,
         REF_STRAT,
         REF_STOP,
-        READ_FLOW            //读流量
+        READ_FLOW,           //读流量
+        Custom               //自定义发送数据
     }
 }

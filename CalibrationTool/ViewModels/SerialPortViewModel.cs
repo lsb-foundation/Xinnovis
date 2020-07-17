@@ -11,11 +11,11 @@ namespace CalibrationTool.ViewModels
 {
     public class SerialPortViewModel : BindableBase
     {
-        #region 私有变量
+        #region Private field
         private SerialPort serialPort = new SerialPort();
         #endregion
 
-        #region 构造函数
+        #region Constructions
         public SerialPortViewModel()
         {
             InitializeSerialPortNameCollection();
@@ -23,7 +23,7 @@ namespace CalibrationTool.ViewModels
         }
         #endregion
 
-        #region 属性定义
+        #region Properties
         public string PortName
         {
             get => serialPort.PortName;
@@ -80,18 +80,7 @@ namespace CalibrationTool.ViewModels
         {
             get => serialPort.IsOpen ? "关闭" : "打开";
         }
-        #endregion
 
-        #region Command定义
-        public RelayCommand OpenOrCloseCommand { get; set; }
-
-        /// <summary>
-        /// 将该类中所有产生的消息转交给外部处理
-        /// </summary>
-        public Action<string> MessageHandler { get; set; }
-        #endregion
-
-        #region 默认列表定义
         public ObservableCollection<string> PortNameCollection { get; set; } = new ObservableCollection<string>();
 
         public ObservableCollection<int> BaudRateCollection { get; set; } = new ObservableCollection<int>()
@@ -115,7 +104,16 @@ namespace CalibrationTool.ViewModels
         };
         #endregion
 
-        #region public方法
+        #region Command
+        public RelayCommand OpenOrCloseCommand { get; set; }
+
+        /// <summary>
+        /// 将该类中所有产生的消息转交给外部处理
+        /// </summary>
+        public Action<string> MessageHandler { get; set; }
+        #endregion
+
+        #region Public methods
         public SerialPort GetSerialPortInstance()
         {
             if(serialPort == null)
@@ -126,7 +124,7 @@ namespace CalibrationTool.ViewModels
         }
         #endregion
 
-        #region private方法
+        #region Private methods
         private void InitializeSerialPortNameCollection()
         {
             foreach(string portName in SerialPort.GetPortNames())
