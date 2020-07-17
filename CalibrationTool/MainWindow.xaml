@@ -23,7 +23,7 @@
             <Setter Property="pu:IconHelper.FontFamily" Value="{StaticResource FontAwesome}"/>
         </Style>
         <Style x:Key="LargerTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="4,4,4,8"/>
             <Setter Property="VerticalContentAlignment" Value="Top"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
@@ -258,6 +258,7 @@
                                     </Grid.ColumnDefinitions>
                                     <Label>气体类型</Label>
                                     <ComboBox Grid.Column="1" 
+                                              SelectedItem="{Binding SelectedGasTypeCode}"
                                               ItemsSource="{Binding GasTypeCodeCollection, Mode=OneWay}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type models:GasTypeCode}">
@@ -267,9 +268,11 @@
                                     </ComboBox>
                                     <Label Grid.Row="1">量程</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding Range}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                     <Label Grid.Row="2">单位</Label>
                                     <ComboBox Grid.Row="2" Grid.Column="1" 
+                                              SelectedItem="{Binding SelectedUnitCode}"
                                               ItemsSource="{Binding UnitCodeCollection, Mode=OneWay}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type models:UnitCode}">

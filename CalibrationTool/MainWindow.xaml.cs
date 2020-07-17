@@ -19,6 +19,7 @@ using CommonLib.Communication;
 using CommonLib.Mvvm;
 using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;
+using System.Collections.Specialized;
 
 namespace CalibrationTool
 {
@@ -192,9 +193,14 @@ namespace CalibrationTool
         private void ResolveStringData()
         {
             IResolve<string, string> strResolve = new StringDataResolve();
-            string sourceData = serialPort.ReadLine();
-            string resolvedData = strResolve.Resolve(sourceData);
-            main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
+            //string sourceData = serialPort.ReadLine();
+            //string resolvedData = strResolve.Resolve(sourceData);
+            //main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
+            int count = serialPort.BytesToRead;
+            byte[] data = new byte[count];
+            serialPort.Read(data, 0, count);
+            string sourceData = Encoding.Default.GetString(data);
+            main.AppendStringToBuilder(sourceData.Trim() + Environment.NewLine);
         }
 
         private void ResolveDebugData()
