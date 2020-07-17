@@ -71,16 +71,20 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\ActionType.cs" />
-    <Compile Include="Models\ASCIIStringDataParse.cs" />
-    <Compile Include="Models\FlowDataParse.cs" />
+    <Compile Include="Models\DebugData.cs" />
+    <Compile Include="ResolveUtils\StringDataResolve.cs" />
+    <Compile Include="ResolveUtils\DebugDataResolve.cs" />
+    <Compile Include="ResolveUtils\FlowDataResolve.cs" />
     <Compile Include="Models\GasTypeCode.cs" />
     <Compile Include="Models\CommunicationDataType.cs" />
-    <Compile Include="Models\IResolve.cs" />
+    <Compile Include="ResolveUtils\IResolve.cs" />
     <Compile Include="Models\UnitCode.cs" />
     <Compile Include="Utils\ConfigHelper.cs" />
     <Compile Include="ViewModels\DebugViewModel.cs" />
     <Compile Include="ViewModels\ReadFlowViewModel.cs" />
     <Compile Include="ViewModels\SerialPortViewModel.cs" />
+    <Compile Include="ViewModels\StatusBarViewModel.cs" />
+    <Compile Include="ViewModels\WriteDataViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -128,6 +132,8 @@
       <Name>CommonLib</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Icons\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

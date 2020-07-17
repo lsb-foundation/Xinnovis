@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace CalibrationTool.Models
+namespace CalibrationTool.ResolveUtils
 {
-    public class ASCIIStringDataParse : IParse<string,string>
+    public class StringDataResolve : IResolve<string,string>
     {
         public string Resolve(string data)
         {

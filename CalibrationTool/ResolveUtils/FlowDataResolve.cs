@@ -1,12 +1,12 @@
 ﻿using CommonLib.Extensions;
 using System;
 
-namespace CalibrationTool.Models
+namespace CalibrationTool.ResolveUtils
 {
     /// <summary>
     /// 解析流量数据
     /// </summary>
-    public class FlowDataParse : IParse<byte[], double>
+    public class FlowDataResolve : IResolve<byte[], double>
     {
         public double Resolve(byte[] data)
         {

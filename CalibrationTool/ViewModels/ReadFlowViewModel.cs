@@ -1,5 +1,7 @@
 ﻿using CommonLib.Mvvm;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CalibrationTool.ViewModels
 {
@@ -16,27 +18,27 @@ namespace CalibrationTool.ViewModels
         public bool Repeat
         {
             get => _repeat;
-            set
-            {
-                SetProperty(ref _repeat, value);
-            }
+            set => SetProperty(ref _repeat, value);
         }
+
+        private CancellationTokenSource _cancel;
 
         public RelayCommand SendCommand { get; set; }
 
-        public ReadFlowViewModel()
+        public ReadFlowViewModel(Action send)
         {
-            
-        }
-
-        private void SendOnce()
-        {
-
-        }
-
-        private void SendRepeat()
-        {
-            
+            _cancel = new CancellationTokenSource();
+            SendCommand = new RelayCommand(
+                o => Task.Run(async () =>
+                {
+                    if (_repeat && _interval <= 0) return;
+                    do
+                    {
+                        send?.Invoke();
+                        await Task.Delay(_interval);
+                    } while (_repeat);
+                }, _cancel.Token)
+            ); 
         }
     }
 }

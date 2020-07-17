@@ -17,19 +17,22 @@ using CalibrationTool.ViewModels;
 using CalibrationTool.Models;
 using CommonLib.Communication;
 using CommonLib.Mvvm;
+using CalibrationTool.ResolveUtils;
+using Panuon.UI.Silver;
 
 namespace CalibrationTool
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : WindowX
     {
         #region ViewModel定义
         private MainWindowViewModel mainViewModel;
         private SerialPortViewModel serialPortViewModel;
         private DebugViewModel debugViewModel;
         private ReadFlowViewModel readFlowViewModel;
+        private StatusBarViewModel statusBarViewModel;
         #endregion
 
         private SerialPort serialPort;
@@ -39,6 +42,7 @@ namespace CalibrationTool
         {
             InitializeComponent();
             InitializeMainViewModel();
+            InitializeStatusBarViewModel();
             InitializeSerialPortViewModel();
             InitializeReadFlowViewModel();
             InitializeDebugViewModel();
@@ -50,13 +54,18 @@ namespace CalibrationTool
             serialPortViewModel = new SerialPortViewModel();
             serialPort = serialPortViewModel.GetSerialPortInstance();
             serialPort.DataReceived += SerialPort_DataReceived;
+            serialPortViewModel.MessageHandler = message => statusBarViewModel.ShowStatus(message);
             SerialPortTabItem.DataContext = serialPortViewModel;
         }
 
         private void InitializeReadFlowViewModel()
         {
-            readFlowViewModel = new ReadFlowViewModel();
-            ReadFlowTabItem.DataContext = readFlowViewModel;
+            readFlowViewModel = new ReadFlowViewModel(() => 
+            {
+                Send(CommunicationDataType.Hex, new byte[1] { 0x90 });
+                currentAction = ActionType.READ_FLOW;
+            });
+            ReadFlowGroupBox.DataContext = readFlowViewModel;
         }
 
         private void InitializeMainViewModel()
@@ -65,12 +74,22 @@ namespace CalibrationTool
             ContentGrid.DataContext = mainViewModel;
         }
 
+        private void InitializeStatusBarViewModel()
+        {
+            statusBarViewModel = new StatusBarViewModel();
+            AppStatusBar.DataContext = statusBarViewModel;
+        }
+
         private void InitializeDebugViewModel()
         {
             debugViewModel = new DebugViewModel();
             debugViewModel.DebugCommand = new RelayCommand(
-                o => Send(CommunicationDataType.ASCII, "DEBUG!"));
-            DebugTabItem.DataContext = debugViewModel;
+                o => 
+                {
+                    Send(CommunicationDataType.ASCII, "DEBUG!");
+                    currentAction = ActionType.DEBUG;
+                });
+            DebugGroupBox.DataContext = debugViewModel;
         }
         #endregion
 
@@ -86,11 +105,13 @@ namespace CalibrationTool
                 switch (currentAction)
                 {
                     case ActionType.CALI:
+                        ResolveStringData();
+                        break;
                     case ActionType.DEBUG:
-                        IParse<string, string> asciiParse = new ASCIIStringDataParse();
-                        string sourceData = serialPort.ReadLine();
-                        string parsedData = asciiParse.Resolve(sourceData);
-                        mainViewModel.AppendStringToBuilder(parsedData);
+                        ResolveDebugData();
+                        break;
+                    case ActionType.READ_FLOW:
+                        ResolveFlowData();
                         break;
                     default:
                         return;
@@ -98,7 +119,7 @@ namespace CalibrationTool
             }
             catch (Exception ex)
             {
-                mainViewModel.Status = ex.Message;
+                statusBarViewModel.Status = ex.Message;
             }
         }
 
@@ -110,15 +131,22 @@ namespace CalibrationTool
         #region 串口数据发送
         private void Send(CommunicationDataType type, object data)
         {
+            if (!serialPort.IsOpen)
+            {
+                statusBarViewModel.ShowStatus("串口未打开");
+                return;
+            }
+
             try
             {
                 switch (type)
                 {
                     case CommunicationDataType.ASCII:
-                        SendASCIIString(data as string);
+                        serialPort.Write(data as string);
                         break;
                     case CommunicationDataType.Hex:
-                        SendByteArray(data as byte[]);
+                        byte[] arrayToSend = data as byte[];
+                        serialPort.Write(arrayToSend, 0, arrayToSend.Length);
                         break;
                     default:
                         return;
@@ -126,28 +154,37 @@ namespace CalibrationTool
             }
             catch(Exception e)
             {
-                mainViewModel.Status = e.Message;
+                statusBarViewModel.Status = e.Message;
             }
         }
+        #endregion
 
-        private void SendASCIIString(string strToSend)
+        #region 数据解析
+        private void ResolveStringData()
         {
-            if (!serialPort.IsOpen)
-                serialPort.Open();
-            serialPort.Write(strToSend);
+            IResolve<string, string> strResolve = new StringDataResolve();
+            string sourceData = serialPort.ReadLine();
+            string resolvedData = strResolve.Resolve(sourceData);
+            mainViewModel.AppendStringToBuilder(resolvedData);
         }
 
-        private void SendByteArray(byte[] arrayToSend)
+        private void ResolveDebugData()
         {
-            if (!serialPort.IsOpen)
-                serialPort.Open();
-            serialPort.Write(arrayToSend, 0, arrayToSend.Length);
+            IResolve<string, KeyValuePair<string, string>> debugResolve = new DebugDataResolve();
+            string sourceData = serialPort.ReadLine();
+            KeyValuePair<string, string> resolvedData = debugResolve.Resolve(sourceData);
+            mainViewModel.AppendStringToBuilder(string.Format("{0}: {1}{2}", resolvedData.Key, resolvedData.Value, Environment.NewLine));
+            debugViewModel.SetDataProperty(resolvedData);
         }
 
-        private void DebugButton_Clicked(object sender, RoutedEventArgs e)
+        private void ResolveFlowData()
         {
-            Send(CommunicationDataType.ASCII, "DEBUG!");
-            currentAction = ActionType.DEBUG;
+            IResolve<byte[], double> flowResolve = new FlowDataResolve();
+            int count = serialPort.BytesToRead;
+            byte[] sourceData = new byte[count];
+            serialPort.Read(sourceData, 0, count);
+            double resolvedData = flowResolve.Resolve(sourceData);
+            mainViewModel.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
         }
         #endregion
 

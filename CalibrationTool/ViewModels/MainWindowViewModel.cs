@@ -12,17 +12,17 @@ namespace CalibrationTool.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private string _status;
-        public string Status
-        {
-            get => _status;
-            set => SetProperty(ref _status, value);
-        }
-
         private StringBuilder builder = new StringBuilder();
         public string ReceivedData
         {
             get => builder.ToString();
+        }
+
+        private string _codeToSend;
+        public string CodeToSend
+        {
+            get => _codeToSend;
+            set => SetProperty(ref _codeToSend, value);
         }
 
         public RelayCommand ClearDisplayCommand { get; set; }

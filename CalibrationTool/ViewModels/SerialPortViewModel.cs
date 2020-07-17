@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.IO.Ports;
 using System.Linq;
 using System.Management;
@@ -10,12 +11,17 @@ namespace CalibrationTool.ViewModels
 {
     public class SerialPortViewModel : BindableBase
     {
+        #region 私有变量
         private SerialPort serialPort = new SerialPort();
+        #endregion
 
+        #region 构造函数
         public SerialPortViewModel()
         {
             InitializeSerialPortNameCollection();
+            OpenOrCloseCommand = new RelayCommand(o => OpenOrClosePort());
         }
+        #endregion
 
         #region 属性定义
         public string PortName
@@ -69,6 +75,20 @@ namespace CalibrationTool.ViewModels
                 RaiseProperty();
             }
         }
+
+        public string OpenOrCloseString
+        {
+            get => serialPort.IsOpen ? "关闭" : "打开";
+        }
+        #endregion
+
+        #region Command定义
+        public RelayCommand OpenOrCloseCommand { get; set; }
+
+        /// <summary>
+        /// 将该类中所有产生的消息转交给外部处理
+        /// </summary>
+        public Action<string> MessageHandler { get; set; }
         #endregion
 
         #region 默认列表定义
@@ -95,6 +115,7 @@ namespace CalibrationTool.ViewModels
         };
         #endregion
 
+        #region public方法
         public SerialPort GetSerialPortInstance()
         {
             if(serialPort == null)
@@ -103,12 +124,36 @@ namespace CalibrationTool.ViewModels
             }
             return serialPort;
         }
+        #endregion
 
+        #region private方法
         private void InitializeSerialPortNameCollection()
         {
             foreach(string portName in SerialPort.GetPortNames())
             {
                 PortNameCollection.Add(portName);
+            }
+        }
+
+        private void OpenOrClosePort()
+        {
+            try
+            {
+                if (serialPort.IsOpen)
+                {
+                    serialPort.Close();
+                    MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
+                }
+                else
+                {
+                    serialPort.Open();
+                    MessageHandler?.Invoke($"端口{serialPort.PortName}已打开");
+                }
+                RaiseProperty(nameof(OpenOrCloseString));
+            }
+            catch (Exception e)
+            {
+                MessageHandler?.Invoke(e.Message);
             }
         }
 
@@ -134,5 +179,6 @@ namespace CalibrationTool.ViewModels
             }
             return fullNames.ToArray();
         }
+        #endregion
     }
 }
