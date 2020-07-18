@@ -20,6 +20,7 @@ using CommonLib.Mvvm;
 using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;
 using System.Collections.Specialized;
+using CommonLib.Extensions;
 
 namespace CalibrationTool
 {
@@ -62,6 +63,11 @@ namespace CalibrationTool
         private void InitializeMainViewModel()
         {
             main = new MainWindowViewModel();
+            main.SendCommand = new RelayCommand(o =>
+            {
+                SendCustomData();
+                currentAction = ActionType.Custom;
+            });
             ContentGrid.DataContext = main;
         }
 
@@ -113,6 +119,7 @@ namespace CalibrationTool
                 Send(CommunicationDataType.ASCII, writer.GetGasCommand());
                 currentAction = ActionType.GAS;
             });
+            writer.MessageHandler = message => statusVm.ShowStatus(message);
             WriteDataTabItem.DataContext = writer;
         }
         #endregion
@@ -126,22 +133,25 @@ namespace CalibrationTool
         {
             try
             {
+                int count = serialPort.BytesToRead;
+                byte[] data = new byte[count];
+                serialPort.Read(data, 0, count);
                 switch (currentAction)
                 {
                     case ActionType.CALI:
                     case ActionType.VOLT:
                     case ActionType.K:
                     case ActionType.GAS:
-                        ResolveStringData();
+                        ResolveStringData(data);
                         break;
                     case ActionType.DEBUG:
-                        ResolveDebugData();
+                        ResolveDebugData(data);
                         break;
                     case ActionType.READ_FLOW:
-                        ResolveFlowData();
+                        ResolveFlowData(data);
                         break;
                     case ActionType.Custom:
-                        ResolveCustomData();
+                        ResolveCustomData(data);
                         break;
                     default:
                         return;
@@ -149,7 +159,7 @@ namespace CalibrationTool
             }
             catch (Exception ex)
             {
-                statusVm.Status = ex.Message;
+                statusVm.ShowStatus("接受数据时发生异常: " + ex.Message);
             }
         }
 
@@ -179,52 +189,64 @@ namespace CalibrationTool
             }
             catch(Exception e)
             {
-                statusVm.Status = e.Message;
+                statusVm.ShowStatus("发送数据时发生异常：" + e.Message);
             }
         }
 
         private void SendCustomData()
         {
+            if (string.IsNullOrWhiteSpace(main.CodeToSend)) return;
 
+            if (serialVm.SendType == CommunicationDataType.ASCII)
+                Send(CommunicationDataType.ASCII, main.CodeToSend);
+            else if (serialVm.SendType == CommunicationDataType.Hex)
+            {
+                byte[] bytesToSend = main.CodeToSend.HexStringToBytes();
+                Send(CommunicationDataType.Hex, bytesToSend);
+            }
         }
         #endregion
 
         #region 数据解析
-        private void ResolveStringData()
+        private void ResolveStringData(byte[] data)
         {
-            IResolve<string, string> strResolve = new StringDataResolve();
-            //string sourceData = serialPort.ReadLine();
-            //string resolvedData = strResolve.Resolve(sourceData);
-            //main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
-            int count = serialPort.BytesToRead;
-            byte[] data = new byte[count];
-            serialPort.Read(data, 0, count);
-            string sourceData = Encoding.Default.GetString(data);
-            main.AppendStringToBuilder(sourceData.Trim() + Environment.NewLine);
+            IResolve<byte[], string> strResolve = new StringDataResolve();
+            string resolvedData = strResolve.Resolve(data);
+            main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
         }
 
-        private void ResolveDebugData()
+        private void ResolveDebugData(byte[] data)
         {
-            IResolve<string, KeyValuePair<string, string>> debugResolve = new DebugDataResolve();
-            string sourceData = serialPort.ReadLine();
-            KeyValuePair<string, string> resolvedData = debugResolve.Resolve(sourceData);
+            IResolve<byte[], KeyValuePair<string, string>> debugResolve = new DebugDataResolve();
+            KeyValuePair<string, string> resolvedData = debugResolve.Resolve(data);
             main.AppendStringToBuilder(string.Format("{0}: {1}{2}", resolvedData.Key, resolvedData.Value, Environment.NewLine));
             reader.SetDebugData(resolvedData);
         }
 
-        private void ResolveFlowData()
+        private void ResolveFlowData(byte[] data)
         {
             IResolve<byte[], double> flowResolve = new FlowDataResolve();
-            int count = serialPort.BytesToRead;
-            byte[] sourceData = new byte[count];
-            serialPort.Read(sourceData, 0, count);
-            double resolvedData = flowResolve.Resolve(sourceData);
+            double resolvedData = flowResolve.Resolve(data);
             main.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
         }
 
-        private void ResolveCustomData()
+        private void ResolveCustomData(byte[] data)
         {
-
+            string result = string.Empty;
+            if (serialVm.ReceivedType == CommunicationDataType.Hex)
+                result = data.ToHexString();
+            else if(serialVm.ReceivedType == CommunicationDataType.ASCII)
+            {
+                IResolve<byte[], string> resolver = new StringDataResolve();
+                result = resolver.Resolve(data);
+            }
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                result = serialVm.AutoAddNewLine ?
+                    string.Format("{0}{1}", result.Trim(), Environment.NewLine) :
+                    result.Trim();
+                main.AppendStringToBuilder(result);
+            }
         }
         #endregion
     }

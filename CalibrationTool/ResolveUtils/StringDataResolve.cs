@@ -2,11 +2,11 @@
 
 namespace CalibrationTool.ResolveUtils
 {
-    public class StringDataResolve : IResolve<string,string>
+    public class StringDataResolve : IResolve<byte[],string>
     {
-        public string Resolve(string data)
+        public string Resolve(byte[] data)
         {
-            return Encoding.Default.GetString(Encoding.ASCII.GetBytes(data));
+            return Encoding.Default.GetString(data);
         }
     }
 }

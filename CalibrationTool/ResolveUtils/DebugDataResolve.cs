@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace CalibrationTool.ResolveUtils
 {
-    public class DebugDataResolve : IResolve<string, KeyValuePair<string,string>>
+    public class DebugDataResolve : IResolve<byte[], KeyValuePair<string,string>>
     {
-        public KeyValuePair<string,string> Resolve(string data)
+        public KeyValuePair<string,string> Resolve(byte[] data)
         {
-            string[] splitData = data.Trim().Split(':');
+            string dataStr = Encoding.Default.GetString(data);
+            string[] splitData = dataStr.Trim().Split(':');
             if (splitData.Length != 2)
                 return default;
 

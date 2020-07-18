@@ -10,7 +10,7 @@ using CommonLib.Mvvm;
 
 namespace CalibrationTool.ViewModels
 {
-    public class SerialPortViewModel : BindableBase
+    public class SerialPortViewModel : BindableBase, IMessageHandler<string>
     {
         #region Private field
         private SerialPort serialPort = new SerialPort();

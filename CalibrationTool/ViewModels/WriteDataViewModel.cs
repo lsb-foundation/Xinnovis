@@ -13,7 +13,7 @@ using Microsoft.Win32;
 
 namespace CalibrationTool.ViewModels
 {
-    public class WriteDataViewModel : BindableBase
+    public class WriteDataViewModel : BindableBase, IMessageHandler<string>
     {
         #region feild
         private readonly List<float> voltValues = new List<float>(17);
