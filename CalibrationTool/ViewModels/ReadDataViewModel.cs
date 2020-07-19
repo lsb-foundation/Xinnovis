@@ -14,7 +14,9 @@ namespace CalibrationTool.ViewModels
         #region Command
         public ICommand SendDebugCommand { get; set; }
         public ICommand SendCaliCommand { get; set; }
-        public ICommand ReadFlowCommand { get; private set; }
+        public ICommand SendReadFlowCommand { get; private set; }
+        public ICommand SendRefStartCommand { get; set; }
+        public ICommand SendRefStopCommand { get; set; }
         #endregion
 
         #region Constructed functions
@@ -25,6 +27,11 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Properties
+        public string DebugCommand { get => "DEBUG!"; }
+        public string CaliCommand { get => "CALI!"; }
+        public string RefStopCommand { get => "REF_STOP!"; }
+        public byte[] FlowCommand { get => new byte[1] { 0x90 }; }
+
         private DebugData _debugData;
         public string SN { get => _debugData.SN; }
         public string GasType { get => _debugData.GasType; }
@@ -38,11 +45,18 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _repeat, value);
         }
 
-        private int _interval;
+        private int _interval = 100;
         public int Interval
         {
             get => _interval;
             set => SetProperty(ref _interval, value);
+        }
+
+        private float _refStartValue;
+        public float RefStartValue
+        {
+            get => _refStartValue;
+            set => SetProperty(ref _refStartValue, value);
         }
         #endregion
 
@@ -74,7 +88,7 @@ namespace CalibrationTool.ViewModels
 
         public void SetReadFlowCommand(Action act)
         {
-            ReadFlowCommand = new RelayCommand(
+            SendReadFlowCommand = new RelayCommand(
                 o => Task.Run(async () =>
                 {
                     if (_repeat && _interval <= 0) return;
@@ -86,6 +100,9 @@ namespace CalibrationTool.ViewModels
                 })
             );
         }
+
+        public string GetRefStartCommand() => 
+            string.Format("REF_START:{0}!", _refStartValue);
         #endregion
 
         #region Private Methods

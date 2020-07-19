@@ -81,19 +81,29 @@ namespace CalibrationTool
         {
             reader = new ReadDataViewModel();
             reader.SendDebugCommand = new RelayCommand(o =>
-                {
-                    Send(CommunicationDataType.ASCII, "DEBUG!");
-                    currentAction = ActionType.DEBUG;
-                });
+            {
+                Send(CommunicationDataType.ASCII, reader.DebugCommand);
+                currentAction = ActionType.DEBUG;
+            });
             reader.SendCaliCommand = new RelayCommand(o =>
-                {
-                    Send(CommunicationDataType.ASCII, "CALI!");
-                    currentAction = ActionType.CALI;
-                });
+            {
+                Send(CommunicationDataType.ASCII, reader.CaliCommand);
+                currentAction = ActionType.CALI;
+            });
             reader.SetReadFlowCommand(() =>
             {
-                Send(CommunicationDataType.Hex, new byte[1] { 0x90 });
+                Send(CommunicationDataType.Hex, reader.FlowCommand);
                 currentAction = ActionType.READ_FLOW;
+            });
+            reader.SendRefStartCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.GetRefStartCommand());
+                currentAction = ActionType.REF;
+            });
+            reader.SendRefStopCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.RefStopCommand);
+                currentAction = ActionType.REF;
             });
             ReadDataTabItem.DataContext = reader;
         }
@@ -142,6 +152,7 @@ namespace CalibrationTool
                     case ActionType.VOLT:
                     case ActionType.K:
                     case ActionType.GAS:
+                    case ActionType.REF:
                         ResolveStringData(data);
                         break;
                     case ActionType.DEBUG:

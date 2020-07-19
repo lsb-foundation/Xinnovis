@@ -34,6 +34,7 @@
         <Style x:Key="NormalTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Margin" Value="4,4,4,0"/>
             <Setter Property="Height" Value="30"/>
+            <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
             <Setter Property="pu:TextBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
@@ -86,7 +87,7 @@
             </Grid.ColumnDefinitions>
             
             <!--左侧Tab-->
-            <TabControl Margin="8,4,4,4"
+            <TabControl Margin="8,8,4,8"
                         pu:TabControlHelper.TabControlStyle="Standard">
                 <TabItem Header="端口" Name="SerialPortTabItem">
                     <StackPanel Orientation="Vertical">
@@ -164,7 +165,7 @@
                                              Content="Hex"/>
                             </StackPanel>
                         </GroupBox>
-                        <Button Grid.Row="7" Grid.ColumnSpan="2"
+                        <Button Grid.Row="7" Grid.ColumnSpan="2" Margin="8,8,8,0"
                                 Content="{Binding OpenOrCloseString}"
                                 Command="{Binding OpenOrCloseCommand}">
                         </Button>
@@ -187,7 +188,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.ColumnSpan="2" Command="{Binding SendDebugCommand}">获取信息</Button>
+                                    <Button Grid.ColumnSpan="2"
+                                            Command="{Binding SendDebugCommand}">获取信息</Button>
                                     <Label Grid.Row="1">SN</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
                                              Text="{Binding SN, Mode=OneWay}"
@@ -214,9 +216,34 @@
                                     <CheckBox Margin="4" IsChecked="{Binding Repeat}">重复</CheckBox>
                                     <Label>时间间隔(ms):</Label>
                                     <TextBox Text="{Binding Interval}"
-                                         Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Button Command="{Binding ReadFlowCommand}">发送</Button>
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Button Command="{Binding SendReadFlowCommand}">发送</Button>
                                 </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="REF">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label>REF__VALUE</Label>
+                                        <TextBox Grid.Column="1" Text="{Binding RefStartValue}"
+                                                 Style="{StaticResource NormalTextBoxStyle}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Command="{Binding SendRefStartCommand}">REF__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">REF__STOP</Button>
+                                    </Grid>
+                                </Grid>
                             </GroupBox>
                         </StackPanel>
                     </ScrollViewer>
@@ -225,7 +252,7 @@
                 <TabItem Header="写入" Name="WriteDataTabItem">
                     <ScrollViewer>
                         <StackPanel Orientation="Vertical">
-                            <Button Command="{Binding ReadExcelCommand}">读取Excel文件</Button>
+                            <Button Margin="8,8,8,0" Command="{Binding ReadExcelCommand}">读取Excel文件</Button>
                             <GroupBox Header="VOLT">
                                 <StackPanel Orientation="Vertical">
                                     <TextBox Height="100" TextWrapping="Wrap"
