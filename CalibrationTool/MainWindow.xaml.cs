@@ -39,7 +39,7 @@ namespace CalibrationTool
 
         private SerialPort serialPort;
         private ActionType currentAction;
-        private bool receiving = false;     //串口正在接收数据
+        private bool receiving = false;     //串口是否正在接收数据
 
         public MainWindow()
         {
@@ -212,12 +212,19 @@ namespace CalibrationTool
         {
             if (string.IsNullOrWhiteSpace(main.CodeToSend)) return;
 
-            if (serialVm.SendType == CommunicationDataType.ASCII)
-                Send(CommunicationDataType.ASCII, main.CodeToSend);
-            else if (serialVm.SendType == CommunicationDataType.Hex)
+            try
             {
-                byte[] bytesToSend = main.CodeToSend.HexStringToBytes();
-                Send(CommunicationDataType.Hex, bytesToSend);
+                if (serialVm.SendType == CommunicationDataType.ASCII)
+                    Send(CommunicationDataType.ASCII, main.CodeToSend);
+                else if (serialVm.SendType == CommunicationDataType.Hex)
+                {
+                    byte[] bytesToSend = main.CodeToSend.HexStringToBytes();
+                    Send(CommunicationDataType.Hex, bytesToSend);
+                }
+            }
+            catch(Exception e)
+            {
+                statusVm.ShowStatus("错误：" + e.Message);
             }
         }
         #endregion

@@ -7,7 +7,7 @@
         xmlns:models="clr-namespace:CalibrationTool.Models"
         xmlns:utils="clr-namespace:CalibrationTool.Utils"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
-        mc:Ignorable="d"
+        mc:Ignorable="d" Icon="/Icons/app_icon.ico"
         pu:WindowXCaption.Background="#E4E8EB"
         Title="MFD校准工具" Height="720" Width="1080" MinHeight="360" MinWidth="720">
     <Window.Resources>
@@ -335,7 +335,7 @@
                             pu:ButtonHelper.Icon="&#xf014;">清空</Button>
                     <Button Command="{Binding CopyDisplayContentCommand}"
                             Width="100"
-                            pu:ButtonHelper.Icon="&#xf0ea;">复制</Button>
+                            pu:ButtonHelper.Icon="&#xf24d;">复制</Button>
                 </StackPanel>
                 <TextBox Grid.Row="1" Height="100"
                          Text="{Binding CodeToSend}"

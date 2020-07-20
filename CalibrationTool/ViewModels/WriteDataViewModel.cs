@@ -111,20 +111,20 @@ namespace CalibrationTool.ViewModels
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var stream = File.OpenRead(file))
+                using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var package = new ExcelPackage(stream))
                 using (var sheet = package.Workbook.Worksheets[0])
                 {
                     voltValues.Clear();
                     kValues.Clear();
-                    for(int row = 1; row <= 17; row++)
+                    for (int row = 1; row <= 17; row++)
                     {
                         string rowStr = (row + 1).ToString();
                         string voltCell = "B" + rowStr;
                         string kCell = "C" + rowStr;
                         float voltValue = Convert.ToSingle(sheet.Cells[voltCell].Value);
                         voltValues.Add(voltValue);
-                        if(row <= 16)
+                        if (row <= 16)
                         {
                             float kValue = Convert.ToSingle(sheet.Cells[kCell].Value);
                             kValues.Add(kValue);
