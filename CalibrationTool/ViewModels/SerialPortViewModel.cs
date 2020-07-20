@@ -6,6 +6,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Management;
 using CalibrationTool.Models;
+using CalibrationTool.Utils;
 using CommonLib.Mvvm;
 
 namespace CalibrationTool.ViewModels
@@ -13,12 +14,13 @@ namespace CalibrationTool.ViewModels
     public class SerialPortViewModel : BindableBase, IMessageHandler<string>
     {
         #region Private field
-        private SerialPort serialPort = new SerialPort();
+        private SerialPort serialPort;
         #endregion
 
         #region Constructions
         public SerialPortViewModel()
         {
+            InitializeSerialPort();
             InitializeSerialPortNameCollection();
             OpenOrCloseCommand = new RelayCommand(o => OpenOrClosePort());
         }
@@ -33,6 +35,7 @@ namespace CalibrationTool.ViewModels
                 if (serialPort.IsOpen)
                     serialPort.Close();
                 serialPort.PortName = value;
+                ConfigManager.Serial_PortName = value;
                 RaiseProperty();
             }
         }
@@ -43,6 +46,7 @@ namespace CalibrationTool.ViewModels
             set
             {
                 serialPort.BaudRate = value;
+                ConfigManager.Serial_BaudRate = value;
                 RaiseProperty();
             }
         }
@@ -166,6 +170,14 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Private methods
+        private void InitializeSerialPort()
+        {
+            serialPort = new SerialPort();
+            serialPort.BaudRate = ConfigManager.Serial_BaudRate;
+            if (!string.IsNullOrEmpty(ConfigManager.Serial_PortName))
+                serialPort.PortName = ConfigManager.Serial_PortName;
+        }
+
         private void InitializeSerialPortNameCollection()
         {
             foreach(string portName in SerialPort.GetPortNames())

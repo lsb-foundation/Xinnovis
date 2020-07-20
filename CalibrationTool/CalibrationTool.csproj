@@ -110,6 +110,7 @@
     <Compile Include="Models\CommunicationDataType.cs" />
     <Compile Include="ResolveUtils\IResolve.cs" />
     <Compile Include="Models\UnitCode.cs" />
+    <Compile Include="Utils\ConfigManager.cs" />
     <Compile Include="Utils\EnumToBoolConverter.cs" />
     <Compile Include="ViewModels\IMessageHandler.cs" />
     <Compile Include="ViewModels\ReadDataViewModel.cs" />

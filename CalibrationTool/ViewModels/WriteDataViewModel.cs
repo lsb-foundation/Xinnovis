@@ -99,10 +99,7 @@ namespace CalibrationTool.ViewModels
             dialog.Multiselect = false;
             if((bool)dialog.ShowDialog())
             {
-                if (dialog.CheckFileExists)
-                {
-                    ReadExcelFile(dialog.FileName);
-                }
+                ReadExcelFile(dialog.FileName);
             }
         }
 
