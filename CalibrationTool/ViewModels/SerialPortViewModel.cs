@@ -22,7 +22,11 @@ namespace CalibrationTool.ViewModels
         {
             InitializeSerialPort();
             InitializeSerialPortNameCollection();
-            OpenOrCloseCommand = new RelayCommand(o => OpenOrClosePort());
+            OpenOrCloseCommand = new RelayCommand(o =>
+            {
+                if (serialPort.IsOpen) ClosePort();
+                else TryToOpenPort();
+            });
         }
         #endregion
 
@@ -32,8 +36,7 @@ namespace CalibrationTool.ViewModels
             get => serialPort.PortName;
             set
             {
-                if (serialPort.IsOpen)
-                    serialPort.Close();
+                ClosePort();
                 serialPort.PortName = value;
                 ConfigManager.Serial_PortName = value;
                 RaiseProperty();
@@ -159,6 +162,7 @@ namespace CalibrationTool.ViewModels
                 if (!serialPort.IsOpen)
                 {
                     serialPort.Open();
+                    MessageHandler?.Invoke($"端口{serialPort.PortName}已打开");
                     RaiseProperty(nameof(OpenOrCloseString));
                 }
             }
@@ -186,25 +190,13 @@ namespace CalibrationTool.ViewModels
             }
         }
 
-        private void OpenOrClosePort()
+        private void ClosePort()
         {
-            try
+            if (serialPort.IsOpen)
             {
-                if (serialPort.IsOpen)
-                {
-                    serialPort.Close();
-                    MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
-                }
-                else
-                {
-                    serialPort.Open();
-                    MessageHandler?.Invoke($"端口{serialPort.PortName}已打开");
-                }
+                serialPort.Close();
+                MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
                 RaiseProperty(nameof(OpenOrCloseString));
-            }
-            catch (Exception e)
-            {
-                MessageHandler?.Invoke("端口错误：" + e.Message);
             }
         }
 

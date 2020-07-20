@@ -26,27 +26,16 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _status, value);
         }
 
-        private CancellationTokenSource _source;
-        private Task _task;
-
-        public StatusBarViewModel()
-        {
-            _source = new CancellationTokenSource();
-        }
-
         public void ShowStatus(string message)
         {
-            if (_task != null && !_task.IsCompleted)
-                _source.Cancel();
-
-            _task = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 _status = message;
                 RaiseProperty(nameof(Status));
-                await Task.Delay(3000);
+                await Task.Delay(2000);
                 _status = string.Empty;
                 RaiseProperty(nameof(Status));
-            }, _source.Token);
+            });
         }
     }
 
