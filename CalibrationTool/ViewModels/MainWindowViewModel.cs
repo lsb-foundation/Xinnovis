@@ -13,12 +13,6 @@ namespace CalibrationTool.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private StringBuilder builder = new StringBuilder();
-        public string ReceivedData
-        {
-            get => builder.ToString();
-        }
-
         private string _codeToSend;
         public string CodeToSend
         {
@@ -26,31 +20,14 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _codeToSend, value);
         }
 
-        public ICommand ClearDisplayCommand { get; private set; }
-        public ICommand CopyDisplayContentCommand { get; private set; }
+        public ICommand ClearDisplayCommand { get; set; }
+        public ICommand CopyDisplayContentCommand { get; set; }
         public ICommand SendCommand { get; set; }
+        public Action<string> AppendTextToDisplayAction { get; set; }
 
-        public MainWindowViewModel()
+        public void AppendTextToDisplay(string text)
         {
-            ClearDisplayCommand = new RelayCommand(obj => ClearDisplay());
-            CopyDisplayContentCommand = new RelayCommand(obj => CopyDisplayContent());
-        }
-
-        public void AppendStringToBuilder(string data)
-        {
-            builder.Append(data);
-            RaiseProperty(nameof(ReceivedData));
-        }
-
-        private void ClearDisplay()
-        {
-            builder.Clear();
-            RaiseProperty(nameof(ReceivedData));
-        }
-
-        private void CopyDisplayContent()
-        {
-            Clipboard.SetText(builder.ToString());
+            AppendTextToDisplayAction?.Invoke(text);
         }
     }
 }

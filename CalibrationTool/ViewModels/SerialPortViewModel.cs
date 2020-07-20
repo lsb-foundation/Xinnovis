@@ -101,7 +101,7 @@ namespace CalibrationTool.ViewModels
 
         public ObservableCollection<StopBits> StopBitsCollection { get; set; } = new ObservableCollection<StopBits>()
         {
-            StopBits.None, StopBits.One, StopBits.OnePointFive, StopBits.Two
+            StopBits.One, StopBits.OnePointFive, StopBits.Two
         };
 
         //自动换行

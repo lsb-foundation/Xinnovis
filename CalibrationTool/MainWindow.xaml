@@ -9,7 +9,7 @@
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d"
         pu:WindowXCaption.Background="#E4E8EB"
-        Title="MFD校准工具" Height="720" Width="1080">
+        Title="MFD校准工具" Height="720" Width="1080" MinHeight="360" MinWidth="720">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <!--<Setter Property="Background" Value="#C8009BFF"/>-->
@@ -51,6 +51,7 @@
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="8,8,8,0"/>
+            <Setter Property="Width" Value="360"/>
             <Setter Property="pu:GroupBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:GroupBoxHelper.HeaderPadding" Value="5,6,0,6"/>
             <Setter Property="pu:GroupBoxHelper.IsSplitLineVisible" Value="True"/>
@@ -82,8 +83,8 @@
         <!--内容区域-->
         <Grid>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             
             <!--左侧Tab-->
@@ -189,7 +190,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.ColumnSpan="2"
-                                            Command="{Binding SendDebugCommand}">获取信息</Button>
+                                            Command="{Binding SendDebugCommand}">发送DEBUG!</Button>
                                     <Label Grid.Row="1">SN</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
                                              Text="{Binding SN, Mode=OneWay}"
@@ -209,7 +210,7 @@
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="CALI">
-                                <Button Command="{Binding SendCaliCommand}">发送CALI!指令</Button>
+                                <Button Command="{Binding SendCaliCommand}">发送CALI!</Button>
                             </GroupBox>
                             <GroupBox Header="读流量">
                                 <StackPanel Orientation="Vertical">
@@ -220,7 +221,7 @@
                                     <Button Command="{Binding SendReadFlowCommand}">发送</Button>
                                 </StackPanel>
                             </GroupBox>
-                            <GroupBox Header="REF">
+                            <GroupBox Header="测量0~5V电压">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -231,7 +232,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label>REF__VALUE</Label>
+                                        <Label>电压(mv)</Label>
                                         <TextBox Grid.Column="1" Text="{Binding RefStartValue}"
                                                  Style="{StaticResource NormalTextBoxStyle}"/>
                                     </Grid>
@@ -240,8 +241,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendRefStartCommand}">REF__START</Button>
-                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">REF__STOP</Button>
+                                        <Button Command="{Binding SendRefStartCommand}">发送REF__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">发送REF__STOP</Button>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -255,20 +256,18 @@
                             <Button Margin="8,8,8,0" Command="{Binding ReadExcelCommand}">读取Excel文件</Button>
                             <GroupBox Header="VOLT">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBox Height="100" TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
+                                    <TextBox Height="100"
                                              Text="{Binding VoltCommand}"
                                              Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                                    <Button>写入VOLT</Button>
+                                    <Button Command="{Binding SendVoltCommand}">写入VOLT</Button>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="K">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBox Height="100" TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
+                                    <TextBox Height="100"
                                              Text="{Binding KCommand}"
                                              Style="{StaticResource LargerTextBoxStyle}"></TextBox>
-                                    <Button>写入K</Button>
+                                    <Button Command="{Binding SendKCommand}">写入K</Button>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="GAS">
@@ -327,7 +326,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Name="DisplayTextBox"
                          IsReadOnly="True"
-                         Text="{Binding ReceivedData, Mode=OneWay}"
+                         
                          TextChanged="DisplayTextBox_TextChanged"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                 <StackPanel Orientation="Vertical" Grid.Column="1">
@@ -339,8 +338,10 @@
                             pu:ButtonHelper.Icon="&#xf0ea;">复制</Button>
                 </StackPanel>
                 <TextBox Grid.Row="1" Height="100"
+                         Text="{Binding CodeToSend}"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                 <Button Grid.Row="1" Grid.Column="1" Height="50" Width="100"
+                        Command="{Binding SendCommand}"
                         pu:ButtonHelper.Icon="&#xf1d8;">发送</Button>
             </Grid>
         </Grid>

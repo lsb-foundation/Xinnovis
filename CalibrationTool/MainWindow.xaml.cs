@@ -39,6 +39,7 @@ namespace CalibrationTool
 
         private SerialPort serialPort;
         private ActionType currentAction;
+        private bool receiving = false;     //串口正在接收数据
 
         public MainWindow()
         {
@@ -63,6 +64,15 @@ namespace CalibrationTool
         private void InitializeMainViewModel()
         {
             main = new MainWindowViewModel();
+            main.AppendTextToDisplayAction = text => this.Dispatcher.Invoke(() => DisplayTextBox.AppendText(text));
+            main.ClearDisplayCommand = new RelayCommand(
+                o => this.Dispatcher.Invoke(() => DisplayTextBox.Clear()));
+            main.CopyDisplayContentCommand = new RelayCommand(
+                o => this.Dispatcher.Invoke(() =>
+                {
+                    if (string.IsNullOrWhiteSpace(DisplayTextBox.Text)) return;
+                    Clipboard.SetText(DisplayTextBox.Text);
+                }));
             main.SendCommand = new RelayCommand(o =>
             {
                 SendCustomData();
@@ -139,38 +149,32 @@ namespace CalibrationTool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private async void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            if (receiving) return;
+
+            receiving = true;
+            List<byte> receivedBytes = new List<byte>();
             try
             {
-                int count = serialPort.BytesToRead;
-                byte[] data = new byte[count];
-                serialPort.Read(data, 0, count);
-                switch (currentAction)
+                while (serialPort.BytesToRead > 0)
                 {
-                    case ActionType.CALI:
-                    case ActionType.VOLT:
-                    case ActionType.K:
-                    case ActionType.GAS:
-                    case ActionType.REF:
-                        ResolveStringData(data);
-                        break;
-                    case ActionType.DEBUG:
-                        ResolveDebugData(data);
-                        break;
-                    case ActionType.READ_FLOW:
-                        ResolveFlowData(data);
-                        break;
-                    case ActionType.Custom:
-                        ResolveCustomData(data);
-                        break;
-                    default:
-                        return;
+                    int count = serialPort.BytesToRead;
+                    byte[] data = new byte[count];
+                    serialPort.Read(data, 0, count);
+                    receivedBytes.AddRange(data);
+                    await Task.Delay(10);
                 }
+                ResolveData(receivedBytes);
             }
             catch (Exception ex)
             {
                 statusVm.ShowStatus("接受数据时发生异常: " + ex.Message);
+            }
+            finally
+            {
+                receivedBytes.Clear();
+                receiving = false;
             }
         }
 
@@ -219,26 +223,54 @@ namespace CalibrationTool
         #endregion
 
         #region 数据解析
+        private void ResolveData(IList<byte> data)
+        {
+            switch (currentAction)
+            {
+                case ActionType.CALI:
+                case ActionType.VOLT:
+                case ActionType.K:
+                case ActionType.GAS:
+                case ActionType.REF:
+                    ResolveStringData(data.ToArray());
+                    break;
+                case ActionType.DEBUG:
+                    ResolveDebugData(data.ToArray());
+                    break;
+                case ActionType.READ_FLOW:
+                    ResolveFlowData(data.ToArray());
+                    break;
+                case ActionType.Custom:
+                    ResolveCustomData(data.ToArray());
+                    break;
+                default:
+                    return;
+            }
+        }
+
         private void ResolveStringData(byte[] data)
         {
             IResolve<byte[], string> strResolve = new StringDataResolve();
             string resolvedData = strResolve.Resolve(data);
-            main.AppendStringToBuilder(resolvedData.Trim() + Environment.NewLine);
+            main.AppendTextToDisplay(resolvedData.Trim() + Environment.NewLine);
         }
 
         private void ResolveDebugData(byte[] data)
         {
-            IResolve<byte[], KeyValuePair<string, string>> debugResolve = new DebugDataResolve();
-            KeyValuePair<string, string> resolvedData = debugResolve.Resolve(data);
-            main.AppendStringToBuilder(string.Format("{0}: {1}{2}", resolvedData.Key, resolvedData.Value, Environment.NewLine));
-            reader.SetDebugData(resolvedData);
+            IResolve<byte[], List<KeyValuePair<string, string>>> debugResolve = new DebugDataResolve();
+            List<KeyValuePair<string, string>> resolvedDatas = debugResolve.Resolve(data);
+            foreach(KeyValuePair<string,string> pair in resolvedDatas)
+            {
+                main.AppendTextToDisplay(string.Format("{0}: {1}{2}", pair.Key, pair.Value, Environment.NewLine));
+                reader.SetDebugData(pair);
+            }
         }
 
         private void ResolveFlowData(byte[] data)
         {
             IResolve<byte[], double> flowResolve = new FlowDataResolve();
             double resolvedData = flowResolve.Resolve(data);
-            main.AppendStringToBuilder(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
+            main.AppendTextToDisplay(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
         }
 
         private void ResolveCustomData(byte[] data)
@@ -256,7 +288,7 @@ namespace CalibrationTool
                 result = serialVm.AutoAddNewLine ?
                     string.Format("{0}{1}", result.Trim(), Environment.NewLine) :
                     result.Trim();
-                main.AppendStringToBuilder(result);
+                main.AppendTextToDisplay(result);
             }
         }
         #endregion
