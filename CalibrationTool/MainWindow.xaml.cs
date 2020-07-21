@@ -37,9 +37,8 @@ namespace CalibrationTool
         private StatusBarViewModel statusVm;
         #endregion
 
-        private SerialPort serialPort;
+        private AdvancedSerialPort serialPort;
         private ActionType currentAction;
-        private bool receiving = false;     //串口是否正在接收数据
 
         public MainWindow()
         {
@@ -56,7 +55,7 @@ namespace CalibrationTool
         {
             serialVm = new SerialPortViewModel();
             serialPort = serialVm.GetSerialPortInstance();
-            serialPort.DataReceived += SerialPort_DataReceived;
+            serialPort.ReceivedDataHandler = data => ResolveData(data);
             serialVm.MessageHandler = message => statusVm.ShowStatus(message);
             SerialPortTabItem.DataContext = serialVm;
         }
@@ -143,40 +142,6 @@ namespace CalibrationTool
             WriteDataTabItem.DataContext = writer;
         }
         #endregion
-
-        /// <summary>
-        /// 串口数据接收
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            if (receiving) return;
-
-            receiving = true;
-            List<byte> receivedBytes = new List<byte>();
-            try
-            {
-                while (serialPort.BytesToRead > 0)
-                {
-                    int count = serialPort.BytesToRead;
-                    byte[] data = new byte[count];
-                    serialPort.Read(data, 0, count);
-                    receivedBytes.AddRange(data);
-                    await Task.Delay(10);
-                }
-                ResolveData(receivedBytes);
-            }
-            catch (Exception ex)
-            {
-                statusVm.ShowStatus("接受数据时发生异常: " + ex.Message);
-            }
-            finally
-            {
-                receivedBytes.Clear();
-                receiving = false;
-            }
-        }
 
         private void DisplayTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {

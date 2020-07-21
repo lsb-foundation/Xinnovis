@@ -8,13 +8,14 @@ using System.Management;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
 using CommonLib.Mvvm;
+using CommonLib.Communication;
 
 namespace CalibrationTool.ViewModels
 {
     public class SerialPortViewModel : BindableBase, IMessageHandler<string>
     {
         #region Private field
-        private SerialPort serialPort;
+        private AdvancedSerialPort serialPort;
         #endregion
 
         #region Constructions
@@ -146,11 +147,11 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Public methods
-        public SerialPort GetSerialPortInstance()
+        public AdvancedSerialPort GetSerialPortInstance()
         {
             if(serialPort == null)
             {
-                serialPort = new SerialPort();
+                serialPort = new AdvancedSerialPort();
             }
             return serialPort;
         }
@@ -176,7 +177,7 @@ namespace CalibrationTool.ViewModels
         #region Private methods
         private void InitializeSerialPort()
         {
-            serialPort = new SerialPort();
+            serialPort = new AdvancedSerialPort();
             serialPort.BaudRate = ConfigManager.Serial_BaudRate;
             if (!string.IsNullOrEmpty(ConfigManager.Serial_PortName))
                 serialPort.PortName = ConfigManager.Serial_PortName;
