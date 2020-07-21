@@ -17,35 +17,35 @@ namespace CommonLib.Communication
     {
         public AdvancedSerialPort() : base()
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
 
         public AdvancedSerialPort(string portName) : base(portName) 
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
         public AdvancedSerialPort(IContainer container) : base(container) 
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
         public AdvancedSerialPort(string portName, int baudRate):base(portName, baudRate) 
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
         public AdvancedSerialPort(string portName, int baudRate, Parity parity) : 
             base(portName, baudRate, parity) 
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
         public AdvancedSerialPort(string portName, int baudRate, Parity parity, int dataBits) : 
             base(portName, baudRate, parity, dataBits) 
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
         public AdvancedSerialPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits):
             base(portName, baudRate, parity, dataBits, stopBits)
         {
-            this.DataReceived += InheritedSerialPort_DataReceived;
+            this.DataReceived += AdvancedSerialPort_DataReceived;
         }
 
         private bool isReceiving = false;
@@ -55,7 +55,7 @@ namespace CommonLib.Communication
         /// </summary>
         public Action<byte[]> ReceivedDataHandler { get; set; }
 
-        private async void InheritedSerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private async void AdvancedSerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (isReceiving) return;
             

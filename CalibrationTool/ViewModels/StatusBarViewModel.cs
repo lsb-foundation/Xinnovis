@@ -10,15 +10,6 @@ namespace CalibrationTool.ViewModels
 {
     public class StatusBarViewModel : BindableBase
     {
-        //private Dictionary<AppStatus, string> statusDict = new Dictionary<AppStatus, string>()
-        //{
-        //    {AppStatus.Ready,"准备就绪" },
-        //    {AppStatus.SerialPort_Opened,"端口状态：打开" },
-        //    {AppStatus.SerialPort_Closed,"端口状态：关闭" },
-        //    {AppStatus.Running,"正在运行" },
-        //    {AppStatus.Error,"错误" }
-        //};
-
         private string _status;
         public string Status
         {
@@ -38,13 +29,4 @@ namespace CalibrationTool.ViewModels
             });
         }
     }
-
-    //public enum AppStatus
-    //{
-    //    Ready,      //准备就绪
-    //    SerialPort_Opened,      //端口状态：打开
-    //    SerialPort_Closed,      //端口状态：关闭
-    //    Running,    //正在运行
-    //    Error,      //错误
-    //}
 }

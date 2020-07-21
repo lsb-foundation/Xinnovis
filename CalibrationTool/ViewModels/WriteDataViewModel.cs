@@ -45,12 +45,14 @@ namespace CalibrationTool.ViewModels
 
         public ObservableCollection<GasTypeCode> GasTypeCodeCollection { get; private set; }
         public ObservableCollection<UnitCode> UnitCodeCollection { get; private set; }
+
         private GasTypeCode _selectedGasTypeCode;
         public GasTypeCode SelectedGasTypeCode
         {
             get => _selectedGasTypeCode;
             set => SetProperty(ref _selectedGasTypeCode, value);
         }
+
         private UnitCode _selectedUnitCode;
         public UnitCode SelectedUnitCode
         {

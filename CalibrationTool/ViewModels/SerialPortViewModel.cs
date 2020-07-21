@@ -23,11 +23,7 @@ namespace CalibrationTool.ViewModels
         {
             InitializeSerialPort();
             InitializeSerialPortNameCollection();
-            OpenOrCloseCommand = new RelayCommand(o =>
-            {
-                if (serialPort.IsOpen) ClosePort();
-                else TryToOpenPort();
-            });
+            OpenOrCloseCommand = new RelayCommand(o => TryToSwitchPort());
         }
         #endregion
 
@@ -37,7 +33,7 @@ namespace CalibrationTool.ViewModels
             get => serialPort.PortName;
             set
             {
-                ClosePort();
+                TryToClosePort();
                 serialPort.PortName = value;
                 ConfigManager.Serial_PortName = value;
                 RaiseProperty();
@@ -90,27 +86,20 @@ namespace CalibrationTool.ViewModels
             get => serialPort.IsOpen ? "关闭" : "打开";
         }
 
-        public ObservableCollection<string> PortNameCollection { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> PortNameCollection { get; private set; } 
+            = new ObservableCollection<string>();
 
-        public ObservableCollection<int> BaudRateCollection { get; set; } = new ObservableCollection<int>()
-        {
-            9600, 19200, 38400, 57600, 115200
-        };
+        public ObservableCollection<int> BaudRateCollection { get; private set; }
+            = new ObservableCollection<int>() { 9600, 19200, 38400, 57600, 115200 };
 
-        public ObservableCollection<int> DataBitsCollection { get; set; } = new ObservableCollection<int>()
-        {
-            5, 6, 7, 8
-        };
+        public ObservableCollection<int> DataBitsCollection { get; private set; }
+            = new ObservableCollection<int>() { 5, 6, 7, 8 };
 
-        public ObservableCollection<Parity> ParityCollection { get; set; } = new ObservableCollection<Parity>()
-        {
-            Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space
-        };
+        public ObservableCollection<Parity> ParityCollection { get; private set; }
+            = new ObservableCollection<Parity>() { Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space };
 
-        public ObservableCollection<StopBits> StopBitsCollection { get; set; } = new ObservableCollection<StopBits>()
-        {
-            StopBits.One, StopBits.OnePointFive, StopBits.Two
-        };
+        public ObservableCollection<StopBits> StopBitsCollection { get; private set; }
+            = new ObservableCollection<StopBits>() { StopBits.One, StopBits.OnePointFive, StopBits.Two };
 
         //自动换行
         private bool _autoAddNewLine = true;
@@ -138,11 +127,7 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Command
-        public RelayCommand OpenOrCloseCommand { get; set; }
-
-        /// <summary>
-        /// 将该类中所有产生的消息转交给外部处理
-        /// </summary>
+        public RelayCommand OpenOrCloseCommand { get; private set; }
         public Action<string> MessageHandler { get; set; }
         #endregion
 
@@ -191,14 +176,36 @@ namespace CalibrationTool.ViewModels
             }
         }
 
-        private void ClosePort()
+        private void TryToClosePort()
         {
-            if (serialPort.IsOpen)
+            try
             {
-                serialPort.Close();
-                MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
-                RaiseProperty(nameof(OpenOrCloseString));
+                if (serialPort.IsOpen)
+                {
+                    serialPort.Close();
+                    MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
+                    RaiseProperty(nameof(OpenOrCloseString));
+                }
             }
+            catch(Exception e)
+            {
+                MessageHandler?.Invoke("端口错误：" + e.Message);
+            }
+        }
+
+        private void TryToSwitchPort()
+        {
+            try
+            {
+                if (serialPort.IsOpen)
+                    serialPort.Close();
+                else serialPort.Open();
+            }
+            catch(Exception e)
+            {
+                MessageHandler?.Invoke("端口错误：" + e.Message);
+            }
+            
         }
 
         /// <summary>

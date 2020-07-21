@@ -11,7 +11,7 @@ namespace CalibrationTool.Utils
 {
     public static class ConfigManager
     {
-        private static Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static Configuration _config;
         private static string Read([CallerMemberName]string key = null)
         {
             if (_config.AppSettings.Settings.AllKeys.Contains(key))
@@ -33,8 +33,9 @@ namespace CalibrationTool.Utils
 
         static ConfigManager()
         {
+            _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             //自动添加配置文件中不存在的项为默认值
-            foreach(string key in _defaultSettings.Keys)
+            foreach (string key in _defaultSettings.Keys)
             {
                 if (!_config.AppSettings.Settings.AllKeys.Contains(key))
                 {
