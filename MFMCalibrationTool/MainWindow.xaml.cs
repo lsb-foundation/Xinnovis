@@ -99,11 +99,6 @@ namespace CalibrationTool
                 Send(CommunicationDataType.ASCII, reader.CaliCommand);
                 currentAction = ActionType.CALI;
             });
-            reader.SetReadFlowCommand(() =>
-            {
-                Send(CommunicationDataType.Hex, reader.FlowCommand);
-                currentAction = ActionType.READ_FLOW;
-            });
             reader.SendRefStartCommand = new RelayCommand(o =>
             {
                 Send(CommunicationDataType.ASCII, reader.GetRefStartCommand());
@@ -209,9 +204,6 @@ namespace CalibrationTool
                 case ActionType.DEBUG:
                     ResolveDebugData(data.ToArray());
                     break;
-                case ActionType.READ_FLOW:
-                    ResolveFlowData(data.ToArray());
-                    break;
                 case ActionType.Custom:
                     ResolveCustomData(data.ToArray());
                     break;
@@ -236,13 +228,6 @@ namespace CalibrationTool
                 main.AppendTextToDisplay(string.Format("{0}: {1}{2}", pair.Key, pair.Value, Environment.NewLine));
                 reader.SetDebugData(pair);
             }
-        }
-
-        private void ResolveFlowData(byte[] data)
-        {
-            IResolve<byte[], double> flowResolve = new FlowDataResolve();
-            double resolvedData = flowResolve.Resolve(data);
-            main.AppendTextToDisplay(String.Format("{0}{1}", resolvedData.ToString(), Environment.NewLine));
         }
 
         private void ResolveCustomData(byte[] data)
