@@ -7,6 +7,7 @@ using System.Windows.Input;
 using CommonLib.Mvvm;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
+using System.Reflection;
 
 namespace CalibrationTool.ViewModels
 {
@@ -18,6 +19,8 @@ namespace CalibrationTool.ViewModels
         public ICommand SendReadFlowCommand { get; private set; }
         public ICommand SendRefStartCommand { get; set; }
         public ICommand SendRefStopCommand { get; set; }
+        public ICommand SendCheckCommand { get; set; }
+        public ICommand SendCheckStopCommand { get; set; }
         #endregion
 
         #region Constructed functions
@@ -59,31 +62,39 @@ namespace CalibrationTool.ViewModels
             get => _refStartValue;
             set => SetProperty(ref _refStartValue, value);
         }
+
+        private float _checkVoltValue;
+        public float CheckVoltValue
+        {
+            get => _checkVoltValue;
+            set => SetProperty(ref _checkVoltValue, value);
+        }
+
+        private float _checkKValue;
+        public float CheckKValue
+        {
+            get => _checkKValue;
+            set => SetProperty(ref _checkKValue, value);
+        }
+
+        private float _checkDValue;
+        public float CheckDValue
+        {
+            get => _checkDValue;
+            set => SetProperty(ref _checkDValue, value);
+        }
         #endregion
 
         #region Public Methods
         public void SetDebugData(KeyValuePair<string, string> keyValue)
         {
-            switch (keyValue.Key)
+            foreach(var property in typeof(DebugData).GetProperties())
             {
-                case "SN":
-                    _debugData.SN = keyValue.Value;
-                    RaiseProperty(nameof(SN));
-                    break;
-                case "Type of GAS":
-                    _debugData.GasType = keyValue.Value;
-                    RaiseProperty(nameof(GasType));
-                    break;
-                case "Range":
-                    _debugData.Range = keyValue.Value;
-                    RaiseProperty(nameof(Range));
-                    break;
-                case "UNIT":
-                    _debugData.Unit = keyValue.Value;
-                    RaiseProperty(nameof(Unit));
-                    break;
-                default:
-                    return;
+                var attr = property.GetCustomAttribute<DebugDataMapperAttribute>();
+                if(attr?.MappedValue == keyValue.Key)
+                {
+                    property.SetValue(_debugData, keyValue.Value);
+                }
             }
         }
 
@@ -104,6 +115,10 @@ namespace CalibrationTool.ViewModels
 
         public string GetRefStartCommand() => 
             string.Format("{0}:{1}!", ConfigManager.AVStartCommandHeader, _refStartValue);
+
+        public string GetCheckCommand() =>
+            string.Format("{0}:{1};{2};{3}!", ConfigManager.CheckCommandHeader,
+                _checkVoltValue, _checkKValue, _checkDValue);
         #endregion
 
         #region Private Methods

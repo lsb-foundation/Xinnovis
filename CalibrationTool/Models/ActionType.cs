@@ -3,6 +3,7 @@ namespace CalibrationTool.Models
 {
     public enum ActionType
     {
+        Default,
         CALI,
         DEBUG,
         VOLT,
