@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommonLib.Mvvm;
 using CalibrationTool.Models;
+using CalibrationTool.Utils;
 
 namespace CalibrationTool.ViewModels
 {
@@ -27,10 +28,10 @@ namespace CalibrationTool.ViewModels
         #endregion
 
         #region Properties
-        public string DebugCommand { get => "DEBUG!"; }
-        public string CaliCommand { get => "CALI!"; }
-        public string RefStopCommand { get => "REF_STOP!"; }
-        public byte[] FlowCommand { get => new byte[1] { 0x90 }; }
+        public string DebugCommand { get => ConfigManager.DebugCommand; }
+        public string CaliCommand { get => ConfigManager.CaliFlowVCommand; }
+        public string RefStopCommand { get => ConfigManager.AVStopCommand; }
+        public byte[] FlowCommand { get => ConfigManager.ReadFlowCommand; }
 
         private DebugData _debugData;
         public string SN { get => _debugData.SN; }

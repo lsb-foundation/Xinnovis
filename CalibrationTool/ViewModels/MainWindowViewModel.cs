@@ -1,4 +1,5 @@
-﻿using CommonLib.Mvvm;
+﻿using CalibrationTool.Utils;
+using CommonLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,6 +20,8 @@ namespace CalibrationTool.ViewModels
             get => _codeToSend;
             set => SetProperty(ref _codeToSend, value);
         }
+
+        public string AppTitle { get => ConfigManager.AppTitle; }
 
         public ICommand ClearDisplayCommand { get; set; }
         public ICommand CopyDisplayContentCommand { get; set; }

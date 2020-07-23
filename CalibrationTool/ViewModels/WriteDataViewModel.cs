@@ -10,14 +10,15 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using CalibrationTool.Models;
 using Microsoft.Win32;
+using CalibrationTool.Utils;
 
 namespace CalibrationTool.ViewModels
 {
     public class WriteDataViewModel : BindableBase, IMessageHandler<string>
     {
         #region feild
-        private readonly List<float> voltValues = new List<float>(17);
-        private readonly List<float> kValues = new List<float>(16);
+        private readonly List<float> voltValues;
+        private readonly List<float> kValues;
         #endregion
 
         #region Command
@@ -72,6 +73,12 @@ namespace CalibrationTool.ViewModels
         public WriteDataViewModel()
         {
             InitializeCollections();
+
+            int voltDataLength = ConfigManager.VoltDataLength;
+            int kDataLength = ConfigManager.KDataLength;
+            voltValues = new List<float>(voltDataLength);
+            kValues = new List<float>(kDataLength);
+
             ReadExcelCommand = new RelayCommand(o => OpenExcelFile());
         }
         #endregion
@@ -116,18 +123,19 @@ namespace CalibrationTool.ViewModels
                 {
                     voltValues.Clear();
                     kValues.Clear();
-                    for (int row = 1; row <= 17; row++)
+                    for (int row = 1; row <= voltValues.Capacity; row++)
                     {
                         string rowStr = (row + 1).ToString();
                         string voltCell = "B" + rowStr;
-                        string kCell = "C" + rowStr;
                         float voltValue = Convert.ToSingle(sheet.Cells[voltCell].Value);
                         voltValues.Add(voltValue);
-                        if (row <= 16)
-                        {
-                            float kValue = Convert.ToSingle(sheet.Cells[kCell].Value);
-                            kValues.Add(kValue);
-                        }
+                    }
+                    for (int row = 1; row <= kValues.Capacity; row++)
+                    {
+                        string rowStr = (row + 1).ToString();
+                        string kCell = "C" + rowStr;
+                        float kValue = Convert.ToSingle(sheet.Cells[kCell].Value);
+                        kValues.Add(kValue);
                     }
                     VoltCommand = GetVoltCommand();
                     KCommand = GetKCommand();
