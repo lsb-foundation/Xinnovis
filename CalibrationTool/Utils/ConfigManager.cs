@@ -84,18 +84,18 @@ namespace CalibrationTool.Utils
         #endregion
 
         #region 界面配置项
-        [DefaultValue("MFM标定工具")]
+        [DefaultValue("MFD标定工具")]
         public static string AppTitle { get => Read(); }
         #endregion
 
         #region 指令配置项
-        [DefaultValue("CALI_FLOW_V!")]
+        [DefaultValue("CALI!")]
         public static string CaliFlowVCommand { get => Read(); }         //标定流量电压的指令
 
-        [DefaultValue("CALI_VOLT")]
+        [DefaultValue("VOLT")]
         public static string CaliVoltCommandHeader { get => Read(); }   //标定电压的指令头部
 
-        [DefaultValue("CALI_K")]
+        [DefaultValue("K")]
         public static string CaliKCommandHeader { get => Read(); }      //标定斜率的指令的头部
 
         [DefaultValue("CALI_T")]
@@ -104,10 +104,10 @@ namespace CalibrationTool.Utils
         [DefaultValue("DEBUG!")]
         public static string DebugCommand { get => Read(); }        //Debug指令
 
-        [DefaultValue("AV_START")]
+        [DefaultValue("REF_START")]
         public static string AVStartCommandHeader { get => Read(); }    //开始输出1-5V电压的指令头部
 
-        [DefaultValue("AV_STOP!")]
+        [DefaultValue("REF_STOP!")]
         public static string AVStopCommand { get => Read(); }       //停止输出1-5V电压的指令
 
         [DefaultValue("CHECK")]
@@ -127,14 +127,14 @@ namespace CalibrationTool.Utils
         #endregion
 
         #region 其他配置项
-        [DefaultValue(22)]
+        [DefaultValue(17)]
         public static int VoltDataLength
         {
             get => int.Parse(Read());
             set => Write(value);
         }
 
-        [DefaultValue(21)]
+        [DefaultValue(16)]
         public static int KDataLength
         {
             get => int.Parse(Read());
