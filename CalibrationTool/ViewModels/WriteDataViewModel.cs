@@ -85,8 +85,9 @@ namespace CalibrationTool.ViewModels
 
         #region Public methods
         public string GetGasCommand() =>
-            string.Format("GAS:{0};{1};{2}!",
-                _selectedGasTypeCode.Code, _range, _selectedUnitCode.Code);
+            string.Format("{0}:{1};{2};{3}!",
+                ConfigManager.GasCommandHeader, _selectedGasTypeCode.Code,
+                _range, _selectedUnitCode.Code);
         #endregion
 
         #region Private methods
@@ -149,14 +150,14 @@ namespace CalibrationTool.ViewModels
 
         private string GetVoltCommand()
         {
-            string command = "VOLT:";
+            string command = ConfigManager.CaliVoltCommandHeader + ":";
             voltValues.ForEach(v => command += v.ToString() + ";");
             return command.Substring(0, command.Length - 1) + "!";
         }
 
         private string GetKCommand()
         {
-            string command = "K:";
+            string command = ConfigManager.CaliKCommandHeader + ":";
             kValues.ForEach(k => command += k.ToString() + ";");
             return command.Substring(0, command.Length - 1) + "!";
         }
