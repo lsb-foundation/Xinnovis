@@ -258,7 +258,8 @@ namespace CalibrationTool
             if (!string.IsNullOrWhiteSpace(result))
             {
                 result = serialVm.AutoAddNewLine ?
-                    string.Format("{0}{1}", result.Trim(), Environment.NewLine) : result.Trim();
+                    string.Format("{0}{1}", result.Trim(), Environment.NewLine) :
+                    result.Trim();
                 main.AppendTextToDisplay(result);
             }
         }

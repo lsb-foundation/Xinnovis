@@ -8,12 +8,12 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("CalibrationTool")]
-[assembly: AssemblyDescription("MFD校准软件。")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Xinnovis")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CalibrationTool")]
-[assembly: AssemblyCopyright("Copyright © Xinnovis 2020")]
-[assembly: AssemblyTrademark("Xinnovis")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
