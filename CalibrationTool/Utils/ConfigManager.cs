@@ -119,6 +119,9 @@ namespace CalibrationTool.Utils
         [DefaultValue("AV_1-5")]
         public static string AVCommandHeader { get => Read(); }     //写入标定1-5V的斜率K和截距D
 
+        [DefaultValue("GAS")]
+        public static string GasCommandHeader { get => Read(); }    //写入气体信息的指令头部
+
         [DefaultValue("90")]
         public static byte[] ReadFlowCommand { get => Read().HexStringToBytes(); }     //读流量的指令
         #endregion

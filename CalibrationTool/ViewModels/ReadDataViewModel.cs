@@ -103,7 +103,7 @@ namespace CalibrationTool.ViewModels
         }
 
         public string GetRefStartCommand() => 
-            string.Format("REF_START:{0}!", _refStartValue);
+            string.Format("{0}:{1}!", ConfigManager.AVStartCommandHeader, _refStartValue);
         #endregion
 
         #region Private Methods
