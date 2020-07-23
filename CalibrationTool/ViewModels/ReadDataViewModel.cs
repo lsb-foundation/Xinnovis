@@ -94,6 +94,7 @@ namespace CalibrationTool.ViewModels
                 if(attr?.MappedValue == keyValue.Key)
                 {
                     property.SetValue(_debugData, keyValue.Value);
+                    RaiseProperty(property.Name);
                 }
             }
         }
