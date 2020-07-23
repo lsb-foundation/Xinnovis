@@ -9,7 +9,7 @@
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
         pu:WindowXCaption.Background="#E4E8EB"
-        Title="MFD校准工具" Height="720" Width="1080" MinHeight="360" MinWidth="720">
+        Title="{Binding AppTitle, Mode=OneWay}" Height="720" Width="1080" MinHeight="360" MinWidth="720">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <!--<Setter Property="Background" Value="#C8009BFF"/>-->
@@ -209,7 +209,7 @@
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Header="CALI">
+                            <GroupBox Header="标定">
                                 <Button Command="{Binding SendCaliCommand}">发送CALI!</Button>
                             </GroupBox>
                             <GroupBox Header="读流量">
@@ -221,7 +221,7 @@
                                     <Button Command="{Binding SendReadFlowCommand}">发送</Button>
                                 </StackPanel>
                             </GroupBox>
-                            <GroupBox Header="测量0~5V电压">
+                            <GroupBox Header="测量1~5V电压">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -326,7 +326,6 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Name="DisplayTextBox"
                          IsReadOnly="True"
-                         
                          TextChanged="DisplayTextBox_TextChanged"
                          Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                 <StackPanel Orientation="Vertical" Grid.Column="1">

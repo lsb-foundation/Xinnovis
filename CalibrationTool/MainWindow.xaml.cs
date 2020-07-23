@@ -77,6 +77,7 @@ namespace CalibrationTool
                 SendCustomData();
                 currentAction = ActionType.Custom;
             });
+            this.DataContext = main;
             ContentGrid.DataContext = main;
         }
 
