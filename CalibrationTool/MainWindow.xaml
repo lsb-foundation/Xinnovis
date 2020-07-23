@@ -9,7 +9,7 @@
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
         pu:WindowXCaption.Background="#E4E8EB"
-        Title="MFD校准工具" Height="720" Width="1080" MinHeight="360" MinWidth="720">
+        Title="MFM标定工具" Height="720" Width="1080" MinHeight="360" MinWidth="720">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <!--<Setter Property="Background" Value="#C8009BFF"/>-->
