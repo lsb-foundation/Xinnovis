@@ -88,15 +88,9 @@ namespace CalibrationTool.ViewModels
         #region Public Methods
         public void SetDebugData(KeyValuePair<string, string> keyValue)
         {
-            foreach(var property in typeof(DebugData).GetProperties())
-            {
-                var attr = property.GetCustomAttribute<DebugDataMapperAttribute>();
-                if(attr?.MappedValue == keyValue.Key)
-                {
-                    property.SetValue(_debugData, keyValue.Value);
-                    RaiseProperty(property.Name);
-                }
-            }
+            PropertyInfo property = DebugDataMapperAttribute.GetPropertyByKey(keyValue.Key);
+            property?.SetValue(_debugData, keyValue.Value);
+            RaiseProperty(property?.Name);
         }
 
         public void SetReadFlowCommand(Action act)

@@ -23,7 +23,7 @@ namespace CalibrationTool.ViewModels.Tests
                 var attr = property.GetCustomAttribute<DebugDataMapperAttribute>();
                 if(attr != null)
                 {
-                    var kv = new KeyValuePair<string, string>(attr.MappedValue, attr.MappedValue);
+                    var kv = new KeyValuePair<string, string>(attr.MappedKey, attr.MappedKey);
                     keyValues.Add(kv);
                 }
             }

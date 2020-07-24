@@ -1,5 +1,7 @@
-﻿
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace CalibrationTool.Models
 {
@@ -35,10 +37,31 @@ namespace CalibrationTool.Models
 
     public class DebugDataMapperAttribute : Attribute
     {
-        public string MappedValue { get; private set; }
-        public DebugDataMapperAttribute(string mappedValue)
+        public string MappedKey { get; private set; }
+        public DebugDataMapperAttribute(string mappedKey)
         {
-            this.MappedValue = mappedValue;
+            this.MappedKey = mappedKey;
+        }
+
+        private static Dictionary<string, PropertyInfo> keyToPropertyMap;
+
+        static DebugDataMapperAttribute()
+        {
+            keyToPropertyMap = new Dictionary<string, PropertyInfo>();
+            foreach(var property in typeof(DebugData).GetProperties())
+            {
+                string key = property.GetCustomAttribute<DebugDataMapperAttribute>()?.MappedKey;
+                if (string.IsNullOrEmpty(key)) continue;
+                if (keyToPropertyMap.Keys.Contains(key)) continue;
+                keyToPropertyMap.Add(key, property);
+            }
+        }
+
+        public static PropertyInfo GetPropertyByKey(string key)
+        {
+            if (!keyToPropertyMap.Keys.Contains(key)) 
+                return null;
+            return keyToPropertyMap[key];
         }
     }
 }
