@@ -241,8 +241,46 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendRefStartCommand}">发送REF__START</Button>
-                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">发送REF__STOP</Button>
+                                        <Button Command="{Binding SendRefStartCommand}">发送AV__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">发送AV__STOP</Button>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="CHECK">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label>电压(mv)</Label>
+                                        <TextBox Grid.Column="1" Text="{Binding CheckVoltValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <Label Grid.Row="1">斜率</Label>
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                             Text="{Binding CheckKValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <Label Grid.Row="2">截距</Label>
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                             Text="{Binding CheckDValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Command="{Binding SendCheckCommand}">CHECK</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendCheckStopCommand}">CHECK_STOP</Button>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -269,6 +307,23 @@
                                              Style="{StaticResource LargerTextBoxStyle}"></TextBox>
                                     <Button Command="{Binding SendKCommand}">写入K</Button>
                                 </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="写入温度">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>温度(℃)</Label>
+                                    <TextBox Grid.Column="1" Text="{Binding Temperature}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Button Grid.Row="1" Grid.ColumnSpan="2"
+                                            Command="{Binding SetTemperatureCommand}">写入温度</Button>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Header="GAS">
                                 <Grid>
@@ -308,6 +363,28 @@
                                     </ComboBox>
                                     <Button Grid.Row="3" Grid.ColumnSpan="2"
                                             Command="{Binding SetGasCommand}">写入GAS信息</Button>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="标定1-5V的斜率和截距">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>斜率</Label>
+                                    <TextBox Grid.Column="1" Text="{Binding AvKValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Label Grid.Row="1">截距</Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding AvDValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Button Grid.Row="2" Grid.ColumnSpan="2"
+                                            Command="{Binding SetAvCommand}">写入</Button>
                                 </Grid>
                             </GroupBox>
                         </StackPanel>

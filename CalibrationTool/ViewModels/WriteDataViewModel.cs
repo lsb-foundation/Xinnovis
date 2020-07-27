@@ -26,6 +26,8 @@ namespace CalibrationTool.ViewModels
         public ICommand SendVoltCommand { get; set; }
         public ICommand SendKCommand { get; set; }
         public ICommand SetGasCommand { get; set; }
+        public ICommand SetTemperatureCommand { get; set; }
+        public ICommand SetAvCommand { get; set; }
         public Action<string> MessageHandler { get; set; }
         #endregion
 
@@ -61,11 +63,32 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _selectedUnitCode, value);
         }
 
+        private int _temperature;
+        public int Temperature
+        {
+            get => _temperature;
+            set => SetProperty(ref _temperature, value);
+        }
+
         private int _range;
         public int Range
         {
             get => _range;
             set => SetProperty(ref _range, value);
+        }
+
+        private float _avKValue;
+        public float AvKValue
+        {
+            get => _avKValue;
+            set => SetProperty(ref _avKValue, value);
+        }
+
+        private float _avDValue;
+        public float AvDValue
+        {
+            get => _avDValue;
+            set => SetProperty(ref _avDValue, value);
         }
         #endregion
 
@@ -88,6 +111,12 @@ namespace CalibrationTool.ViewModels
             string.Format("{0}:{1};{2};{3}!",
                 ConfigManager.GasCommandHeader, _selectedGasTypeCode.Code,
                 _range, _selectedUnitCode.Code);
+
+        public string GetTemperatureCommand() =>
+            string.Format("{0}:{1}!", ConfigManager.CaliTCommandHeader, _temperature);
+
+        public string GetAvCommand() =>
+            string.Format("{0}:{1};{2}!", ConfigManager.AVCommandHeader, _avKValue, _avDValue);
         #endregion
 
         #region Private methods
