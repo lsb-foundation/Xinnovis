@@ -90,12 +90,7 @@ namespace CalibrationTool.ViewModels
             = new ObservableCollection<string>();
 
         public ObservableCollection<int> BaudRateCollection { get; private set; }
-            = new ObservableCollection<int>()
-            {
-                4800, 9600, 14400, 19200, 38400,
-                56000, 57600, 115200, 128000, 230400,
-                256000, 460800, 500000
-            };
+            = new ObservableCollection<int>() { 9600, 19200, 38400, 57600, 115200 };
 
         public ObservableCollection<int> DataBitsCollection { get; private set; }
             = new ObservableCollection<int>() { 5, 6, 7, 8 };
