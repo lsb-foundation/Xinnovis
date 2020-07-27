@@ -69,12 +69,18 @@ namespace CalibrationTool.Utils
         }
 
         #region 串口配置项
+        /// <summary>
+        /// 保存选择的串口号。
+        /// </summary>
         public static string Serial_PortName
         {
             get => Read();
             set => Write(value);
         }
 
+        /// <summary>
+        /// 保存选择的波特率。
+        /// </summary>
         [DefaultValue(115200)]
         public static int Serial_BaudRate
         {
@@ -89,44 +95,83 @@ namespace CalibrationTool.Utils
         #endregion
 
         #region 指令配置项
+        /// <summary>
+        /// 标定流量电压的指令。
+        /// </summary>
         [DefaultValue("CALI_FLOW_V!")]
-        public static string CaliFlowVCommand { get => Read(); }         //标定流量电压的指令
+        public static string CaliFlowVCommand { get => Read(); }
 
+        /// <summary>
+        /// 标定电压的指令的头部。
+        /// </summary>
         [DefaultValue("CALI_VOLT")]
-        public static string CaliVoltCommandHeader { get => Read(); }   //标定电压的指令头部
+        public static string CaliVoltCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// 标定斜率的指令的头部。
+        /// </summary>
         [DefaultValue("CALI_K")]
-        public static string CaliKCommandHeader { get => Read(); }      //标定斜率的指令的头部
+        public static string CaliKCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// 标定温度的指令的头部。
+        /// </summary>
         [DefaultValue("CALI_T")]
-        public static string CaliTCommandHeader { get => Read(); }      //标定温度的指令的头部
+        public static string CaliTCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// Debug指令。
+        /// </summary>
         [DefaultValue("DEBUG!")]
-        public static string DebugCommand { get => Read(); }        //Debug指令
+        public static string DebugCommand { get => Read(); }
 
+        /// <summary>
+        /// 开始输出1-5V电压的指令的头部。
+        /// </summary>
         [DefaultValue("AV_START")]
-        public static string AVStartCommandHeader { get => Read(); }    //开始输出1-5V电压的指令头部
+        public static string AVStartCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// 停止输出1-5V电压的指令。
+        /// </summary>
         [DefaultValue("AV_STOP!")]
-        public static string AVStopCommand { get => Read(); }       //停止输出1-5V电压的指令
+        public static string AVStopCommand { get => Read(); }
 
+        /// <summary>
+        /// 检查实际输出电压的指令的头部。
+        /// </summary>
         [DefaultValue("CHECK")]
-        public static string CheckCommandHeader { get => Read(); }  //检查实际输出电压的指令头部
+        public static string CheckCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// 停止检查实际输出电压的指令。
+        /// </summary>
         [DefaultValue("CHECK_STOP!")]
-        public static string CheckStopCommand { get => Read(); }    //停止检查实际输出电压的指令
+        public static string CheckStopCommand { get => Read(); }
 
+        /// <summary>
+        /// 写入标定1-5V的斜率K和截距D的指令的头部。
+        /// </summary>
         [DefaultValue("AV_1-5")]
-        public static string AVCommandHeader { get => Read(); }     //写入标定1-5V的斜率K和截距D
+        public static string AVCommandHeader { get => Read(); } 
 
+        /// <summary>
+        /// 写入气体信息的指令的头部。
+        /// </summary>
         [DefaultValue("GAS")]
-        public static string GasCommandHeader { get => Read(); }    //写入气体信息的指令头部
+        public static string GasCommandHeader { get => Read(); }
 
+        /// <summary>
+        /// 读流量指令
+        /// </summary>
         [DefaultValue("90")]
-        public static byte[] ReadFlowCommand { get => Read().HexStringToBytes(); }     //读流量的指令
+        public static byte[] ReadFlowCommand { get => Read().HexStringToBytes(); }
         #endregion
 
         #region 其他配置项
+        /// <summary>
+        /// 写入标定电压的数据长度配置项。
+        /// </summary>
         [DefaultValue(22)]
         public static int VoltDataLength
         {
@@ -134,6 +179,9 @@ namespace CalibrationTool.Utils
             set => Write(value);
         }
 
+        /// <summary>
+        /// 写入标定斜率的数据长度配置项。
+        /// </summary>
         [DefaultValue(21)]
         public static int KDataLength
         {

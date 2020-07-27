@@ -21,6 +21,7 @@ using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;
 using System.Collections.Specialized;
 using CommonLib.Extensions;
+using CalibrationTool.Utils;
 
 namespace CalibrationTool
 {
@@ -115,6 +116,16 @@ namespace CalibrationTool
                 Send(CommunicationDataType.ASCII, reader.RefStopCommand);
                 currentAction = ActionType.REF;
             });
+            reader.SendCheckCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.GetCheckCommand());
+                currentAction = ActionType.Default;
+            });
+            reader.SendCheckStopCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, ConfigManager.CheckStopCommand);
+                currentAction = ActionType.Default;
+            });
             ReadDataTabItem.DataContext = reader;
         }
 
@@ -133,12 +144,22 @@ namespace CalibrationTool
                 Send(CommunicationDataType.ASCII, writer.KCommand);
                 currentAction = ActionType.K;
             });
+            writer.SetTemperatureCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, writer.GetTemperatureCommand());
+                currentAction = ActionType.Default;
+            });
             writer.SetGasCommand = new RelayCommand(o =>
             {
                 if (writer.Range <= 0) return;
                 Send(CommunicationDataType.ASCII, writer.GetGasCommand());
                 currentAction = ActionType.GAS;
             });
+            writer.SetAvCommand = new RelayCommand(o =>
+              {
+                  Send(CommunicationDataType.ASCII, writer.GetAvCommand());
+                  currentAction = ActionType.Default;
+              });
             writer.MessageHandler = message => statusVm.ShowStatus(message);
             WriteDataTabItem.DataContext = writer;
         }
@@ -200,6 +221,7 @@ namespace CalibrationTool
         {
             switch (currentAction)
             {
+                case ActionType.Default:
                 case ActionType.CALI:
                 case ActionType.VOLT:
                 case ActionType.K:
