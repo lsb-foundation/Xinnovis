@@ -63,15 +63,15 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _selectedUnitCode, value);
         }
 
-        private int _temperature;
-        public int Temperature
+        private float _temperature;
+        public float Temperature
         {
             get => _temperature;
             set => SetProperty(ref _temperature, value);
         }
 
-        private int _range;
-        public int Range
+        private float _range;
+        public float Range
         {
             get => _range;
             set => SetProperty(ref _range, value);

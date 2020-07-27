@@ -184,6 +184,11 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -193,19 +198,39 @@
                                             Command="{Binding SendDebugCommand}">发送DEBUG!</Button>
                                     <Label Grid.Row="1">SN</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding SN, Mode=OneWay}"
+                                             Text="{Binding DebugData.SN, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                     <Label Grid.Row="2">气体类型</Label>
                                     <TextBox Grid.Row="2" Grid.Column="1" 
-                                             Text="{Binding GasType, Mode=OneWay}"
+                                             Text="{Binding DebugData.GasType, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                     <Label Grid.Row="3">量程范围</Label>
                                     <TextBox Grid.Row="3" Grid.Column="1" 
-                                             Text="{Binding Range, Mode=OneWay}"
+                                             Text="{Binding DebugData.Range, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                     <Label Grid.Row="4">单位</Label>
                                     <TextBox Grid.Row="4" Grid.Column="1" 
-                                             Text="{Binding Unit, Mode=OneWay}"
+                                             Text="{Binding DebugData.Unit, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="5">Modbus地址</Label>
+                                    <TextBox Grid.Row="5" Grid.Column="1" 
+                                             Text="{Binding DebugData.ModbusAddr, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="6">Modbus波特率</Label>
+                                    <TextBox Grid.Row="6" Grid.Column="1" 
+                                             Text="{Binding DebugData.ModbusBaud, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="7">1-5V斜率</Label>
+                                    <TextBox Grid.Row="7" Grid.Column="1"
+                                             Text="{Binding DebugData.KOf1_5, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="8">1-5V截距</Label>
+                                    <TextBox Grid.Row="8" Grid.Column="1" 
+                                             Text="{Binding DebugData.DOf1_5, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="9">标定温度</Label>
+                                    <TextBox Grid.Row="9" Grid.Column="1" 
+                                             Text="{Binding DebugData.TOfCaliFlow, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                 </Grid>
                             </GroupBox>

@@ -23,24 +23,13 @@ namespace CalibrationTool.ViewModels
         public ICommand SendCheckStopCommand { get; set; }
         #endregion
 
-        #region Constructed functions
-        public ReadDataViewModel()
-        {
-            _debugData = new DebugData();
-        }
-        #endregion
-
         #region Properties
         public string DebugCommand { get => ConfigManager.DebugCommand; }
         public string CaliCommand { get => ConfigManager.CaliFlowVCommand; }
         public string RefStopCommand { get => ConfigManager.AVStopCommand; }
         public byte[] FlowCommand { get => ConfigManager.ReadFlowCommand; }
 
-        private DebugData _debugData;
-        public string SN { get => _debugData.SN; }
-        public string GasType { get => _debugData.GasType; }
-        public string Range { get => _debugData.Range; }
-        public string Unit { get => _debugData.Unit; }
+        public DebugData DebugData { get; private set; } = new DebugData();
 
         private bool _repeat;
         public bool Repeat
@@ -89,8 +78,9 @@ namespace CalibrationTool.ViewModels
         public void SetDebugData(KeyValuePair<string, string> keyValue)
         {
             PropertyInfo property = DebugDataMapperAttribute.GetPropertyByKey(keyValue.Key);
-            property?.SetValue(_debugData, keyValue.Value);
-            RaiseProperty(property?.Name);
+            if (property == null || !property.CanWrite) return;
+            if (DebugData.TryToSetPropertyValue(property, keyValue.Value))
+                RaiseProperty(nameof(DebugData));
         }
 
         public void SetReadFlowCommand(Action act)

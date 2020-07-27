@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -22,8 +23,20 @@ namespace CalibrationTool.Models
         [DebugDataMapper("modbus addr")]
         public string ModbusAddr { get; set; }
 
+        private string _modbusBaud;
+
         [DebugDataMapper("modbus baud")]
-        public string ModbusBaud { get; set; }
+        [InvokeCustomSetMethod]
+        public string ModbusBaud
+        {
+            get => _modbusBaud;
+            set
+            {
+                var code = BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code.ToString() == value);
+                if (code != null)
+                    _modbusBaud = code.BaudRate.ToString();
+            }
+        }
 
         [DebugDataMapper("K of 1-5V")]
         public string KOf1_5 { get; set; }
@@ -33,6 +46,23 @@ namespace CalibrationTool.Models
 
         [DebugDataMapper("T of cali flow")]
         public string TOfCaliFlow { get; set; }
+
+        public bool TryToSetPropertyValue(PropertyInfo pInfo, string value)
+        {
+            try
+            {
+                var selfSetAttr = pInfo.GetCustomAttribute<InvokeCustomSetMethodAttribute>();
+                if (selfSetAttr == null)
+                    pInfo.SetValue(this, value);
+                else
+                    pInfo.SetMethod?.Invoke(this, new object[] { value });
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 
     public class DebugDataMapperAttribute : Attribute
@@ -63,5 +93,13 @@ namespace CalibrationTool.Models
                 return null;
             return keyToPropertyMap[key];
         }
+    }
+
+    /// <summary>
+    /// 表示该属性需要调用自定义的set方法来设置其值。
+    /// </summary>
+    public class InvokeCustomSetMethodAttribute : Attribute
+    {
+
     }
 }
