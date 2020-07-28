@@ -23,7 +23,11 @@ namespace CalibrationTool.ViewModels
         {
             InitializeSerialPort();
             InitializeSerialPortNameCollection();
-            OpenOrCloseCommand = new RelayCommand(o => TryToSwitchPort());
+            OpenOrCloseCommand = new RelayCommand(o =>
+            {
+                if (serialPort.IsOpen) TryToClosePort();
+                else TryToOpenPort();
+            });
         }
         #endregion
 
@@ -89,17 +93,15 @@ namespace CalibrationTool.ViewModels
         public ObservableCollection<string> PortNameCollection { get; private set; } 
             = new ObservableCollection<string>();
 
-        public ObservableCollection<int> BaudRateCollection { get; private set; }
-            = new ObservableCollection<int>() { 9600, 19200, 38400, 57600, 115200 };
+        public List<int> BaudRateCollection { get; private set; } = BaudRateCode.GetBaudRates();
 
-        public ObservableCollection<int> DataBitsCollection { get; private set; }
-            = new ObservableCollection<int>() { 5, 6, 7, 8 };
+        public List<int> DataBitsCollection { get; private set; } = new List<int>() { 5, 6, 7, 8 };
 
-        public ObservableCollection<Parity> ParityCollection { get; private set; }
-            = new ObservableCollection<Parity>() { Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space };
+        public List<Parity> ParityCollection { get; private set; }
+            = new List<Parity>() { Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space };
 
-        public ObservableCollection<StopBits> StopBitsCollection { get; private set; }
-            = new ObservableCollection<StopBits>() { StopBits.One, StopBits.OnePointFive, StopBits.Two };
+        public List<StopBits> StopBitsCollection { get; private set; }
+            = new List<StopBits>() { StopBits.One, StopBits.OnePointFive, StopBits.Two };
 
         //自动换行
         private bool _autoAddNewLine = true;
@@ -192,27 +194,13 @@ namespace CalibrationTool.ViewModels
                 MessageHandler?.Invoke("端口错误：" + e.Message);
             }
         }
-
-        private void TryToSwitchPort()
-        {
-            try
-            {
-                if (serialPort.IsOpen)
-                    serialPort.Close();
-                else serialPort.Open();
-            }
-            catch(Exception e)
-            {
-                MessageHandler?.Invoke("端口错误：" + e.Message);
-            }
-            
-        }
+        #endregion
 
         /// <summary>
         /// 获取串口号对应的设备完整名称列表，该方法暂时未使用。
         /// </summary>
         /// <returns></returns>
-        private string[] GetSerialPortFullNames()
+        public string[] GetSerialPortFullNames()
         {
             List<string> fullNames = new List<string>();
             using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("select * from Win32_PnPEntity"))
@@ -220,16 +208,16 @@ namespace CalibrationTool.ViewModels
                 var hardInfos = searcher.Get();
                 foreach (var hardInfo in hardInfos)
                 {
-                    object nameValue = hardInfo.Properties["Name"].Value;
-                    if (nameValue != null && nameValue.ToString().Contains("COM"))
+                    var nameValue = hardInfo.Properties["Name"].Value;
+                    if (nameValue == null) continue;
+                    foreach (string portName in SerialPort.GetPortNames())
                     {
-                        fullNames.Add(nameValue.ToString());
+                        if (nameValue.ToString().Contains(portName))
+                            fullNames.Add(nameValue.ToString());
                     }
                 }
-                searcher.Dispose();
             }
             return fullNames.ToArray();
         }
-        #endregion
     }
 }

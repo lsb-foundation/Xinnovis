@@ -79,15 +79,15 @@ T of cali flow:0.00";
             {
                 reader.SetDebugData(kv);
             }
-            Assert.AreEqual(reader.SN, "0058 0062 354E 5001 2033 3058");
-            Assert.AreEqual(reader.Unit, "SLM");
-            Assert.AreEqual(reader.Range, "30");
-            Assert.AreEqual(reader.GasType, "Air");
-            Assert.AreEqual(reader.KOf1_5, "0.004500");
-            Assert.AreEqual(reader.DOf1_5, "10.430000");
-            Assert.AreEqual(reader.TOfCaliFlow, "0.00");
-            Assert.AreEqual(reader.ModbusAddr, "1");
-            Assert.AreEqual(reader.ModbusBaud, BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code == 2).BaudRate);
+            Assert.AreEqual(reader.DebugData.SN, "0058 0062 354E 5001 2033 3058");
+            Assert.AreEqual(reader.DebugData.Unit, "SLM");
+            Assert.AreEqual(reader.DebugData.Range, "30");
+            Assert.AreEqual(reader.DebugData.GasType, "Air");
+            Assert.AreEqual(reader.DebugData.KOf1_5, "0.004500");
+            Assert.AreEqual(reader.DebugData.DOf1_5, "10.430000");
+            Assert.AreEqual(reader.DebugData.TOfCaliFlow, "0.00");
+            Assert.AreEqual(reader.DebugData.ModbusAddr, "1");
+            Assert.AreEqual(reader.DebugData.ModbusBaud, BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code == 2).BaudRate.ToString());
         }
     }
 }

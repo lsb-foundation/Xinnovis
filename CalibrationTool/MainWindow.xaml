@@ -266,8 +266,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendRefStartCommand}">发送AV__START</Button>
-                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">发送AV__STOP</Button>
+                                        <Button Command="{Binding SendRefStartCommand}">AV__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">AV__STOP</Button>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
