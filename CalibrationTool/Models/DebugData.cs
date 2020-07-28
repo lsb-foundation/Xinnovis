@@ -33,7 +33,7 @@ namespace CalibrationTool.Models
             set
             {
                 var code = BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code.ToString() == value);
-                if (code != null)
+                if (code != default)
                     _modbusBaud = code.BaudRate.ToString();
             }
         }
@@ -51,8 +51,8 @@ namespace CalibrationTool.Models
         {
             try
             {
-                var selfSetAttr = pInfo.GetCustomAttribute<InvokeCustomSetMethodAttribute>();
-                if (selfSetAttr == null)
+                var customSetAttr = pInfo.GetCustomAttribute<InvokeCustomSetMethodAttribute>();
+                if (customSetAttr == null)
                     pInfo.SetValue(this, value);
                 else
                     pInfo.SetMethod?.Invoke(this, new object[] { value });

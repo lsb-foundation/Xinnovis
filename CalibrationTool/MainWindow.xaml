@@ -237,7 +237,7 @@
                             <GroupBox Header="标定">
                                 <Button Command="{Binding SendCaliCommand}">发送CALI!</Button>
                             </GroupBox>
-                            <GroupBox Header="读流量">
+                            <!--<GroupBox Header="读流量">
                                 <StackPanel Orientation="Vertical">
                                     <CheckBox Margin="4" IsChecked="{Binding Repeat}">重复</CheckBox>
                                     <Label>时间间隔(ms):</Label>
@@ -245,7 +245,7 @@
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                     <Button Command="{Binding SendReadFlowCommand}">发送</Button>
                                 </StackPanel>
-                            </GroupBox>
+                            </GroupBox>-->
                             <GroupBox Header="测量1~5V电压">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -266,8 +266,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendRefStartCommand}">发送AV__START</Button>
-                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">发送AV__STOP</Button>
+                                        <Button Command="{Binding SendRefStartCommand}">AV__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">AV__STOP</Button>
                                     </Grid>
                                 </Grid>
                             </GroupBox>

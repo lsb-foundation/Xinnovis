@@ -41,9 +41,7 @@ namespace CalibrationTool.Utils
             {
                 DefaultValueAttribute defaultAttr = pInfo.GetCustomAttribute<DefaultValueAttribute>();
                 if (defaultAttr != null)
-                {
                     return defaultAttr.Value.ToString();
-                }
             }
 
             return string.Empty;
@@ -140,7 +138,7 @@ namespace CalibrationTool.Utils
         /// <summary>
         /// 检查实际输出电压的指令的头部。
         /// </summary>
-        [DefaultValue("CHECK")]
+        [DefaultValue("CHECK_1-5")]
         public static string CheckCommandHeader { get => Read(); }
 
         /// <summary>
