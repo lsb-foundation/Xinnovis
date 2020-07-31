@@ -87,12 +87,10 @@ namespace MFCSoftware
             //0xFE 0x03 0x02 0x00 addr CRCL CRCH
             bool isHeaderCorrect = data[0] ==
                 0xfe && data[1] == 0x03 && data[2] == 0x02 && data[3] == 0x00;
+
             if (!isHeaderCorrect) return false;
 
-            byte[] addr = data.Where((_, index) => index > 3 && index < data.Length - 2).ToArray();
-            uint intAddr = BitConverter.ToUInt32(addr, 0);
-            viewModel.ReaderAddress = intAddr;
-
+            viewModel.ReaderAddress = data[4];
             return true;
         }
 
@@ -103,12 +101,10 @@ namespace MFCSoftware
             //0xFE 0x06 0x02 0x00 addr CRCL CRCH
             bool isHeaderCorrect = data[0] ==
                 0xfe && data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00;
+
             if (!isHeaderCorrect) return false;
 
-            byte[] addr = data.Where((_, index) => index > 3 && index < data.Length - 2).ToArray();
-            uint intAddr = BitConverter.ToUInt32(addr, 0);
-            viewModel.WriterAddress = intAddr;
-
+            viewModel.WriterAddress = data[4];
             return true;
         }
 
@@ -121,8 +117,7 @@ namespace MFCSoftware
                 0xfe && data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00;
             if (!isHeaderCorrect) return false;
 
-            byte[] baudcode = data.Where((_, index) => index > 3 && index < data.Length - 2).ToArray();
-            uint intBaudcode = BitConverter.ToUInt32(baudcode, 0);
+            uint intBaudcode = data[4];
             viewModel.BaudRateCode = viewModel.BaudRateCodes.FirstOrDefault(c => c.Code == intBaudcode);
 
             return true;
