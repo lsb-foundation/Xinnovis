@@ -42,20 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Communication\AdvancedSerialPort.cs">
+    <Compile Include="Communication\Serial\AdvancedSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Communication\SendReceivedDataHandler.cs" />
     <Compile Include="Communication\SendReceivedDataHandlerPair.cs" />
+    <Compile Include="Communication\Serial\BaudRateCode.cs" />
     <Compile Include="Extensions\ByteExtension.cs" />
     <Compile Include="Extensions\ConfigurationExtension.cs" />
     <Compile Include="Extensions\StringExtension.cs" />
+    <Compile Include="Models\GasTypeCode.cs" />
+    <Compile Include="Models\UnitCode.cs" />
     <Compile Include="Mvvm\RelayCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Config\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

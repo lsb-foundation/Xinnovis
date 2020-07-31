@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CalibrationTool.ViewModels;
 using CalibrationTool.Models;
-using CommonLib.Communication;
+using CommonLib.Communication.Serial;
 using CommonLib.Mvvm;
 using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;

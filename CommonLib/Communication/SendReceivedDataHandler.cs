@@ -20,6 +20,7 @@ namespace CommonLib.Communication
         /// Received Handler
         /// </summary>
         public Action<object> ReceivedHandler { get; }
+        public event Action WaitTimeout;
 
         /// <summary>
         /// Initialize an instance of SendReceivedHandler class.
@@ -44,7 +45,10 @@ namespace CommonLib.Communication
         private void HandleReceivedData(object data)
         {
             if (!timer.Enabled)         //Time is out, application can't handle data.
+            {
+                WaitTimeout?.Invoke();
                 return;
+            }
 
             timer.Stop();
 

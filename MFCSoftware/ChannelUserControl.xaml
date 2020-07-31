@@ -1,0 +1,141 @@
+﻿<UserControl x:Class="MFCSoftware.ChannelUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MFCSoftware"
+             xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+             mc:Ignorable="d" BorderThickness="1.5"
+             d:DesignHeight="480" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="32"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Width" Value="100"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Background="#E4E8EB">
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Border Background="Black">
+            <Button Style="{x:Null}" HorizontalAlignment="Right" Click="Closed">X</Button>
+        </Border>
+        
+        <Grid Grid.Row="1">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Orientation="Horizontal">
+                
+                <Label>地址</Label>
+                <TextBox Text="{Binding Address, Mode=OneWay}"></TextBox>
+                
+                <Label>SN号</Label>
+                <TextBox Text="{Binding SN, Mode=OneWay}" Width="150"></TextBox>
+                
+                <Label>气体类型</Label>
+                <TextBox Text="{Binding GasType.GasName, Mode=OneWay}"></TextBox>
+                
+                <Label>量程</Label>
+                <TextBox Text="{Binding Range, Mode=OneWay}"></TextBox>
+                
+                <Label>单位</Label>
+                <TextBox Text="{Binding Unit.Unit, Mode=OneWay}"></TextBox>
+                
+            </StackPanel>
+            
+            <Grid Grid.Row="1">
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel>
+                        <TextBlock FontSize="24">瞬时</TextBlock>
+                        <TextBlock FontSize="24">流量</TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Column="1" Text="{Binding CurrentFlow, Mode=OneWay}" 
+                             Style="{x:Null}" Margin="4" FontSize="24"
+                             VerticalContentAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2">
+                        <ComboBox ItemsSource="{Binding Units, Mode=OneWay}" SelectedIndex="0"/>
+                        <Button>数据导出</Button>
+                    </StackPanel>
+                    
+                    <Ellipse Grid.Column="3" Margin="4"
+                             Width="32" Height="32" Fill="Green"/>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="3">
+                        <RadioButton Grid.Row="1" GroupName="Radio">设置流量</RadioButton>
+                        <TextBox />
+                        <ComboBox ItemsSource="{Binding Units, Mode=OneWay}" SelectedIndex="0"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="3">
+                        <RadioButton Grid.Row="2" GroupName="Radio">阀门控制</RadioButton>
+                        <TextBox/>
+                        <Label>%</Label>
+                        <Button>确定</Button>
+                    </StackPanel>
+                </Grid>
+                
+                <d3:ChartPlotter Grid.Column="1" x:Name="plotter" 
+                                 Margin="10,10,20,10" Grid.Row="1">
+                    <d3:ChartPlotter.VerticalAxis>
+                        <d3:VerticalIntegerAxis />
+                    </d3:ChartPlotter.VerticalAxis>
+
+                    <d3:ChartPlotter.HorizontalAxis>
+                        <d3:HorizontalIntegerAxis />
+                    </d3:ChartPlotter.HorizontalAxis>
+                </d3:ChartPlotter>
+            </Grid>
+        </Grid>
+    </Grid>
+    
+</UserControl>

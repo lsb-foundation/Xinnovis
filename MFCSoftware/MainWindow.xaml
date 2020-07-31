@@ -1,0 +1,14 @@
+﻿<Window x:Class="MFCSoftware.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MFCSoftware"
+        mc:Ignorable="d" Background="#E4E8EB"
+        Title="MFCSoftware" Height="450" Width="800">
+    <StackPanel VerticalAlignment="Center">
+        <Button Width="200" Height="48" Margin="8" Click="OpenMFCSoftwareWindow">开始工作</Button>
+        <Button Width="150" Height="32" Margin="8" Click="OpenSetSerialPortWindow">串口设置</Button>
+        <Button Width="150" Height="32" Margin="8" Click="OpenSetAddressWindow">设置地址</Button>
+    </StackPanel>
+</Window>

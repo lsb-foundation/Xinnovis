@@ -10,7 +10,7 @@ namespace CommonLib.Communication
         /// <param name="data">Data that will be sended</param>
         /// <param name="receivedHandler">Handler when data is received</param>
         /// <param name="retryTime">Retry times</param>
-        public SendReceivedDataHandlerPair(object data, Func<object, bool> receivedHandler, int retryTime = 0)
+        public SendReceivedDataHandlerPair(object data, Predicate<object> receivedHandler, int retryTime = 0)
         {
             if (data == null || receivedHandler == null)
                 throw new ArgumentNullException();
@@ -31,7 +31,7 @@ namespace CommonLib.Communication
         /// <summary>
         /// Handler when data is received, returns true if data is correct or returns false.
         /// </summary>
-        public Func<object, bool> ReceivedHandler { get; set; }
+        public Predicate<object> ReceivedHandler { get; set; }
 
         /// <summary>
         /// Retry times if resolve received data failed or time is out.
