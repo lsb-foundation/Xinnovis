@@ -3,12 +3,13 @@ using CommonLib.Mvvm;
 using CommonLib.Communication.Serial;
 using MFCSoftware.Common;
 using System;
+using System.IO.Ports;
 
 namespace MFCSoftware.ViewModels
 {
     public class SetSerialPortWindowViewModel : BindableBase
     {
-        private AdvancedSerialPort _serialPort;
+        private SerialPort _serialPort;
         public SetSerialPortWindowViewModel()
         {
             _serialPort = AppSerialPortInstance.GetSerialPortInstance();

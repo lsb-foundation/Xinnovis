@@ -71,7 +71,7 @@ namespace CommonLib.Communication.Serial
                     {
                         receivedBytes.AddRange(buffer);
                     }
-                    await Task.Delay(10);
+                    await Task.Delay(20);
                 }
                 ReceivedDataHandler?.Invoke(receivedBytes.ToArray());
             }

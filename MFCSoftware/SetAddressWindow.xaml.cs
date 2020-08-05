@@ -19,6 +19,8 @@ using CommonLib.Communication;
 using System.Windows.Markup.Localizer;
 using System.Security.Policy;
 using System.Timers;
+using System.IO.Ports;
+using MFCSoftware.Models;
 
 namespace MFCSoftware
 {
@@ -28,7 +30,6 @@ namespace MFCSoftware
     public partial class SetAddressWindow : Window
     {
         private SetAddressWindowViewModel viewModel;
-        private AdvancedSerialPort serialPort;
         private Timer timer;
 
         private ActionType currentAction;
@@ -41,18 +42,10 @@ namespace MFCSoftware
 
         private void InitializeWindow()
         {
-            serialPort = AppSerialPortInstance.GetSerialPortInstance();
-            serialPort.ReceivedDataHandler = ResolveData;
             timer = new Timer(1000);
             timer.Elapsed += Timer_Elapsed;
             viewModel = new SetAddressWindowViewModel();
             this.DataContext = viewModel;
-            this.Closed += SetAddressWindow_Closed;
-        }
-
-        private void SetAddressWindow_Closed(object sender, EventArgs e)
-        {
-            serialPort.ReceivedDataHandler = null;
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -143,21 +136,24 @@ namespace MFCSoftware
             Send(viewModel.SetBaudRateBytes, ActionType.SetBaudRate);
         }
 
-        private void Send(byte[] data, ActionType act)
+        private async void Send(SerialCommand<byte[]> command, ActionType act)
         {
             try
             {
-                if (!serialPort.IsOpen)
-                    serialPort.Open();
-
-                serialPort.Write(data, 0, data.Length);
+                AppSerialPortInstance.Send(command);
                 currentAction = act;
                 viewModel.Enable = false;
                 timer.Start();
+                var data = await AppSerialPortInstance.GetResponseBytes();
+                ResolveData(data);
+            }
+            catch (TimeoutException)
+            {
+                MessageBox.Show("接收数据超时。");
             }
             catch
             {
-                MessageBox.Show("串口连接失败，请检查！");
+                MessageBox.Show("串口可能被其他程序占用，请检查");
             }
         }
 

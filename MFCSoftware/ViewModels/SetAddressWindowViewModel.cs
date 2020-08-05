@@ -1,6 +1,7 @@
 ﻿using CommonLib.Communication.Serial;
 using CommonLib.Extensions;
 using CommonLib.Mvvm;
+using MFCSoftware.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,27 +47,36 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _enable, value);
         }
 
-        public byte[] ReadAddressBytes { get; } = new byte[] { 0xFE, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0x05 };
+        public SerialCommand<byte[]> ReadAddressBytes 
+        { 
+            get
+            {
+                byte[] command = new byte[] { 0xFE, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0x05 };
+                return new SerialCommand<byte[]>(command, 7);
+            } 
+        }
 
-        public byte[] WriteAddressBytes
+        public SerialCommand<byte[]> WriteAddressBytes
         {
             get
             {
                 //0xFE 0x06 0x00 0x00 0x00 addr CRCL CRCH
                 byte addr = Convert.ToByte(_writerAddress);
                 byte[] header = { 0xFE, 0x06, 0x00, 0x00, 0x00 };
-                return GetBytesCommand(header, addr);
+                byte[] command = GetBytesCommand(header, addr);
+                return new SerialCommand<byte[]>(command, 7);
             }
         }
 
-        public byte[] SetBaudRateBytes
+        public SerialCommand<byte[]> SetBaudRateBytes
         {
             get
             {
                 //0xFE 0x06 0x00 0x01 0x00 baudcode CRCL CRCH
                 byte[] header = { 0xFE, 0x06, 0x00, 0x01, 0x00 };
                 byte baudcode = Convert.ToByte(_baudRateCode.Code);
-                return GetBytesCommand(header, baudcode);
+                byte[] command = GetBytesCommand(header, baudcode);
+                return new SerialCommand<byte[]>(command, 7);
             }
         }
 

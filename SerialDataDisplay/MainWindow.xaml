@@ -1,0 +1,95 @@
+﻿<Window x:Class="SerialDataDisplay.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SerialDataDisplay"
+        xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        mc:Ignorable="d" Closed="Window_Closed" Icon="logo.ico"
+        Title="青岛芯笙" Height="450" Width="800">
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="ComboBox">
+                <Setter Property="Width" Value="100"/>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="8" HorizontalAlignment="Center">
+            <Label>串口</Label>
+            <ComboBox ItemsSource="{Binding PortNameCollection}"
+                      SelectedItem="{Binding PortName}">
+            </ComboBox>
+            <Label>波特率</Label>
+            <ComboBox ItemsSource="{Binding BaudRateCollection}"
+                      SelectedIndex="0"
+                      SelectedItem="{Binding BaudRate}">
+            </ComboBox>
+            <Label>数据位</Label>
+            <ComboBox ItemsSource="{Binding DataBitsCollection}"
+                      SelectedIndex="0"
+                      SelectedItem="{Binding DataBits}">
+            </ComboBox>
+            <Label>校验位</Label>
+            <ComboBox ItemsSource="{Binding ParityCollection}"
+                      SelectedIndex="0"
+                      SelectedItem="{Binding Parity}">
+            </ComboBox>
+            <Label>停止位</Label>
+            <ComboBox ItemsSource="{Binding StopBitsCollection}"
+                      SelectedIndex="0"
+                      SelectedItem="{Binding StopBits}">
+            </ComboBox>
+            <!--<RadioButton Name="live">LiveCharts</RadioButton>
+            <RadioButton Name="dynamic">DynamicDataDisplay</RadioButton>-->
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Width="100" Margin="8" Click="btnSend_Click">开始</Button>
+            <Button Width="100" Margin="8" Click="btnStop_Click">停止</Button>
+        </StackPanel>
+        <!--<d3:ChartPlotter Grid.Row="2" x:Name="plotter" Margin="8">
+            <d3:ChartPlotter.VerticalAxis>
+                <d3:VerticalIntegerAxis />
+            </d3:ChartPlotter.VerticalAxis>
+
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis />
+            </d3:ChartPlotter.HorizontalAxis>
+        </d3:ChartPlotter>-->
+
+        <lvc:CartesianChart Grid.Row="2" Margin="0, 0, 0, 0" 
+                            Series="{Binding SeriesCollection}"
+                            Hoverable="False" DataTooltip="{x:Null}">
+            <lvc:CartesianChart.Resources>
+                <Style TargetType="lvc:LineSeries">
+                    <Setter Property="PointGeometrySize" Value="0"/>
+                </Style>
+            </lvc:CartesianChart.Resources>
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Foreground="Black" FontSize="16"></lvc:Axis>
+            </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis Foreground="Black" FontSize="16" Title="电压(mv)" 
+                          LabelFormatter="{Binding VolteLabelsFormatter}"></lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+        </lvc:CartesianChart>
+
+        <StackPanel Grid.Row="3" Margin="0,0,0,8"
+                    Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="24"/>
+                    <Setter Property="Foreground" Value="Green"/>
+                </Style>
+            </StackPanel.Resources>
+            <TextBlock>当前电压：</TextBlock>
+            <TextBlock Text="{Binding CurrentVolte, StringFormat={}{0:N3}}"/>
+            <TextBlock>mv</TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>

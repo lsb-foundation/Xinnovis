@@ -4,138 +4,124 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MFCSoftware"
-             xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" BorderThickness="1.5"
              d:DesignHeight="480" d:DesignWidth="800">
-    <UserControl.Resources>
-        <Style TargetType="TextBox">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="TextBlock">
-            <Setter Property="Margin" Value="4"/>
-        </Style>
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Width" Value="80"/>
-            <Setter Property="Height" Value="32"/>
-        </Style>
-        <Style TargetType="ComboBox">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Width" Value="100"/>
-        </Style>
-        <Style TargetType="Label">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="RadioButton">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
     
-    <Grid Background="#E4E8EB">
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <Border Background="Black">
-            <Button Style="{x:Null}" HorizontalAlignment="Right" Click="Closed">X</Button>
-        </Border>
-        
-        <Grid Grid.Row="1">
-            
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <md:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <md:Card>
+
+        <Grid Margin="8,8,0,0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-            <StackPanel Orientation="Horizontal">
-                
+
+            <Border Margin="8">
+                <Button HorizontalAlignment="Right" Background="Transparent"
+                    Click="Closed" Content="X" Width="20" BorderThickness="0">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal"
+                    HorizontalAlignment="Stretch">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Width" Value="50"/>
+                        <Setter Property="Margin" Value="4"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
                 <Label>地址</Label>
-                <TextBox Text="{Binding Address, Mode=OneWay}"></TextBox>
-                
+                <TextBox Text="{Binding Address, Mode=OneWay}"/>
                 <Label>SN号</Label>
-                <TextBox Text="{Binding SN, Mode=OneWay}" Width="150"></TextBox>
-                
+                <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}" Width="150"/>
                 <Label>气体类型</Label>
-                <TextBox Text="{Binding GasType.GasName, Mode=OneWay}"></TextBox>
-                
+                <TextBox Text="{Binding BaseInfo.GasType.GasName, Mode=OneWay}"/>
                 <Label>量程</Label>
-                <TextBox Text="{Binding Range, Mode=OneWay}"></TextBox>
-                
+                <TextBox Text="{Binding BaseInfo.Range, Mode=OneWay}"/>
                 <Label>单位</Label>
-                <TextBox Text="{Binding Unit.Unit, Mode=OneWay}"></TextBox>
-                
+                <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"/>
             </StackPanel>
-            
-            <Grid Grid.Row="1">
-                
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
 
-                <Grid>
-                    
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel>
-                        <TextBlock FontSize="24">瞬时</TextBlock>
-                        <TextBlock FontSize="24">流量</TextBlock>
+            <StackPanel Grid.Row="2" Margin="8,0,0,0">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="Foreground" Value="#FF5722"/>
+                    </Style>
+                </StackPanel.Resources>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>当前流量：</TextBlock>
+                        <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N6}}"/>
+                        <Separator/>
                     </StackPanel>
-                    <TextBox Grid.Column="1" Text="{Binding CurrentFlow, Mode=OneWay}" 
-                             Style="{x:Null}" Margin="4" FontSize="24"
-                             VerticalContentAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2">
-                        <ComboBox ItemsSource="{Binding Units, Mode=OneWay}" SelectedIndex="0"/>
-                        <Button>数据导出</Button>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>累积流量：</TextBlock>
+                        <TextBlock Text="{Binding Flow.AccuFlow, StringFormat={}{0:N6}}"/>
+                        <TextBlock Margin="16,0,0,0">单位：</TextBlock>
+                        <TextBlock Text="{Binding Flow.Unit}"/>
                     </StackPanel>
-                    
-                    <Ellipse Grid.Column="3" Margin="4"
-                             Width="32" Height="32" Fill="Green"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>累积时间：</TextBlock>
+                        <TextBlock Text="{Binding Flow.Days}"></TextBlock>
+                        <TextBlock>天</TextBlock>
+                        <TextBlock Text="{Binding Flow.Hours}"></TextBlock>
+                        <TextBlock>小时</TextBlock>
+                        <TextBlock Text="{Binding Flow.Minutes}"></TextBlock>
+                        <TextBlock>分</TextBlock>
+                        <TextBlock Text="{Binding Flow.Seconds}"></TextBlock>
+                        <TextBlock>秒</TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="3">
-                        <RadioButton Grid.Row="1" GroupName="Radio">设置流量</RadioButton>
-                        <TextBox />
-                        <ComboBox ItemsSource="{Binding Units, Mode=OneWay}" SelectedIndex="0"/>
-                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="3">
-                        <RadioButton Grid.Row="2" GroupName="Radio">阀门控制</RadioButton>
-                        <TextBox/>
-                        <Label>%</Label>
-                        <Button>确定</Button>
-                    </StackPanel>
-                </Grid>
-                
-                <d3:ChartPlotter Grid.Column="1" x:Name="plotter" 
-                                 Margin="10,10,20,10" Grid.Row="1">
-                    <d3:ChartPlotter.VerticalAxis>
-                        <d3:VerticalIntegerAxis />
-                    </d3:ChartPlotter.VerticalAxis>
-
-                    <d3:ChartPlotter.HorizontalAxis>
-                        <d3:HorizontalIntegerAxis />
-                    </d3:ChartPlotter.HorizontalAxis>
-                </d3:ChartPlotter>
-            </Grid>
+            <lvc:CartesianChart Grid.Row="3" Series="{Binding FlowSeries}"
+                            DataTooltip="{x:Null}" Focusable="False">
+                <lvc:CartesianChart.Resources>
+                    <Style TargetType="lvc:Axis">
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Style>
+                    <Style TargetType="lvc:LineSeries">
+                        <Setter Property="PointGeometrySize" Value="0"/>
+                    </Style>
+                </lvc:CartesianChart.Resources>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="瞬时流量" LabelFormatter="{Binding FlowLabelsFomatter}"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
         </Grid>
-    </Grid>
+        
+    </md:Card>
     
 </UserControl>

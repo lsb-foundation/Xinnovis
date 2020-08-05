@@ -3,12 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:MFCSoftware"
-        mc:Ignorable="d" Background="#E4E8EB"
-        Title="MFCSoftware" Height="450" Width="800">
-    <StackPanel VerticalAlignment="Center">
-        <Button Width="200" Height="48" Margin="8" Click="OpenMFCSoftwareWindow">开始工作</Button>
-        <Button Width="150" Height="32" Margin="8" Click="OpenSetSerialPortWindow">串口设置</Button>
-        <Button Width="150" Height="32" Margin="8" Click="OpenSetAddressWindow">设置地址</Button>
-    </StackPanel>
+        mc:Ignorable="d"
+        Title="MFCSoftware" Height="600" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <md:ColorZone Mode="PrimaryMid" Padding="16">
+            <StackPanel Orientation="Horizontal">
+                <Button Click="OpenSetSerialPortWindow">串口设置</Button>
+                <Button Click="OpenSetAddressWindow">设置地址</Button>
+                <Button Click="AddChannelButton_Click">添加通道</Button>
+            </StackPanel>
+        </md:ColorZone>
+
+        <ScrollViewer Grid.Row="1" 
+                      Style="{DynamicResource MaterialDesignScrollViewer}">
+            <UniformGrid  Name="ChannelGrid" Columns="2">
+            </UniformGrid>
+        </ScrollViewer>
+    </Grid>
 </Window>

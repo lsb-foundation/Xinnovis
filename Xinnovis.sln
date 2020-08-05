@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware", "MFCSoftware\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibTests", "CommonLibTests\CommonLibTests.csproj", "{C2660E8B-4412-4942-8877-52A1612E51ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialDataDisplay", "SerialDataDisplay\SerialDataDisplay.csproj", "{A4F4EF35-23E1-452E-A434-83BE9FF5B832}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{C2660E8B-4412-4942-8877-52A1612E51ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2660E8B-4412-4942-8877-52A1612E51ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2660E8B-4412-4942-8877-52A1612E51ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
