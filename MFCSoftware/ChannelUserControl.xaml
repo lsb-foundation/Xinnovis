@@ -17,32 +17,16 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <md:Card>
 
-        <Grid Margin="8,8,0,0">
+    <md:Card Margin="8">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Margin="8">
-                <Button HorizontalAlignment="Right" Background="Transparent"
-                    Click="Closed" Content="X" Width="20" BorderThickness="0">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </Border>
-
-            <StackPanel Grid.Row="1" Orientation="Horizontal"
+            <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Stretch">
                 <StackPanel.Resources>
                     <Style TargetType="TextBox">
@@ -66,7 +50,12 @@
                 <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="2" Margin="8,0,0,0">
+            <Button HorizontalAlignment="Right" Click="Closed" Margin="8"
+                    Width="20" Height="20" Content="X" FontSize="20" Foreground="White"
+                    Style="{DynamicResource MaterialDesignFloatingActionAccentButton}">
+            </Button>
+
+            <StackPanel Grid.Row="1" Margin="8,0,0,0">
                 <StackPanel.Resources>
                     <Style TargetType="TextBlock">
                         <Setter Property="FontSize" Value="16"/>
@@ -102,7 +91,7 @@
                 </StackPanel>
             </StackPanel>
 
-            <lvc:CartesianChart Grid.Row="3" Series="{Binding FlowSeries}"
+            <lvc:CartesianChart Grid.Row="2" Series="{Binding FlowSeries}"
                             DataTooltip="{x:Null}" Focusable="False">
                 <lvc:CartesianChart.Resources>
                     <Style TargetType="lvc:Axis">
