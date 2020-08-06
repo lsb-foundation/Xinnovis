@@ -4,13 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MFCSoftware"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" ResizeMode="NoResize"
         Title="增加通道" Height="200" Width="300">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="8">
-            <Label>地址</Label>
-            <TextBox Width="100" Text="{Binding Address}"></TextBox>
-        </StackPanel>
+        <TextBox Width="100" Text="{Binding Address}" Margin="4"
+                 md:HintAssist.Hint="地址" md:HintAssist.FloatingScale="1"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"></TextBox>
         <Button Height="32" Margin="8" Click="Button_Click">确定</Button>
     </StackPanel>
 </Window>

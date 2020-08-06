@@ -37,9 +37,11 @@ namespace MFCSoftware
         public MainWindow()
         {
             InitializeComponent();
-            InitializeComponent();
             this.Closed += MainWindow_Closed;
             InitializeTimer();
+#if DEBUG
+            DbStorage.InsertFlowData(1, new FlowData() { AccuFlow = 201.890f, CurrentFlow = 150.567f, Unit = "SCCM" });
+#endif
         }
 
         private void OpenSetSerialPortWindow(object sender, RoutedEventArgs e)
@@ -87,13 +89,13 @@ namespace MFCSoftware
                     try
                     {
                         byte[] data = await AppSerialPortInstance.GetResponseBytes();
-                        channel.ResolveData(data);
+                        channel.ResolveData(data, ResolveType.FlowData);
                     }
                     catch (TimeoutException)
                     {
                         channel.WhenTimeOut();
                     }
-                    catch (Exception) { }
+                    catch { }
                 }
             }
         }
@@ -127,7 +129,8 @@ namespace MFCSoftware
                 {
                     ChannelUserControl channelControl = new ChannelUserControl();
                     channelControl.SetAddress(window.Address);
-                    channelControl.ControlWasRemoved += Channel_ControlWasRemoved;
+                    channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
+                    channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
                     ChannelGrid.Children.Add(channelControl);
                     SetTimerInterval();
                     addedAddrs.Add(window.Address);
@@ -138,6 +141,32 @@ namespace MFCSoftware
             }
         }
 
+        private async void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
+        {
+            timer.Stop();
+            if (Send(channel.ClearAccuFlowBytes))
+            {
+                try
+                {
+                    byte[] data = await AppSerialPortInstance.GetResponseBytes();
+                    channel.ResolveData(data, ResolveType.ClearAccuFlowData);
+                }
+                catch (TimeoutException) { }
+                catch { }
+            }
+            timer.Start();
+        }
+
+        private void ChannelControl_ControlWasRemoved(ChannelUserControl sender)
+        {
+            timer.Stop();
+            addedAddrs.Remove(sender.Address);
+            controlList.Remove(sender);
+            ChannelGrid.Children.Remove(sender);
+            SetTimerInterval();
+            timer.Start();
+        }
+
         private async void ChannelAdded(ChannelUserControl channel)
         {
             timer.Stop();   //添加通道后自动发送获取基本信息指令，需要暂停timer轮询
@@ -146,21 +175,11 @@ namespace MFCSoftware
                 try
                 {
                     byte[] data = await AppSerialPortInstance.GetResponseBytes();
-                    channel.ResolveData(data);
+                    channel.ResolveData(data, ResolveType.BaseInfoData);
                 }
+                catch (TimeoutException) { }
                 catch { }
-                timer.Start();
             }
-        }
-
-        private void Channel_ControlWasRemoved(object sender)
-        {
-            timer.Stop();
-            var control = sender as ChannelUserControl;
-            addedAddrs.Remove(control.Address);
-            controlList.Remove(control);
-            ChannelGrid.Children.Remove(control);
-            SetTimerInterval();
             timer.Start();
         }
 

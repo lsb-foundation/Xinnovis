@@ -22,6 +22,7 @@ namespace MFCSoftware.Common
         private static SerialPort com;
         private static ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
         private static SerialCommand<byte[]> currentCommand = null;
+        private static bool timeOut;
 
         static AppSerialPortInstance()
         {
@@ -30,13 +31,23 @@ namespace MFCSoftware.Common
             com.DataReceived += Sp_DataReceived;
         }
 
+        private static object locked = new object();
         private static void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int count = com.BytesToRead;
-            byte[] buff = new byte[count];
-            com.Read(buff, 0, count);
-            foreach (var item in buff)
-                buffer.Enqueue(item);
+            lock (locked)
+            {
+                if (timeOut)
+                {
+                    com.ReadExisting();
+                    return;
+                }
+
+                int count = com.BytesToRead;
+                byte[] buff = new byte[count];
+                com.Read(buff, 0, count);
+                foreach (var item in buff)
+                    buffer.Enqueue(item);
+            }
         }
 
         public static SerialPort GetSerialPortInstance()
@@ -54,6 +65,7 @@ namespace MFCSoftware.Common
                     com.Open();
                 com.Write(command.Command, 0, command.Command.Length);
                 currentCommand = command;
+                timeOut = false;
             }
             catch(Exception e)
             {
@@ -63,7 +75,7 @@ namespace MFCSoftware.Common
 
         public async static Task<byte[]> GetResponseBytes()
         {
-            using (System.Timers.Timer timer = new System.Timers.Timer(100))
+            using (System.Timers.Timer timer = new System.Timers.Timer(80))
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 timer.AutoReset = false;
@@ -84,7 +96,7 @@ namespace MFCSoftware.Common
 
                 if (cts.IsCancellationRequested)
                 {
-                    ClearBuffer();
+                    timeOut = true;
                     throw new TimeoutException();
                 }
                 else
@@ -93,27 +105,6 @@ namespace MFCSoftware.Common
                     return buff.ToArray();
                 }
             }  
-        }
-
-        private async static void ClearBuffer()
-        {
-            using (System.Timers.Timer timer = new System.Timers.Timer(100))
-            using(CancellationTokenSource cts = new CancellationTokenSource())
-            {
-                timer.AutoReset = false;
-                timer.Elapsed += (s, e) => cts.Cancel();
-                await Task.Run(() =>
-                {
-                    timer.Start();
-                    while (com.BytesToRead > 0)
-                    {
-                        if (cts.IsCancellationRequested)
-                            break;
-                        com.ReadExisting();
-                    }
-                }, cts.Token);
-                timer.Stop();
-            }    
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CommonLib.Extensions;
 using CommonLib.Models;
+using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers;
@@ -20,6 +21,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using OfficeOpenXml;
+using Microsoft.Win32;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace MFCSoftware
 {
@@ -36,31 +41,38 @@ namespace MFCSoftware
             this.DataContext = viewModel;
         }
 
-        public event Action<object> ControlWasRemoved; //控件被移除
+        public event Action<ChannelUserControl> ControlWasRemoved; //控件被移除
+        public event Action<ChannelUserControl> ClearAccuFlowClicked; //清除累积流量
 
         public int Address { get => viewModel.Address; }
         public SerialCommand<byte[]> ReadFlowBytes { get => viewModel.ReadFlowBytes; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get => viewModel.ReadBaseInfoBytes; }
+        public SerialCommand<byte[]> ClearAccuFlowBytes { get => viewModel.ClearAccuFlowBytes; }
 
         private void Closed(object sender, RoutedEventArgs e)
         {
             ControlWasRemoved?.Invoke(this);
         }
 
-        public void ResolveData(byte[] data)
+        public void ResolveData(byte[] data, ResolveType type)
         {
             this.Dispatcher.Invoke(() =>
             {
                 if (!data.CheckCRC16ByDefault()) return;
 
-                if (data.Length == 37)
+                if (type == ResolveType.BaseInfoData)
                     ResolveBaseInfoData(data);
-                else if (data.Length == 27)
-                {
-                    //暂时先按照采集流量处理
+                else if (type == ResolveType.FlowData)
                     ResolveFlowData(data);
-                }
+                else if (type == ResolveType.ClearAccuFlowData)
+                    ResolveClearAccuFlowData(data);
             });
+        }
+
+        private void ResolveClearAccuFlowData(byte[] data)
+        {
+            //addr 0x06 0x02 0x00 0x00 CRCL CRCH
+
         }
 
         private void ResolveBaseInfoData(byte[] data)
@@ -129,6 +141,7 @@ namespace MFCSoftware
             };
             viewModel.SetFlow(flowData);
             viewModel.UpdateSeries();
+            DbStorage.InsertFlowData(Address, flowData);
         }
 
         private byte[] GetChildArray(byte[] array, int index, int length)
@@ -140,9 +153,79 @@ namespace MFCSoftware
 
         public void WhenTimeOut()
         {
-            Console.Write("接收超时。");
+            
         }
 
         public void SetAddress(int addr) => viewModel.SetAddress(addr);
+
+        private void ExportFlowButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "Excel文件|*.xlsx;*.xls";
+            dialog.Title = "保存Excel文件";
+            if ((bool)dialog.ShowDialog())
+            {
+                if (!string.IsNullOrEmpty(dialog.FileName))
+                {
+                    ExportHistoryToExcel(dialog.FileName);
+                }
+            }
+        }
+
+        public async void ExportHistoryToExcel(string fileName)
+        {
+            try
+            {
+                var flowDatas = DbStorage.QueryLastest2HoursFlowData(Address);
+                if (flowDatas.Count > 0)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet sheet;
+                        if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
+                            sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
+                        else sheet = package.Workbook.Worksheets.Add("流量数据表");
+
+                        //添加表头
+                        sheet.SetValue(0, 0, "瞬时流量");
+                        sheet.SetValue(0, 1, "累积流量");
+                        sheet.SetValue(0, 2, "采样时间");
+                        sheet.SetValue(0, 3, "单位");
+
+                        for (int index = 0; index < flowDatas.Count; index++)
+                        {
+                            sheet.SetValue(index + 1, 0, flowDatas[index].CurrentFlow);
+                            sheet.SetValue(index + 1, 1, flowDatas[index].AccuFlow);
+                            sheet.SetValue(index + 1, 2, flowDatas[index].AccuFlow);
+                            sheet.SetValue(index + 1, 3, flowDatas[index].Unit);
+                        }
+                        await package.SaveAsync();
+                        sheet.Dispose();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("未查询到数据！");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("导出Excel出错：\n" + e.Message);
+            }
+        }
+
+        private void ClearAccuFlowButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAccuFlowClicked?.Invoke(this);
+        }
+    }
+
+    public enum ResolveType
+    {
+        BaseInfoData,
+        FlowData,
+        ClearAccuFlowData
     }
 }

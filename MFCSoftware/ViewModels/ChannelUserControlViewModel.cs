@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using CommonLib.Models;
 using MFCSoftware.Models;
 using LiveCharts.Wpf;
 using LiveCharts;
@@ -28,14 +27,20 @@ namespace MFCSoftware.ViewModels
         }
 
         public int Address { get; private set; }
-        
+
+        private string _displayUnit;
+        public string DisplayUnit
+        {
+            get => _displayUnit;
+            set => SetProperty(ref _displayUnit, value);
+        }
+
         public BaseInformation BaseInfo { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();
 
-        public List<string> Units { get; } = new List<string>() { "SCCM", "UCCM", "CCM", "SLM" };
-
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
+        public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
 
         public void SetAddress(int addr)
         {
@@ -43,6 +48,7 @@ namespace MFCSoftware.ViewModels
             RaiseProperty(nameof(Address));
             SetReadFlowBytes();
             SetReadBaseInfoBytes();
+            SetClearAccuFlowBytes();
         }
 
         public void SetBaseInfomation(BaseInformation info)
@@ -54,6 +60,7 @@ namespace MFCSoftware.ViewModels
             BaseInfo.Range = info.Range;
             BaseInfo.GasType = info.GasType;
             BaseInfo.Unit = info.Unit;
+            DisplayUnit = info.Unit.Unit;
             RaiseProperty(nameof(BaseInfo));
         }
 
@@ -62,7 +69,8 @@ namespace MFCSoftware.ViewModels
             if (Flow == null) 
                 Flow = new FlowData();
 
-            Flow.CurrentFlow = flow.CurrentFlow;
+            //Flow.CurrentFlow = flow.CurrentFlow;
+            SetCurrentFlowByUnit(flow.CurrentFlow);
             Flow.AccuFlow = flow.AccuFlow;
             Flow.Unit = flow.Unit;
             Flow.Days = flow.Days;
@@ -82,7 +90,7 @@ namespace MFCSoftware.ViewModels
         private void InitializeFlowSeries()
         {
             var values = new ChartValues<ObservableValue>();
-            for(int index = 0; index < 50; index++)
+            for(int index = 0; index < 100; index++)
             {
                 var value = new ObservableValue();
                 values.Add(value);
@@ -95,6 +103,17 @@ namespace MFCSoftware.ViewModels
                     Values = values
                 }
             };
+        }
+
+        private void SetCurrentFlowByUnit(float flow)
+        {
+            Func<float, float> func;
+            if (BaseInfo.Unit.Unit == "SCCM" && DisplayUnit == "SLM")
+                func = f => f / 1000;
+            else if (BaseInfo.Unit.Unit == "SCCM" && DisplayUnit == "%F.S")
+                func = f => f / BaseInfo.Range * 100;
+            else func = f => f;
+            Flow.CurrentFlow = func.Invoke(flow);
         }
 
         private void SetReadFlowBytes()
@@ -119,6 +138,18 @@ namespace MFCSoftware.ViewModels
             var crc = bytes.ToArray().GetCRC16(bytes.Count);
             bytes.AddRange(crc);
             ReadBaseInfoBytes = new SerialCommand<byte[]>(bytes.ToArray(), 37);
+        }
+
+        private void SetClearAccuFlowBytes()
+        {
+            //addr 0x06 0x00 0x18 0x00 0x00 CRCL CRCH
+            byte addr = Convert.ToByte(Address);
+            List<byte> bytes = new List<byte>();
+            bytes.Add(addr);
+            bytes.AddRange(new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 });
+            var crc = bytes.ToArray().GetCRC16(bytes.Count);
+            bytes.AddRange(crc);
+            ClearAccuFlowBytes = new SerialCommand<byte[]>(bytes.ToArray(), 7);
         }
     }
 }

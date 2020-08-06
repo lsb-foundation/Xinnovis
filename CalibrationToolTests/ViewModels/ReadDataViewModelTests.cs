@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CalibrationTool.Models;
 using System.Reflection;
 using CalibrationTool.ResolveUtils;
+using CommonLib.Communication.Serial;
 
 namespace CalibrationTool.ViewModels.Tests
 {

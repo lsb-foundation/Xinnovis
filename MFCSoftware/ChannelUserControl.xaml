@@ -8,61 +8,52 @@
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" BorderThickness="1.5"
              d:DesignHeight="480" d:DesignWidth="800">
-    
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <md:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
 
-    <md:Card Margin="8">
+    <md:Card Margin="8" md:ShadowAssist.ShadowDepth="Depth3">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Stretch">
-                <StackPanel.Resources>
-                    <Style TargetType="TextBox">
-                        <Setter Property="Width" Value="50"/>
-                        <Setter Property="Margin" Value="4"/>
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    </Style>
-                    <Style TargetType="Label">
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                    </Style>
-                </StackPanel.Resources>
-                <Label>地址</Label>
-                <TextBox Text="{Binding Address, Mode=OneWay}"/>
-                <Label>SN号</Label>
-                <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}" Width="150"/>
-                <Label>气体类型</Label>
-                <TextBox Text="{Binding BaseInfo.GasType.GasName, Mode=OneWay}"/>
-                <Label>量程</Label>
-                <TextBox Text="{Binding BaseInfo.Range, Mode=OneWay}"/>
-                <Label>单位</Label>
-                <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"/>
-            </StackPanel>
-
-            <Button HorizontalAlignment="Right" Click="Closed" Margin="8"
-                    Width="20" Height="20" Content="X" FontSize="20" Foreground="White"
-                    Style="{DynamicResource MaterialDesignFloatingActionAccentButton}">
+            <Button Grid.ColumnSpan="2" Click="Closed" 
+                    Margin="8" Panel.ZIndex="1" 
+                    Background="Red" BorderBrush="Red"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Width="20" Height="20" Content="X" FontSize="12" 
+                    Style="{DynamicResource MaterialDesignFloatingActionButton}">
             </Button>
 
-            <StackPanel Grid.Row="1" Margin="8,0,0,0">
+            <StackPanel Margin="8">
                 <StackPanel.Resources>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="FontSize" Value="16"/>
-                        <Setter Property="Foreground" Value="#FF5722"/>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                        <Setter Property="md:HintAssist.FloatingScale" Value="1"/>
+                        <Setter Property="Margin" Value="0,4,0,0"/>
                     </Style>
                 </StackPanel.Resources>
-                <StackPanel>
+                <TextBox Text="{Binding Address, Mode=OneWay}" 
+                         md:HintAssist.Hint="地址"/>
+                <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}"
+                         md:HintAssist.Hint="SN"/>
+                <TextBox Text="{Binding BaseInfo.GasType.GasName, Mode=OneWay}"
+                         md:HintAssist.Hint="气体类型"/>
+                <TextBox Text="{Binding BaseInfo.Range, Mode=OneWay}"
+                         md:HintAssist.Hint="量程"/>
+                <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"
+                         md:HintAssist.Hint="单位"/>
+                <ComboBox md:HintAssist.Hint="显示单位" Margin="0,4,0,0"
+                          SelectedItem="{Binding DisplayUnit}"
+                          Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                    <ComboBoxItem>SCCM</ComboBoxItem>
+                    <ComboBoxItem>SLM</ComboBoxItem>
+                    <ComboBoxItem>%F.S</ComboBoxItem>
+                </ComboBox>
+                <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
+                <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
+            </StackPanel>
+
+            <Grid Grid.Column="1">
+                <StackPanel HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>当前流量：</TextBlock>
                         <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N6}}"/>
@@ -77,40 +68,37 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>累积时间：</TextBlock>
                         <TextBlock Text="{Binding Flow.Days}"></TextBlock>
-                        <TextBlock>天</TextBlock>
+                        <TextBlock>:</TextBlock>
                         <TextBlock Text="{Binding Flow.Hours}"></TextBlock>
-                        <TextBlock>小时</TextBlock>
+                        <TextBlock>:</TextBlock>
                         <TextBlock Text="{Binding Flow.Minutes}"></TextBlock>
-                        <TextBlock>分</TextBlock>
+                        <TextBlock>:</TextBlock>
                         <TextBlock Text="{Binding Flow.Seconds}"></TextBlock>
-                        <TextBlock>秒</TextBlock>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="4">
 
-                </StackPanel>
-            </StackPanel>
-
-            <lvc:CartesianChart Grid.Row="2" Series="{Binding FlowSeries}"
-                            DataTooltip="{x:Null}" Focusable="False">
-                <lvc:CartesianChart.Resources>
-                    <Style TargetType="lvc:Axis">
-                        <Setter Property="FontSize" Value="16"/>
-                        <Setter Property="Foreground" Value="Black"/>
-                    </Style>
-                    <Style TargetType="lvc:LineSeries">
-                        <Setter Property="PointGeometrySize" Value="0"/>
-                    </Style>
-                </lvc:CartesianChart.Resources>
-                <lvc:CartesianChart.AxisX>
-                    <lvc:Axis/>
-                </lvc:CartesianChart.AxisX>
-                <lvc:CartesianChart.AxisY>
-                    <lvc:Axis Title="瞬时流量" LabelFormatter="{Binding FlowLabelsFomatter}"/>
-                </lvc:CartesianChart.AxisY>
-            </lvc:CartesianChart>
+                <lvc:CartesianChart Grid.Column="1" Margin="8"
+                                    Series="{Binding FlowSeries}" DataTooltip="{x:Null}" Focusable="False">
+                    <lvc:CartesianChart.Resources>
+                        <Style TargetType="lvc:Axis">
+                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                        <Style TargetType="lvc:LineSeries">
+                            <Setter Property="PointGeometrySize" Value="0"/>
+                            <Setter Property="LineSmoothness" Value="0"/>
+                            <Setter Property="Stroke" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                            <Setter Property="Fill" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                        </Style>
+                    </lvc:CartesianChart.Resources>
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis/>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                        <lvc:Axis Title="瞬时流量" LabelFormatter="{Binding FlowLabelsFomatter}"/>
+                    </lvc:CartesianChart.AxisY>
+                </lvc:CartesianChart>
+            </Grid>
         </Grid>
-        
     </md:Card>
-    
 </UserControl>
