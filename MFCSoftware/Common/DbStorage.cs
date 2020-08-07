@@ -53,13 +53,13 @@ namespace MFCSoftware.Common
         {
             DateTime now = DateTime.Now;
             string nowStr = now.ToString("yyyy-MM-dd hh:mm:ss.fff");
-            string before2HourStr = now.AddHours(-2).ToString("yyyy-MM-dd hh:mm:ss.fff");
+            string twoHoursBeforeStr = now.AddHours(-2).ToString("yyyy-MM-dd hh:mm:ss.fff");
 
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append("SELECT collect_time, curr_flow, accu_flow, unit FROM ")
                 .Append(flowTableName)
                 .Append($" WHERE address={address}")
-                .Append($" AND collect_time BETWEEN '{before2HourStr}' AND '{nowStr}'")
+                .Append($" AND collect_time BETWEEN '{twoHoursBeforeStr}' AND '{nowStr}'")
                 .Append(" ORDER BY collect_time DESC;");
             string sql = sqlBuilder.ToString();
 
@@ -71,11 +71,16 @@ namespace MFCSoftware.Common
                 var reader = command.ExecuteReader();
                 while(reader.Read())
                 {
-                    var flow = new FlowData();
-                    flow.CurrentFlow = reader.GetFloat(1);
-                    flow.AccuFlow = reader.GetFloat(2);
-                    flow.Unit = reader.GetString(3);
-                    flows.Add(flow);
+                    try
+                    {
+                        var flow = new FlowData();
+                        flow.CollectTime = reader.GetDateTime(0);
+                        flow.CurrentFlow = reader.GetFloat(1);
+                        flow.AccuFlow = reader.GetFloat(2);
+                        flow.Unit = reader.GetString(3);
+                        flows.Add(flow);
+                    }
+                    catch { continue; }
                 }
             }
             connection.Close();

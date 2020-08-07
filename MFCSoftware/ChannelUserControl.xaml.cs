@@ -25,6 +25,7 @@ using OfficeOpenXml;
 using Microsoft.Win32;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Globalization;
 
 namespace MFCSoftware
 {
@@ -198,7 +199,7 @@ namespace MFCSoftware
                         {
                             sheet.SetValue(index + 1, 0, flowDatas[index].CurrentFlow);
                             sheet.SetValue(index + 1, 1, flowDatas[index].AccuFlow);
-                            sheet.SetValue(index + 1, 2, flowDatas[index].AccuFlow);
+                            sheet.SetValue(index + 1, 2, flowDatas[index].CollectTime);
                             sheet.SetValue(index + 1, 3, flowDatas[index].Unit);
                         }
                         await package.SaveAsync();
@@ -218,7 +219,9 @@ namespace MFCSoftware
 
         private void ClearAccuFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            ClearAccuFlowClicked?.Invoke(this);
+            var result = MessageBox.Show("确定清除？", "清除确认", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+                ClearAccuFlowClicked?.Invoke(this);
         }
     }
 
@@ -227,5 +230,24 @@ namespace MFCSoftware
         BaseInfoData,
         FlowData,
         ClearAccuFlowData
+    }
+
+    public class FlowDataToTimeTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var flowData = value as FlowData;
+            var timeText = string.Empty;
+            if (flowData != null)
+            {
+                timeText = $"{flowData.Days}:{flowData.Hours}:{flowData.Minutes}:{flowData.Seconds}";
+            }
+            return timeText;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

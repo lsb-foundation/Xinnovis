@@ -10,6 +10,7 @@ using MFCSoftware.Models;
 using LiveCharts.Wpf;
 using LiveCharts;
 using LiveCharts.Defaults;
+using System.Windows.Controls;
 
 namespace MFCSoftware.ViewModels
 {
@@ -28,12 +29,9 @@ namespace MFCSoftware.ViewModels
 
         public int Address { get; private set; }
 
-        private string _displayUnit;
-        public string DisplayUnit
-        {
-            get => _displayUnit;
-            set => SetProperty(ref _displayUnit, value);
-        }
+        public string[] DisplayUnits { get; } = new string[] { "SCCM", "SLM", "%F.S" };
+
+        public string DisplayUnit { get; set; }
 
         public BaseInformation BaseInfo { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();

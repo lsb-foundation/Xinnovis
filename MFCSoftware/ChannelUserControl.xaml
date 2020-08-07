@@ -8,6 +8,19 @@
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" BorderThickness="1.5"
              d:DesignHeight="480" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <local:FlowDataToTimeTextConverter x:Key="FlowToTimeConverter"/>
+        <Style TargetType="Button" x:Key="CloseButtonStyle"
+               BasedOn="{StaticResource MaterialDesignFloatingActionButton}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Red"/>
+                    <Setter Property="BorderBrush" Value="Red"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
 
     <md:Card Margin="8" md:ShadowAssist.ShadowDepth="Depth3">
         <Grid>
@@ -16,12 +29,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.ColumnSpan="2" Click="Closed" 
+            <Button Grid.ColumnSpan="2" Click="Closed"
                     Margin="8" Panel.ZIndex="1" 
-                    Background="Red" BorderBrush="Red"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Width="20" Height="20" Content="X" FontSize="12" 
-                    Style="{DynamicResource MaterialDesignFloatingActionButton}">
+                    Style="{StaticResource CloseButtonStyle}">
             </Button>
 
             <StackPanel Margin="8">
@@ -41,19 +53,25 @@
                          md:HintAssist.Hint="量程"/>
                 <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"
                          md:HintAssist.Hint="单位"/>
-                <ComboBox md:HintAssist.Hint="显示单位" Margin="0,4,0,0"
-                          SelectedItem="{Binding DisplayUnit}"
+                <ComboBox Margin="0,4,0,0"
+                          md:HintAssist.Hint="显示单位"
+                          md:HintAssist.FloatingScale="1"
+                          ItemsSource="{Binding DisplayUnits, Mode=OneWay}"
+                          SelectedItem="{Binding DisplayUnit, Mode=OneWayToSource}"
                           Style="{StaticResource MaterialDesignFloatingHintComboBox}">
-                    <ComboBoxItem>SCCM</ComboBoxItem>
-                    <ComboBoxItem>SLM</ComboBoxItem>
-                    <ComboBoxItem>%F.S</ComboBoxItem>
                 </ComboBox>
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
             </StackPanel>
 
-            <Grid Grid.Column="1">
-                <StackPanel HorizontalAlignment="Center">
+            <Grid Grid.Column="1" Margin="4">
+                <StackPanel HorizontalAlignment="Left" Margin="96,0,0,0" Panel.ZIndex="1">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
+                            <Setter Property="Foreground" Value="{StaticResource PrimaryHueMidBrush}"/>
+                            <Setter Property="FontSize" Value="16"/>
+                        </Style>
+                    </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>当前流量：</TextBlock>
                         <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N6}}"/>
@@ -62,18 +80,11 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>累积流量：</TextBlock>
                         <TextBlock Text="{Binding Flow.AccuFlow, StringFormat={}{0:N6}}"/>
-                        <TextBlock Margin="16,0,0,0">单位：</TextBlock>
-                        <TextBlock Text="{Binding Flow.Unit}"/>
+                        <TextBlock Text="{Binding Flow.Unit}" Margin="16,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>累积时间：</TextBlock>
-                        <TextBlock Text="{Binding Flow.Days}"></TextBlock>
-                        <TextBlock>:</TextBlock>
-                        <TextBlock Text="{Binding Flow.Hours}"></TextBlock>
-                        <TextBlock>:</TextBlock>
-                        <TextBlock Text="{Binding Flow.Minutes}"></TextBlock>
-                        <TextBlock>:</TextBlock>
-                        <TextBlock Text="{Binding Flow.Seconds}"></TextBlock>
+                        <TextBlock Text="{Binding Flow, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}"/>
                     </StackPanel>
                 </StackPanel>
 

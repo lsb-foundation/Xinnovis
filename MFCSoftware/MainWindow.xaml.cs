@@ -39,15 +39,13 @@ namespace MFCSoftware
             InitializeComponent();
             this.Closed += MainWindow_Closed;
             InitializeTimer();
-#if DEBUG
-            DbStorage.InsertFlowData(1, new FlowData() { AccuFlow = 201.890f, CurrentFlow = 150.567f, Unit = "SCCM" });
-#endif
         }
 
         private void OpenSetSerialPortWindow(object sender, RoutedEventArgs e)
         {
             SetSerialPortWindow window = new SetSerialPortWindow();
             window.Owner = this;
+            window.ShowInTaskbar = false;
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             window.ShowDialog();
         }
@@ -56,6 +54,7 @@ namespace MFCSoftware
         {
             SetAddressWindow window = new SetAddressWindow();
             window.Owner = this;
+            window.ShowInTaskbar = false;
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             window.ShowDialog();
         }
@@ -150,11 +149,11 @@ namespace MFCSoftware
                 {
                     byte[] data = await AppSerialPortInstance.GetResponseBytes();
                     channel.ResolveData(data, ResolveType.ClearAccuFlowData);
+                    timer.Start();
                 }
                 catch (TimeoutException) { }
                 catch { }
             }
-            timer.Start();
         }
 
         private void ChannelControl_ControlWasRemoved(ChannelUserControl sender)
@@ -176,11 +175,11 @@ namespace MFCSoftware
                 {
                     byte[] data = await AppSerialPortInstance.GetResponseBytes();
                     channel.ResolveData(data, ResolveType.BaseInfoData);
+                    timer.Start();
                 }
                 catch (TimeoutException) { }
                 catch { }
             }
-            timer.Start();
         }
 
         private void InitializeTimer()
