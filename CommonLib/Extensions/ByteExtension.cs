@@ -14,14 +14,12 @@ namespace CommonLib.Extensions
         /// </summary>
         /// <param name="byteArray"></param>
         /// <param name="startIndex"></param>
-        /// <param name="length"></param>
+        /// <param name="length">因Int32类型占4个字节，因此length不能大于4。</param>
         /// <returns></returns>
         public static int ToInt32(this byte[] byteArray, int startIndex, int length)
         {
             if (length > 4)
                 throw new Exception("length必须小于4");
-            if (startIndex + length > byteArray.Length)
-                throw new IndexOutOfRangeException();
 
             byte[] toCopy = new byte[4];
             Array.Copy(byteArray, startIndex, toCopy, 4 - length, length);

@@ -62,10 +62,22 @@
                 </ComboBox>
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
+
+                <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
+                                  Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
+                                  FromValue="50" ToValue="250"
+                                  LabelsStep="50" TicksStep="25" Wedge="300"
+                                  TicksForeground="White" Foreground="White" FontSize="16"
+                                  SectionsInnerRadius=".5">
+                    <lvc:AngularGauge.Sections>
+                        <lvc:AngularSection FromValue="50" ToValue="200" Fill="{StaticResource PrimaryHueLightBrush}"/>
+                        <lvc:AngularSection FromValue="200" ToValue="250" Fill="{StaticResource PrimaryHueMidBrush}"/>
+                    </lvc:AngularGauge.Sections>
+                </lvc:AngularGauge>-->
             </StackPanel>
 
             <Grid Grid.Column="1" Margin="4">
-                <StackPanel HorizontalAlignment="Left" Margin="96,0,0,0" Panel.ZIndex="1">
+                <StackPanel HorizontalAlignment="Right" Margin="0,0,16,0" Panel.ZIndex="1">
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
                             <Setter Property="Foreground" Value="{StaticResource PrimaryHueMidBrush}"/>
@@ -89,7 +101,8 @@
                 </StackPanel>
 
                 <lvc:CartesianChart Grid.Column="1" Margin="8"
-                                    Series="{Binding FlowSeries}" DataTooltip="{x:Null}" Focusable="False">
+                                    Series="{Binding FlowSeries}" 
+                                    DataTooltip="{x:Null}" Focusable="False">
                     <lvc:CartesianChart.Resources>
                         <Style TargetType="lvc:Axis">
                             <Setter Property="FontSize" Value="16"/>

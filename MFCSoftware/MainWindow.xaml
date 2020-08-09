@@ -15,13 +15,13 @@
 
         <md:ColorZone Mode="PrimaryMid" Padding="16">
             <StackPanel Orientation="Horizontal">
-                <Button Click="OpenSetSerialPortWindow">串口设置</Button>
-                <Button Click="OpenSetAddressWindow">设置地址</Button>
+                <Button Click="OpenSetSerialPortWindow" IsEnabled="{Binding Enable, Mode=OneWay}">串口设置</Button>
+                <Button Click="OpenSetAddressWindow" IsEnabled="{Binding Enable, Mode=OneWay}">设置地址</Button>
                 <Button Click="AddChannelButton_Click">添加通道</Button>
             </StackPanel>
         </md:ColorZone>
 
-        <ScrollViewer Grid.Row="1" 
+        <ScrollViewer Grid.Row="1"
                       Style="{DynamicResource MaterialDesignScrollViewer}">
             <UniformGrid  Name="ChannelGrid" Columns="2">
             </UniformGrid>

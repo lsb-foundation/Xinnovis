@@ -136,6 +136,7 @@
     </Compile>
     <Compile Include="ViewModels\AddChannelWindowViewModel.cs" />
     <Compile Include="ViewModels\ChannelUserControlViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SetAddressWindowViewModel.cs" />
     <Compile Include="ViewModels\SetSerialPortWindowViewModel.cs" />
     <Page Include="AddChannelWindow.xaml">

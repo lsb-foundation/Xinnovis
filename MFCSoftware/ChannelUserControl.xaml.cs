@@ -78,16 +78,16 @@ namespace MFCSoftware
 
         private void ResolveBaseInfoData(byte[] data)
         {
-            byte[] gasTypeBytes = GetChildArray(data, 3, 2);
+            byte[] gasTypeBytes = data.SubArray(3, 2);
             int gas = gasTypeBytes.ToInt32(0, 2);
 
-            byte[] rangeBytes = GetChildArray(data, 5, 2);
+            byte[] rangeBytes = data.SubArray(5, 2);
             int range = rangeBytes.ToInt32(0, 2);
 
-            byte[] unitBytes = GetChildArray(data, 7, 2);
+            byte[] unitBytes = data.SubArray(7, 2);
             int unit = unitBytes.ToInt32(0, 2);
 
-            byte[] snBytes = GetChildArray(data, 23, 12);
+            byte[] snBytes = data.SubArray(23, 12);
             string sn = snBytes.ToHexString();
 
             BaseInformation info = new BaseInformation()
@@ -106,28 +106,28 @@ namespace MFCSoftware
             //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8 
             //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2 
             //CRCL CRCH
-            byte[] flowBytes = GetChildArray(data, 3, 4);
+            byte[] flowBytes = data.SubArray(3, 4);
             float flow = flowBytes.ToInt32(0, 4) / 100.0f;
 
-            byte[] accuFlowBytes = GetChildArray(data, 7, 8);
+            byte[] accuFlowBytes = data.SubArray(7, 8);
             float accuFlow = BitConverter.ToInt64(accuFlowBytes.Reverse().ToArray(),0) / 1000.0f;
 
-            byte[] unitBytes = GetChildArray(data, 15, 2);
+            byte[] unitBytes = data.SubArray(15, 2);
             int unitCode = unitBytes.ToInt32(0, 2);
             string unit = string.Empty;
             if (unitCode == 0) unit = "SCCM";
             if (unitCode == 1) unit = "SLM";
 
-            byte[] daysBytes = GetChildArray(data, 17, 2);
+            byte[] daysBytes = data.SubArray(17, 2);
             int days = daysBytes.ToInt32(0, 2);
 
-            byte[] hoursBytes = GetChildArray(data, 19, 2);
+            byte[] hoursBytes = data.SubArray(19, 2);
             int hours = hoursBytes.ToInt32(0, 2);
 
-            byte[] minsBytes = GetChildArray(data, 21, 2);
+            byte[] minsBytes = data.SubArray(21, 2);
             int mins = minsBytes.ToInt32(0, 2);
 
-            byte[] secsBytes = GetChildArray(data, 23, 2);
+            byte[] secsBytes = data.SubArray(23, 2);
             int secs = secsBytes.ToInt32(0, 2);
 
             FlowData flowData = new FlowData()
@@ -145,13 +145,6 @@ namespace MFCSoftware
             DbStorage.InsertFlowData(Address, flowData);
         }
 
-        private byte[] GetChildArray(byte[] array, int index, int length)
-        {
-            byte[] ret = new byte[length];
-            Array.Copy(array, index, ret, 0, length);
-            return ret;
-        }
-
         public void WhenTimeOut()
         {
             
@@ -161,54 +154,53 @@ namespace MFCSoftware
 
         private void ExportFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog();
-            dialog.Filter = "Excel文件|*.xlsx;*.xls";
-            dialog.Title = "保存Excel文件";
-            if ((bool)dialog.ShowDialog())
+            var flowDatas = DbStorage.QueryLastest2HoursFlowData(Address);
+            if (flowDatas.Count > 0)
             {
-                if (!string.IsNullOrEmpty(dialog.FileName))
+                var dialog = new SaveFileDialog();
+                dialog.Filter = "Excel文件|*.xlsx;*.xls";
+                dialog.Title = "保存Excel文件";
+                if ((bool)dialog.ShowDialog())
                 {
-                    ExportHistoryToExcel(dialog.FileName);
+                    if (!string.IsNullOrEmpty(dialog.FileName))
+                    {
+                        ExportHistoryToExcel(dialog.FileName, flowDatas);
+                    }
                 }
+            }
+            else
+            {
+                MessageBox.Show("未查询到数据！");
             }
         }
 
-        public async void ExportHistoryToExcel(string fileName)
+        public async void ExportHistoryToExcel(string fileName, List<FlowData> flowDatas)
         {
             try
             {
-                var flowDatas = DbStorage.QueryLastest2HoursFlowData(Address);
-                if (flowDatas.Count > 0)
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (var package = new ExcelPackage(stream))
                 {
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-                    using (var package = new ExcelPackage(stream))
+                    ExcelWorksheet sheet;
+                    if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
+                        sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
+                    else sheet = package.Workbook.Worksheets.Add("流量数据表");
+
+                    sheet.SetValue(0, 0, "瞬时流量");
+                    sheet.SetValue(0, 1, "累积流量");
+                    sheet.SetValue(0, 2, "采样时间");
+                    sheet.SetValue(0, 3, "单位");
+
+                    for (int index = 0; index < flowDatas.Count; index++)
                     {
-                        ExcelWorksheet sheet;
-                        if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
-                            sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
-                        else sheet = package.Workbook.Worksheets.Add("流量数据表");
-
-                        //添加表头
-                        sheet.SetValue(0, 0, "瞬时流量");
-                        sheet.SetValue(0, 1, "累积流量");
-                        sheet.SetValue(0, 2, "采样时间");
-                        sheet.SetValue(0, 3, "单位");
-
-                        for (int index = 0; index < flowDatas.Count; index++)
-                        {
-                            sheet.SetValue(index + 1, 0, flowDatas[index].CurrentFlow);
-                            sheet.SetValue(index + 1, 1, flowDatas[index].AccuFlow);
-                            sheet.SetValue(index + 1, 2, flowDatas[index].CollectTime);
-                            sheet.SetValue(index + 1, 3, flowDatas[index].Unit);
-                        }
-                        await package.SaveAsync();
-                        sheet.Dispose();
+                        sheet.SetValue(index + 1, 0, flowDatas[index].CurrentFlow);
+                        sheet.SetValue(index + 1, 1, flowDatas[index].AccuFlow);
+                        sheet.SetValue(index + 1, 2, flowDatas[index].CollectTime);
+                        sheet.SetValue(index + 1, 3, flowDatas[index].Unit);
                     }
-                }
-                else
-                {
-                    MessageBox.Show("未查询到数据！");
+                    await package.SaveAsync();
+                    sheet.Dispose();
                 }
             }
             catch (Exception e)

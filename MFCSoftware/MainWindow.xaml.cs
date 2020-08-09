@@ -1,8 +1,10 @@
 ﻿using MaterialDesignThemes.Wpf;
 using MFCSoftware.Common;
 using MFCSoftware.Models;
+using MFCSoftware.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -26,6 +28,8 @@ namespace MFCSoftware
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowViewModel mainVm;
+
         private List<int> addedAddrs = new List<int>();
         private LinkedList<ChannelUserControl> controlList = new LinkedList<ChannelUserControl>();
         private LinkedListNode<ChannelUserControl> currentNode;
@@ -38,10 +42,12 @@ namespace MFCSoftware
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
+            mainVm = new MainWindowViewModel();
+            this.DataContext = mainVm;
             InitializeTimer();
         }
 
-        private void OpenSetSerialPortWindow(object sender, RoutedEventArgs e)
+        private void OpenSetSerialPortWindow(object sender, EventArgs e)
         {
             SetSerialPortWindow window = new SetSerialPortWindow();
             window.Owner = this;
@@ -50,7 +56,7 @@ namespace MFCSoftware
             window.ShowDialog();
         }
 
-        private void OpenSetAddressWindow(object sender, RoutedEventArgs e)
+        private void OpenSetAddressWindow(object sender, EventArgs e)
         {
             SetAddressWindow window = new SetAddressWindow();
             window.Owner = this;
@@ -130,11 +136,13 @@ namespace MFCSoftware
                     channelControl.SetAddress(window.Address);
                     channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
                     channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
+
                     ChannelGrid.Children.Add(channelControl);
                     SetTimerInterval();
                     addedAddrs.Add(window.Address);
                     controlList.AddLast(channelControl);
                     ChannelAdded(channelControl);
+                    mainVm.ChannelCount++;
                 }
                 else MessageBox.Show("地址重复。");
             }
@@ -162,6 +170,8 @@ namespace MFCSoftware
             addedAddrs.Remove(sender.Address);
             controlList.Remove(sender);
             ChannelGrid.Children.Remove(sender);
+            mainVm.ChannelCount--;
+
             SetTimerInterval();
             timer.Start();
         }

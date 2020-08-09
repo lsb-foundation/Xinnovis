@@ -65,11 +65,11 @@ namespace MFCSoftware.Common
 
             List<FlowData> flows = new List<FlowData>();
             connection.Open();
-            using(var command = connection.CreateCommand())
+            using (var command = connection.CreateCommand())
             {
                 command.CommandText = sql;
                 var reader = command.ExecuteReader();
-                while(reader.Read())
+                while (reader.Read())
                 {
                     try
                     {

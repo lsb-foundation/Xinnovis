@@ -48,6 +48,7 @@
     <Compile Include="Communication\SendReceivedDataHandler.cs" />
     <Compile Include="Communication\SendReceivedDataHandlerPair.cs" />
     <Compile Include="Communication\Serial\BaudRateCode.cs" />
+    <Compile Include="Extensions\ArrayExtension.cs" />
     <Compile Include="Extensions\ByteExtension.cs" />
     <Compile Include="Extensions\ConfigurationExtension.cs" />
     <Compile Include="Extensions\StringExtension.cs" />
@@ -57,6 +58,10 @@
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
