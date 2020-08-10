@@ -12,7 +12,7 @@ namespace MFCSoftware.ViewModels
         private SerialPort _serialPort;
         public SetSerialPortWindowViewModel()
         {
-            _serialPort = AppSerialPortInstance.GetSerialPortInstance();
+            _serialPort = SerialPortInstance.GetSerialPortInstance();
             PortNames = AdvancedSerialPort.GetPortNames();
             BaudRates = BaudRateCode.GetBaudRates();
             PortName = _serialPort?.PortName;

@@ -1,43 +1,34 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.TextFormatting;
-using CommonLib.Communication;
-using CommonLib.Communication.Serial;
 using MFCSoftware.Models;
 
 namespace MFCSoftware.Common
 {
-    public static class AppSerialPortInstance
+    public static class SerialPortInstance
     {
         private static SerialPort com;
         private static ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
         private static SerialCommand<byte[]> currentCommand = null;
         private static bool timeOut;
 
-        static AppSerialPortInstance()
+        static SerialPortInstance()
         {
             com = new SerialPort();
             com.DtrEnable = true;
-            com.DataReceived += Sp_DataReceived;
+            com.DataReceived += Com_DataReceived;
         }
 
         private static object locked = new object();
-        private static void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             lock (locked)
             {
                 if (timeOut)
-                {
+                {   //超时之后收到的数据不加入队列，但是要从串口缓存中读取出来。
                     com.ReadExisting();
                     return;
                 }
@@ -75,7 +66,8 @@ namespace MFCSoftware.Common
 
         public async static Task<byte[]> GetResponseBytes()
         {
-            using (System.Timers.Timer timer = new System.Timers.Timer(80))
+            //最多给100毫秒时间获取数据，如果获取到的数据长度不足，抛出TimeoutException
+            using (System.Timers.Timer timer = new System.Timers.Timer(100))
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 timer.AutoReset = false;

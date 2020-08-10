@@ -3,28 +3,15 @@ using CommonLib.Models;
 using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
-using OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using OfficeOpenXml;
 using Microsoft.Win32;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Globalization;
 
 namespace MFCSoftware
@@ -59,21 +46,28 @@ namespace MFCSoftware
         {
             this.Dispatcher.Invoke(() =>
             {
-                if (!data.CheckCRC16ByDefault()) return;
+                try
+                {
+                    if (!data.CheckCRC16ByDefault()) return;
 
-                if (type == ResolveType.BaseInfoData)
-                    ResolveBaseInfoData(data);
-                else if (type == ResolveType.FlowData)
-                    ResolveFlowData(data);
-                else if (type == ResolveType.ClearAccuFlowData)
-                    ResolveClearAccuFlowData(data);
+                    if (type == ResolveType.BaseInfoData)
+                        ResolveBaseInfoData(data);
+                    else if (type == ResolveType.FlowData)
+                        ResolveFlowData(data);
+                    else if (type == ResolveType.ClearAccuFlowData)
+                        ResolveClearAccuFlowData(data);
+                }
+                catch(Exception e)
+                {
+                    LogHelper.WriteLog(e.Message, e);
+                }
             });
         }
 
         private void ResolveClearAccuFlowData(byte[] data)
         {
             //addr 0x06 0x02 0x00 0x00 CRCL CRCH
-
+            
         }
 
         private void ResolveBaseInfoData(byte[] data)
@@ -164,7 +158,7 @@ namespace MFCSoftware
                 {
                     if (!string.IsNullOrEmpty(dialog.FileName))
                     {
-                        ExportHistoryToExcel(dialog.FileName, flowDatas);
+                        ExportHistoryFlowDataToExcel(dialog.FileName, flowDatas);
                     }
                 }
             }
@@ -174,7 +168,7 @@ namespace MFCSoftware
             }
         }
 
-        public async void ExportHistoryToExcel(string fileName, List<FlowData> flowDatas)
+        public async void ExportHistoryFlowDataToExcel(string fileName, List<FlowData> flowDatas)
         {
             try
             {
@@ -205,6 +199,7 @@ namespace MFCSoftware
             }
             catch (Exception e)
             {
+                LogHelper.WriteLog(e.Message, e);
                 MessageBox.Show("导出Excel出错：\n" + e.Message);
             }
         }

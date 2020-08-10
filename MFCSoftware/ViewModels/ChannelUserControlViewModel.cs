@@ -2,15 +2,10 @@
 using CommonLib.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using MFCSoftware.Models;
 using LiveCharts.Wpf;
 using LiveCharts;
 using LiveCharts.Defaults;
-using System.Windows.Controls;
 
 namespace MFCSoftware.ViewModels
 {
@@ -105,13 +100,26 @@ namespace MFCSoftware.ViewModels
 
         private void SetCurrentFlowByUnit(float flow)
         {
-            Func<float, float> func;
-            if (BaseInfo.Unit.Unit == "SCCM" && DisplayUnit == "SLM")
-                func = f => f / 1000;
-            else if (BaseInfo.Unit.Unit == "SCCM" && DisplayUnit == "%F.S")
-                func = f => f / BaseInfo.Range * 100;
-            else func = f => f;
-            Flow.CurrentFlow = func.Invoke(flow);
+            //UCCM和CCM与SCCM等价，因此均按照SCCM进行处理
+            var meterUnit = BaseInfo.Unit.Unit == "SLM" ? "SLM" : "SCCM";
+            Func<float, float> converterFunc = v => v;       //默认不转换
+
+            if (meterUnit == "SCCM")
+            {
+                if (DisplayUnit == "SLM")           //SCCM->SLM
+                    converterFunc = v => v / 1000;
+                else if (DisplayUnit == "%F.S")     //SCCM->%F.S
+                    converterFunc = v => v / BaseInfo.Range * 100;
+            }
+            else
+            {
+                if (DisplayUnit == "SCCM")          //SLM->SCCM
+                    converterFunc = v => v * 1000;
+                else if (DisplayUnit == "%F.S")     //SLM->%F.S
+                    converterFunc = v => v * 1000 / BaseInfo.Range * 100;
+            }
+
+            Flow.CurrentFlow = converterFunc.Invoke(flow);
         }
 
         private void SetReadFlowBytes()

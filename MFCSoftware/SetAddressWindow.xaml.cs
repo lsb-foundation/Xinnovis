@@ -1,25 +1,10 @@
 ﻿using MFCSoftware.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using CommonLib.Extensions;
-using CommonLib.Communication.Serial;
 using MFCSoftware.Common;
-using CommonLib.Communication;
-using System.Windows.Markup.Localizer;
-using System.Security.Policy;
 using System.Timers;
-using System.IO.Ports;
 using MFCSoftware.Models;
 
 namespace MFCSoftware
@@ -60,16 +45,23 @@ namespace MFCSoftware
             
             viewModel.Enable = true;
 
-            bool result;
-            if (currentAction == ActionType.ReadAddress)
-                result = HandleReadAddress(data);
-            else if (currentAction == ActionType.WriteAddress)
-                result = HandleWriteAdderss(data);
-            else result = HandleSetBaudRate(data);
-
-            if (!result)
+            try
             {
-                MessageBox.Show("数据解析失败！");
+                bool result;
+                if (currentAction == ActionType.ReadAddress)
+                    result = HandleReadAddress(data);
+                else if (currentAction == ActionType.WriteAddress)
+                    result = HandleWriteAdderss(data);
+                else result = HandleSetBaudRate(data);
+
+                if (!result)
+                {
+                    MessageBox.Show("数据解析失败！");
+                }
+            }
+            catch(Exception e)
+            {
+                LogHelper.WriteLog(e.Message, e);
             }
         }
 
@@ -140,11 +132,11 @@ namespace MFCSoftware
         {
             try
             {
-                AppSerialPortInstance.Send(command);
+                SerialPortInstance.Send(command);
                 currentAction = act;
                 viewModel.Enable = false;
                 timer.Start();
-                var data = await AppSerialPortInstance.GetResponseBytes();
+                var data = await SerialPortInstance.GetResponseBytes();
                 ResolveData(data);
             }
             catch (TimeoutException)
