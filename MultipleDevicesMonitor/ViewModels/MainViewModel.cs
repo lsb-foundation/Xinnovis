@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class MainViewModel : BindableBase
+    public class MainViewModel : ViewModelBase
     {
         private Timer timer;
         private readonly List<int> addrList = new List<int>();
@@ -20,7 +20,7 @@ namespace MultipleDevicesMonitor.ViewModels
             timer = new Timer
             {
                 AutoReset = true,
-                Interval = 500
+                Interval = Settings.Default.TimerInterval
             };
             timer.Elapsed += Timer_Elapsed;
             SetPlotModel();
@@ -81,7 +81,8 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 Background = OxyColors.Black,
                 TextColor = OxyColors.White,
-                PlotAreaBorderColor = OxyColors.White
+                PlotAreaBorderColor = OxyColors.White,
+                LegendPosition = LegendPosition.LeftTop
             };
 
             var dateTimeAxis = new DateTimeAxis
@@ -96,7 +97,7 @@ namespace MultipleDevicesMonitor.ViewModels
             var valueAxis = new LinearAxis
             {
                 Title = Settings.Default.YAxisTitle,
-                Position = AxisPosition.Left,
+                Position = AxisPosition.Right,
             };
             SeriesPlotModel.Axes.Add(valueAxis);
 
@@ -122,8 +123,6 @@ namespace MultipleDevicesMonitor.ViewModels
                 var line = new LineSeries
                 {
                     Title = "设备: " + _addr,
-                    DataFieldX = "时间",
-                    DataFieldY = "流量",
                     StrokeThickness = 2,
                     MarkerType = MarkerType.Circle,
                     MarkerStrokeThickness = 2.5,

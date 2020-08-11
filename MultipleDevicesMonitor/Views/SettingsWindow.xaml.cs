@@ -1,17 +1,6 @@
 ﻿using MultipleDevicesMonitor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace MultipleDevicesMonitor.Views
 {
@@ -20,14 +9,19 @@ namespace MultipleDevicesMonitor.Views
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        private readonly SettingsViewModel settings;
+
         public SettingsWindow()
         {
             InitializeComponent();
+            settings = ViewModelBase.GetViewModelInstance<SettingsViewModel>() as SettingsViewModel;
+            DataContext = settings;
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ViewModelManager.GetViewModelInstance<MainViewModel>().UpdateAxisTitle();
+            var mainVm = ViewModelBase.GetViewModelInstance<MainViewModel>() as MainViewModel;
+            mainVm?.UpdateAxisTitle();
         }
     }
 }

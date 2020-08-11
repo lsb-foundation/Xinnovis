@@ -5,14 +5,55 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MultipleDevicesMonitor.Views"
         xmlns:properties="clr-namespace:MultipleDevicesMonitor.Properties"
-        mc:Ignorable="d"
-        Title="设置" Height="450" Width="800">
-    <StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="4">
-            <Label>Y轴标题：</Label>
-            <TextBox Width="100" TextChanged="TextBox_TextChanged"
-                     Text="{Binding Source={x:Static properties:Settings.Default}, Path=YAxisTitle, Mode=TwoWay}"/>
-        </StackPanel>
-        <TextBox Width="100"/>
-    </StackPanel>
+        mc:Ignorable="d" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Title="设置" Height="320" Width="400">
+    <TabControl Margin="4">
+        <TabControl.Resources>
+            <Style TargetType="Label">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="5"/>
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="Margin" Value="4"/>
+            </Style>
+        </TabControl.Resources>
+        <TabItem Header="端口设置">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label>端口号：</Label>
+                    <ComboBox Width="100" SelectedItem="{Binding Serial_PortName}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label>波特率：</Label>
+                    <ComboBox Width="100" SelectedItem="{Binding Serial_BaudRate}"/>
+                </StackPanel>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="软件设置">
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Margin" Value="4"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Height" Value="30"/>
+                    </Style>
+                </StackPanel.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Label>Y轴标题：</Label>
+                    <TextBox Width="100" Text="{Binding YAxisTitle}"
+                             TextChanged="TextBox_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label>发送间隔：</Label>
+                    <TextBox Width="100" Text="{Binding TimerInterval}"
+                             TextChanged="TextBox_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label>显示的点数：</Label>
+                    <TextBox Width="100" Text="{Binding DisplayPointsNumber}"/>
+                </StackPanel>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
 </Window>

@@ -14,7 +14,7 @@ namespace MultipleDevicesMonitor.Views
         public MainWindow()
         {
             InitializeComponent();
-            main = ViewModelManager.GetViewModelInstance<MainViewModel>();
+            main = ViewModelBase.GetViewModelInstance<MainViewModel>() as MainViewModel;
             DataContext = main;
         }
 
