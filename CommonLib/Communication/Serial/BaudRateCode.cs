@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CalibrationTool.Models
+namespace CommonLib.Communication.Serial
 {
     public class BaudRateCode
     {
@@ -27,7 +26,7 @@ namespace CalibrationTool.Models
         public static List<BaudRateCode> GetBaudRateCodes()
         {
             List<BaudRateCode> baudRateCodes = new List<BaudRateCode>();
-            for(int index = 0; index < baudRates.Length; index++)
+            for (int index = 0; index < baudRates.Length; index++)
             {
                 BaudRateCode code = new BaudRateCode(index + 1, baudRates[index]);
                 baudRateCodes.Add(code);

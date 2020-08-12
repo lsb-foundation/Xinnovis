@@ -1,0 +1,22 @@
+﻿<Window xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"  x:Class="MFCSoftware.SetSerialPortWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MFCSoftware"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="串口设置" Height="200" Width="300" ResizeMode="NoResize">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ComboBox Width="150" Margin="4"
+                  ItemsSource="{Binding PortNames, Mode=OneWay}" 
+                  md:HintAssist.Hint="串口号" md:HintAssist.FloatingScale="1"
+                  Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                  SelectedItem="{Binding PortName}"></ComboBox>
+        <ComboBox Width="150" Margin="4"
+                  md:HintAssist.Hint="波特率" md:HintAssist.FloatingScale="1"
+                  Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                  ItemsSource="{Binding BaudRates, Mode=OneWay}" SelectedItem="{Binding BaudRate}"></ComboBox>
+        <Button Margin="8" Height="28" Click="SetSerialPort">确定</Button>
+    </StackPanel>
+</Window>

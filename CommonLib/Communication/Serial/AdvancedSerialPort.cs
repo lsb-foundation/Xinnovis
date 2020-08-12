@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommonLib.Communication
+namespace CommonLib.Communication.Serial
 {
     /// <summary>
     /// 在SerialPort类的基础上实现了数据的自动收取，后续使用仅编写数据处理逻辑即可。
@@ -71,7 +71,7 @@ namespace CommonLib.Communication
                     {
                         receivedBytes.AddRange(buffer);
                     }
-                    await Task.Delay(10);
+                    await Task.Delay(20);
                 }
                 ReceivedDataHandler?.Invoke(receivedBytes.ToArray());
             }
@@ -80,6 +80,13 @@ namespace CommonLib.Communication
                 isReceiving = false;
                 receivedBytes.Clear();
             }
+        }
+
+        public new static List<string> GetPortNames()
+        {
+            List<string> names = new List<string>();
+            names.AddRange(SerialPort.GetPortNames());
+            return names;
         }
     }
 }

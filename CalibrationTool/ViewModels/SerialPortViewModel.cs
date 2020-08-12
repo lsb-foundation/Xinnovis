@@ -8,7 +8,7 @@ using System.Management;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
 using CommonLib.Mvvm;
-using CommonLib.Communication;
+using CommonLib.Communication.Serial;
 
 namespace CalibrationTool.ViewModels
 {
@@ -22,7 +22,7 @@ namespace CalibrationTool.ViewModels
         public SerialPortViewModel()
         {
             InitializeSerialPort();
-            InitializeSerialPortNameCollection();
+            AdvancedSerialPort.GetPortNames().ForEach(n => PortNameCollection.Add(n));
             OpenOrCloseCommand = new RelayCommand(o =>
             {
                 if (serialPort.IsOpen) TryToClosePort();
@@ -168,14 +168,6 @@ namespace CalibrationTool.ViewModels
             serialPort.BaudRate = ConfigManager.Serial_BaudRate;
             if (!string.IsNullOrEmpty(ConfigManager.Serial_PortName))
                 serialPort.PortName = ConfigManager.Serial_PortName;
-        }
-
-        private void InitializeSerialPortNameCollection()
-        {
-            foreach(string portName in SerialPort.GetPortNames())
-            {
-                PortNameCollection.Add(portName);
-            }
         }
 
         private void TryToClosePort()
