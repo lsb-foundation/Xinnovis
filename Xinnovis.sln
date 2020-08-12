@@ -22,8 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MFM配置", "MFM配置", "{
 		MFMCalibrationTool\Configs\commands.xml = MFMCalibrationTool\Configs\commands.xml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalibrationToolTests", "CalibrationToolTests\CalibrationToolTests.csproj", "{7C9D49C4-1146-4C4C-A0F5-023C3DC5E74B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware", "MFCSoftware\MFCSoftware.csproj", "{4F5F881D-4663-406D-BF63-8690793C25E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibTests", "CommonLibTests\CommonLibTests.csproj", "{C2660E8B-4412-4942-8877-52A1612E51ED}"
@@ -48,10 +46,6 @@ Global
 		{7FF35285-BB3F-4A5D-BD23-9DCA37E4888A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FF35285-BB3F-4A5D-BD23-9DCA37E4888A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FF35285-BB3F-4A5D-BD23-9DCA37E4888A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7C9D49C4-1146-4C4C-A0F5-023C3DC5E74B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7C9D49C4-1146-4C4C-A0F5-023C3DC5E74B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7C9D49C4-1146-4C4C-A0F5-023C3DC5E74B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7C9D49C4-1146-4C4C-A0F5-023C3DC5E74B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4F5F881D-4663-406D-BF63-8690793C25E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4F5F881D-4663-406D-BF63-8690793C25E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F5F881D-4663-406D-BF63-8690793C25E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
