@@ -18,11 +18,6 @@ namespace MultipleDevicesMonitor.Views
             DataContext = main;
         }
 
-        private void AddDeviceButton_Clicked(object sender, RoutedEventArgs e)
-        {
-            main.AddNewDevice();
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Settings.Default.Save();
@@ -33,6 +28,13 @@ namespace MultipleDevicesMonitor.Views
             SettingsWindow win = new SettingsWindow();
             win.Owner = this;
             win.ShowDialog();
+        }
+
+        private void AboutMenu_Clicked(object sender, RoutedEventArgs e)
+        {
+            AboutWindow window = new AboutWindow();
+            window.Owner = this;
+            window.ShowDialog();
         }
     }
 }

@@ -9,19 +9,11 @@ namespace MultipleDevicesMonitor.Views
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        private readonly SettingsViewModel settings;
-
         public SettingsWindow()
         {
             InitializeComponent();
-            settings = ViewModelBase.GetViewModelInstance<SettingsViewModel>() as SettingsViewModel;
-            DataContext = settings;
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var mainVm = ViewModelBase.GetViewModelInstance<MainViewModel>() as MainViewModel;
-            mainVm?.UpdateAxisTitle();
+            serialSettingsTab.DataContext = ViewModelBase.GetViewModelInstance<SerialViewModel>();
+            softwareSettingsTab.DataContext = ViewModelBase.GetViewModelInstance<SettingsViewModel>();
         }
     }
 }

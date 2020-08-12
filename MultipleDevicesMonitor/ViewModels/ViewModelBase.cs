@@ -1,29 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
     public class ViewModelBase : BindableBase
     {
-        private static MainViewModel mainViewModel;
-        private static SettingsViewModel settingsViewModel;
+        private static readonly List<ViewModelBase> viewModelInstances;
 
         static ViewModelBase()
         {
-            mainViewModel = new MainViewModel();
-            settingsViewModel = new SettingsViewModel();
+            viewModelInstances = new List<ViewModelBase>();
+            CreateViewModelInstances();
+        }
+
+        private static void CreateViewModelInstances()
+        {
+            var types = Assembly.GetExecutingAssembly().GetTypes();
+            foreach(var type in types)
+            {
+                if(type.BaseType == typeof(ViewModelBase))
+                {
+                    var instance = Activator.CreateInstance(type) as ViewModelBase;
+                    viewModelInstances.Add(instance);
+                }
+            }
         }
 
         public static ViewModelBase GetViewModelInstance<T>()
         {
-            if (typeof(T) == typeof(MainViewModel))
-                return mainViewModel;
-            else if (typeof(T) == typeof(SettingsViewModel))
-                return settingsViewModel;
+            foreach(var instance in viewModelInstances)
+            {
+                if (instance.GetType() == typeof(T))
+                    return instance;
+            }
             return default;
         }
     }

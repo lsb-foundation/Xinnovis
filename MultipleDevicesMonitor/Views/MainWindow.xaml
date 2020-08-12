@@ -7,7 +7,7 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:p="clr-namespace:MultipleDevicesMonitor.Properties"
         mc:Ignorable="d"
-        Title="青岛芯笙微纳电子科技" Closing="Window_Closing"
+        Title="青岛芯笙微纳电子科技" Closing="Window_Closing" Background="#F0F0F0"
         Height="{Binding Source={x:Static p:Settings.Default}, Path=WindowHeight, Mode=TwoWay}" 
         Width="{Binding Source={x:Static p:Settings.Default}, Path=WindowWidth, Mode=TwoWay}"
         Left="{Binding Source={x:Static p:Settings.Default}, Path=WindowLeft, Mode=TwoWay}"
@@ -20,18 +20,16 @@
         </Grid.RowDefinitions>
 
         <Menu>
-            <MenuItem Header="选项" Click="SettingsMenu_Clicked">
-            </MenuItem>
-            <MenuItem Header="帮助">
-                <MenuItem Header="关于"/>
-            </MenuItem>
+            <MenuItem Header="选项" Click="SettingsMenu_Clicked"/>
+            <MenuItem Header="关于" Click="AboutMenu_Clicked"/>
         </Menu>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
             <Label>设备地址</Label>
             <TextBox Width="50" Margin="5" Text="{Binding Address}"/>
-            <Button Width="60" Margin="5" Click="AddDeviceButton_Clicked">添加设备</Button>
+            <Button Width="60" Margin="5" Command="{Binding AddDeviceCommand}">添加设备</Button>
+            <Button Width="60" Margin="5" Command="{Binding RemoveDeviceCommand}">移除设备</Button>
             <CheckBox Margin="5" VerticalAlignment="Center" IsChecked="{Binding IsStopped}">暂停</CheckBox>
         </StackPanel>
 

@@ -122,9 +122,9 @@ namespace MultipleDevicesMonitor.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("9600")]
-        public double Serial_BaudRate {
+        public int Serial_BaudRate {
             get {
-                return ((double)(this["Serial_BaudRate"]));
+                return ((int)(this["Serial_BaudRate"]));
             }
             set {
                 this["Serial_BaudRate"] = value;

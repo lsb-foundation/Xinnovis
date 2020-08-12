@@ -5,8 +5,9 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
-using System.Windows.Media;
+using System.Windows.Input;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
@@ -26,7 +27,9 @@ namespace MultipleDevicesMonitor.ViewModels
             SetPlotModel();
         }
 
-        public bool DeviceCanAdd { get => !addrList.Contains(_addr); }
+        public ICommand AddDeviceCommand { get => new RelayCommand(o => AddDevice()); }
+        public ICommand RemoveDeviceCommand { get => new RelayCommand(o => RemoveDevice()); }
+
         public PlotModel SeriesPlotModel { get; private set; }
 
         private int _addr;
@@ -71,7 +74,10 @@ namespace MultipleDevicesMonitor.ViewModels
                 s.Points.Add(new DataPoint(x, y));
 
                 if (s.Points.Count >= Settings.Default.DisplayPointsNumber)
-                    s.Points.RemoveAt(0);
+                {
+                    int count = s.Points.Count - Settings.Default.DisplayPointsNumber + 1;
+                    s.Points.RemoveRange(0, count);
+                }
             }
         }
 
@@ -91,13 +97,15 @@ namespace MultipleDevicesMonitor.ViewModels
                 Position = AxisPosition.Bottom,
                 IntervalType = DateTimeIntervalType.Seconds,
                 IntervalLength = 50,
+                TitleFontSize = 16
             };
             SeriesPlotModel.Axes.Add(dateTimeAxis);
 
             var valueAxis = new LinearAxis
             {
                 Title = Settings.Default.YAxisTitle,
-                Position = AxisPosition.Right,
+                Position = AxisPosition.Left,
+                TitleFontSize = 16
             };
             SeriesPlotModel.Axes.Add(valueAxis);
 
@@ -109,16 +117,22 @@ namespace MultipleDevicesMonitor.ViewModels
         {
             foreach(var axis in SeriesPlotModel.Axes)
             {
-                if (axis.GetType().Name == "LinearAxis")
+                if (axis.GetType() == typeof(LinearAxis))
                 {
                     axis.Title = Settings.Default.YAxisTitle;
                 }
             }
         }
 
-        public void AddNewDevice()
+        public void UpdateTimerInterval(double interval)
         {
-            if (DeviceCanAdd)
+            timer.Interval = interval;
+        }
+
+        private void AddDevice()
+        {
+            bool canAdd = !addrList.Contains(_addr);
+            if (canAdd)
             {
                 var line = new LineSeries
                 {
@@ -131,6 +145,20 @@ namespace MultipleDevicesMonitor.ViewModels
 
                 SeriesPlotModel.Series.Add(line);
                 addrList.Add(_addr);
+            }
+        }
+
+        private void RemoveDevice()
+        {
+            bool canRemove = addrList.Contains(_addr);
+            if (canRemove)
+            {
+                var line = SeriesPlotModel.Series.FirstOrDefault(s => s.Title == ("设备: " + _addr));
+                if (line != null)
+                {
+                    SeriesPlotModel.Series.Remove(line);
+                    addrList.Remove(_addr);
+                }
             }
         }
     }
