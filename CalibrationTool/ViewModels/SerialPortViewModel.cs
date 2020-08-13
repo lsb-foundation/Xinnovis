@@ -97,11 +97,9 @@ namespace CalibrationTool.ViewModels
 
         public List<int> DataBitsCollection { get; private set; } = new List<int>() { 5, 6, 7, 8 };
 
-        public List<Parity> ParityCollection { get; private set; }
-            = new List<Parity>() { Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space };
+        public List<Parity> ParityCollection { get => AdvancedSerialPort.GetParities(); }
 
-        public List<StopBits> StopBitsCollection { get; private set; }
-            = new List<StopBits>() { StopBits.One, StopBits.OnePointFive, StopBits.Two };
+        public List<StopBits> StopBitsCollection { get => AdvancedSerialPort.GetStopBits(); }
 
         //自动换行
         private bool _autoAddNewLine = true;

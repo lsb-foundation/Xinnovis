@@ -181,17 +181,18 @@ namespace MFCSoftware
                         sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
                     else sheet = package.Workbook.Worksheets.Add("流量数据表");
 
-                    sheet.SetValue(0, 0, "瞬时流量");
-                    sheet.SetValue(0, 1, "累积流量");
-                    sheet.SetValue(0, 2, "采样时间");
-                    sheet.SetValue(0, 3, "单位");
+                    //Epplus操作Excel从1开始
+                    sheet.SetValue(1, 1, "瞬时流量");
+                    sheet.SetValue(1, 2, "累积流量");
+                    sheet.SetValue(1, 3, "采样时间");
+                    sheet.SetValue(1, 4, "单位");
 
                     for (int index = 0; index < flowDatas.Count; index++)
                     {
-                        sheet.SetValue(index + 1, 0, flowDatas[index].CurrentFlow);
-                        sheet.SetValue(index + 1, 1, flowDatas[index].AccuFlow);
-                        sheet.SetValue(index + 1, 2, flowDatas[index].CollectTime);
-                        sheet.SetValue(index + 1, 3, flowDatas[index].Unit);
+                        sheet.SetValue(index + 2, 1, flowDatas[index].CurrentFlow);
+                        sheet.SetValue(index + 2, 2, flowDatas[index].AccuFlow);
+                        sheet.SetValue(index + 2, 3, flowDatas[index].CollectTime);
+                        sheet.SetValue(index + 2, 4, flowDatas[index].Unit);
                     }
                     await package.SaveAsync();
                     sheet.Dispose();

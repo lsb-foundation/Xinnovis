@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLib.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,6 +7,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CommonLib.Communication.Serial
@@ -48,37 +50,35 @@ namespace CommonLib.Communication.Serial
             this.DataReceived += AdvancedSerialPort_DataReceived;
         }
 
-        private bool isReceiving = false;
-
         /// <summary>
         /// 使用此串口类仅需实现此属性即可
         /// </summary>
         public Action<byte[]> ReceivedDataHandler { get; set; }
 
-        private async void AdvancedSerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private readonly object syncObject = new object();
+        private void AdvancedSerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (isReceiving) return;
-            
-            List<byte> receivedBytes = new List<byte>();
-            try
+            lock (syncObject)
             {
-                isReceiving = true;
-                while (this.BytesToRead > 0)
+                List<byte> receivedBytes = new List<byte>();
+                try
                 {
-                    int count = this.BytesToRead;
-                    byte[] buffer = new byte[count];
-                    if (this.Read(buffer, 0, count) > 0)
+                    while (this.BytesToRead > 0)
                     {
-                        receivedBytes.AddRange(buffer);
+                        int count = this.BytesToRead;
+                        byte[] buffer = new byte[count];
+                        if (this.Read(buffer, 0, count) > 0)
+                        {
+                            receivedBytes.AddRange(buffer);
+                        }
+                        Thread.Sleep(10);
                     }
-                    await Task.Delay(20);
+                    ReceivedDataHandler?.Invoke(receivedBytes.ToArray());
                 }
-                ReceivedDataHandler?.Invoke(receivedBytes.ToArray());
-            }
-            finally
-            {
-                isReceiving = false;
-                receivedBytes.Clear();
+                finally
+                {
+                    receivedBytes.Clear();
+                }
             }
         }
 
@@ -88,5 +88,11 @@ namespace CommonLib.Communication.Serial
             names.AddRange(SerialPort.GetPortNames());
             return names;
         }
+
+        public static List<Parity> GetParities()
+            => EnumExtension.GetEnumList<Parity>();
+
+        public static List<StopBits> GetStopBits()
+            => EnumExtension.GetEnumList<StopBits>();
     }
 }

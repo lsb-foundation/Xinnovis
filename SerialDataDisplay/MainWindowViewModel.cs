@@ -1,5 +1,6 @@
 ﻿using CommonLib.Communication.Serial;
 using CommonLib.Mvvm;
+using CommonLib.DbUtils;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -10,13 +11,23 @@ using LiveCharts.Wpf;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Configurations;
+using System.IO;
 
 namespace SerialDataDisplay
 {
     public class MainWindowViewModel : BindableBase
     {
+        private readonly string dbFile = "db.sqlite";
+        private readonly string tableName = "tb_values";
+        private readonly SqliteUtils utils;
+
         public MainWindowViewModel()
         {
+            var dbFileName = Path.Combine(Environment.CurrentDirectory, dbFile);
+            var connectionString = $"data source = {dbFileName}";
+            utils = new SqliteUtils(connectionString);
+            InitializeTables();
+
             Serial = new SerialPort()
             {
                 DataBits = 8,
@@ -48,10 +59,8 @@ namespace SerialDataDisplay
         public List<string> PortNameCollection { get; private set; }
         public List<int> BaudRateCollection { get; private set; }
         public List<int> DataBitsCollection { get; private set; } = new List<int>() { 5, 6, 7, 8 };
-        public List<Parity> ParityCollection { get; private set; }
-            = new List<Parity>() { Parity.None, Parity.Even, Parity.Odd, Parity.Mark, Parity.Space };
-        public List<StopBits> StopBitsCollection { get; private set; }
-            = new List<StopBits>() { StopBits.One, StopBits.OnePointFive, StopBits.Two };
+        public List<Parity> ParityCollection { get => AdvancedSerialPort.GetParities(); }
+        public List<StopBits> StopBitsCollection { get => AdvancedSerialPort.GetStopBits(); }
 
         public SerialPort Serial { get; }
 
@@ -118,5 +127,51 @@ namespace SerialDataDisplay
         }
 
         public Func<double, string> VolteLabelsFormatter { get => v => string.Format("{0:N2}", v); } 
+
+        public void InsertValue(float value)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.Append($"INSERT INTO {tableName}(collect_time, value) VALUES (")
+                .Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'),")
+                .Append($"{value});");
+            string sql = sqlBuilder.ToString();
+            utils.ExecuteNonQuery(sql);
+        }
+
+        public List<TableValue> QueryValues()
+        {
+            string sql = $"SELECT * FROM {tableName};";
+            List<TableValue> values = new List<TableValue>();
+            var reader = utils.ExecuteQuery(sql);
+            while (reader.Read())
+            {
+                try
+                {
+                    var value = new TableValue();
+                    value.Time = reader.GetDateTime(0);
+                    value.Value = reader.GetFloat(1);
+                    values.Add(value);
+                }
+                catch { }
+            }
+            return values;
+        }
+
+        private void InitializeTables()
+        {
+            var tableTypes = new Dictionary<string, string>()
+            {
+                {"collect_time", "datetime" },
+                {"value", "float" }
+            };
+            utils.CreateTableIfNotExist(tableName, tableTypes);
+            utils.ClearTable(tableName);
+        }
+    }
+
+    public class TableValue
+    {
+        public DateTime Time { get; set; }
+        public float Value { get; set; }
     }
 }

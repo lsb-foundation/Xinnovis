@@ -6,6 +6,12 @@ using System.IO.Ports;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using OfficeOpenXml;
+using Microsoft.Win32;
+using System.Windows.Documents;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SerialDataDisplay
 {
@@ -68,6 +74,7 @@ namespace SerialDataDisplay
                     vm.SeriesCollection[0].Values.Add(new ObservableValue(number));
                     vm.SeriesCollection[0].Values.RemoveAt(0);
                     vm.CurrentVolte = number;
+                    vm.InsertValue(number);
                 });
             });
         }
@@ -107,6 +114,59 @@ namespace SerialDataDisplay
         {
             if (!sending) return;
             btnStop_Click(this, null);
+        }
+
+        private void btnExport_Click(object sender, RoutedEventArgs e)
+        {
+            var values = vm.QueryValues();
+            if(values.Count > 0)
+            {
+                var dialog = new SaveFileDialog();
+                dialog.Filter = "Excel文件|*.xlsx;*.xls";
+                dialog.Title = "保存Excel文件";
+                if ((bool)dialog.ShowDialog())
+                {
+                    if (!string.IsNullOrEmpty(dialog.FileName))
+                    {
+                        ExportValuesToExcel(dialog.FileName, values);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("未查询到数据。");
+            }
+        }
+
+        private async void ExportValuesToExcel(string fileName, List<TableValue> values)
+        {
+            try
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (var package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet sheet;
+                    if (package.Workbook.Worksheets.Any(e => e.Name == "Sheet1"))
+                        sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "Sheet1");
+                    else sheet = package.Workbook.Worksheets.Add("Sheet1");
+
+                    sheet.SetValue(1, 1, "collect_time");
+                    sheet.SetValue(1, 2, "value");
+
+                    for (int index = 0; index < values.Count; index++)
+                    {
+                        sheet.SetValue(index + 2, 1, values[index].Time.ToString("yyyy-MM-dd hh:mm:ss.fff"));
+                        sheet.SetValue(index + 2, 2, values[index].Value);
+                    }
+                    await package.SaveAsync();
+                    sheet.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("导出Excel出错：\n" + e.Message);
+            }
         }
     }
 }

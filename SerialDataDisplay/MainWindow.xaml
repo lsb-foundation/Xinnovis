@@ -51,6 +51,7 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Width="100" Margin="8" Click="btnSend_Click">开始</Button>
             <Button Width="100" Margin="8" Click="btnStop_Click">停止</Button>
+            <Button Width="100" Margin="8" Click="btnExport_Click">数据导出</Button>
         </StackPanel>
         <!--<d3:ChartPlotter Grid.Row="2" x:Name="plotter" Margin="8">
             <d3:ChartPlotter.VerticalAxis>

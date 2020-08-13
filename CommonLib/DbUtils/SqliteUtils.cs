@@ -1,0 +1,100 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
+using System.Text;
+
+namespace CommonLib.DbUtils
+{
+    public class SqliteUtils:IDisposable
+    {
+        private readonly SQLiteConnection connection;
+
+        public SqliteUtils(string connectionString)
+        {
+            connection = new SQLiteConnection(connectionString);
+            connection.Open();
+        }
+
+        private readonly object syncObject = new object();
+        public int ExecuteNonQuery(string sql)
+        {
+            lock (syncObject)
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    return command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public SQLiteDataReader ExecuteQuery(string sql)
+        {
+            lock (syncObject)
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    return command.ExecuteReader();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 创建数据表
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="fieldsWithType"></param>
+        public void CreateTableIfNotExist(string tableName, Dictionary<string, string> fieldsWithType)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.Append("CREATE TABLE IF NOT EXISTS ").Append(tableName).Append("(");
+            foreach (var kv in fieldsWithType)
+            {
+                string field = kv.Key;
+                string type = kv.Value;
+                if (string.IsNullOrWhiteSpace(field)) continue;
+                if (string.IsNullOrWhiteSpace(type)) continue;
+                sqlBuilder.Append($"{field} {type},");
+            }
+            int lastIndex = sqlBuilder.Length - 1;
+            if (sqlBuilder[lastIndex] == ',')
+                sqlBuilder.Remove(lastIndex, 1);
+            sqlBuilder.Append(");");
+            string sql = sqlBuilder.ToString();
+            ExecuteNonQuery(sql);
+        }
+
+        /// <summary>
+        /// 删除指定数据表
+        /// </summary>
+        /// <param name="tableName"></param>
+        public void DropTable(string tableName)
+        {
+            string sql = $"DROP TABLE IF EXISTS {tableName};";
+            ExecuteNonQuery(sql);
+        }
+
+        /// <summary>
+        /// 删除指定数据表中所有数据
+        /// </summary>
+        /// <param name="tableName"></param>
+        public void ClearTable(string tableName)
+        {
+            string sql = $"DELETE FROM {tableName} WHERE 1=1;";
+            ExecuteNonQuery(sql);
+        }
+
+        public void Dispose()
+        {
+            connection.Close();
+            connection.Dispose();
+        }
+    }
+}
