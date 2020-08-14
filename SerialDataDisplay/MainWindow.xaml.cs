@@ -1,6 +1,4 @@
 ﻿using LiveCharts.Defaults;
-using Microsoft.Research.DynamicDataDisplay;
-using Microsoft.Research.DynamicDataDisplay.DataSources;
 using System;
 using System.IO.Ports;
 using System.Threading.Tasks;
@@ -12,6 +10,9 @@ using System.Windows.Documents;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CommonLib.Mvvm;
+using System.Text;
+using System.Threading;
 
 namespace SerialDataDisplay
 {
@@ -20,50 +21,56 @@ namespace SerialDataDisplay
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel vm;
-        private SerialPort serial;
+        private readonly MainWindowViewModel vm;
+        private readonly SerialPort serial;
         private bool sending;
-        //private ObservableDataSource<Point> pointDataSource;
-        //private int i = 0;
 
         public MainWindow()
         {
             this.Loaded += MainWindow_Loaded;
             InitializeComponent();
-            vm = new MainWindowViewModel();
+            vm = ViewModelBase.GetViewModelInstance<MainWindowViewModel>();
             serial = vm.Serial;
             DataContext = vm;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //pointDataSource = new ObservableDataSource<Point>();
-            //plotter.AddLineGraph(pointDataSource, Colors.Green, 2);
-            //plotter.Viewport.FitToView();
-
             serial.DataReceived += SerialPort_DataReceived;
         }
 
+        //private static readonly object syncObject = new object();
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            string asciis = serial.ReadLine();
+            //lock (syncObject)
+            //{
+            //    try
+            //    {
+            //        List<byte> bytes = new List<byte>();
+            //        while (serial.BytesToRead > 0)
+            //        {
+            //            int count = serial.BytesToRead;
+            //            byte[] buffer = new byte[count];
+            //            serial.Read(buffer, 0, count);
+            //            bytes.AddRange(buffer);
+            //            Thread.Sleep(1);
+            //        }
+            //        string asciis = Encoding.Default.GetString(bytes.ToArray());
+            //        Console.WriteLine(asciis);
+
+            //        if (float.TryParse(asciis, out float data))
+            //            //UpdateDataSource(data);
+            //            UpdateViewModel(data);
+            //    }
+            //    catch { }
+            //}
+            var asciis = serial.ReadLine();
+            //Console.WriteLine(asciis);
+
             if (float.TryParse(asciis, out float data))
-                //UpdateDataSource(data);
                 UpdateViewModel(data);
         }
 
-        //private void UpdateDataSource(float number)
-        //{
-        //    Task.Run(() =>
-        //    {
-        //        Point point = new Point(++i, number);
-        //        this.Dispatcher.Invoke(() =>
-        //        {
-        //            pointDataSource.AppendAsync(this.Dispatcher, point);
-        //            //if (i > 20) plotter.Visible = new Rect(i - 20, plotter.Visible.Y, plotter.Visible.Width, plotter.Visible.Height);
-        //        });
-        //    });
-        //}
 
         private void UpdateViewModel(float number)
         {
@@ -73,20 +80,27 @@ namespace SerialDataDisplay
                 {
                     vm.SeriesCollection[0].Values.Add(new ObservableValue(number));
                     vm.SeriesCollection[0].Values.RemoveAt(0);
-                    vm.CurrentVolte = number;
+                    vm.CurrentValue = number;
                     vm.InsertValue(number);
                 });
             });
         }
 
-        private bool Send(byte[] data)
+        private bool Send(SerialCommand command, bool start)
         {
             try
             {
                 if (!serial.IsOpen)
                     serial.Open();
-                
-                serial.Write(data, 0, data.Length);
+
+                object data = start ? command.StartCommand : command.StopCommand;
+                if (command.CommandType == CommandType.Hex)
+                {
+                    byte[] hexData = data as byte[];
+                    serial.Write(hexData, 0, hexData.Length);
+                }
+                else serial.Write(data as string);
+
                 return true;
             }
             catch(Exception e)
@@ -98,16 +112,23 @@ namespace SerialDataDisplay
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
-            byte[] data = new byte[] { 0xCA };
-            if (Send(data))
+            if (vm.CurrentCommand == null) return;
+            if (Send(vm.CurrentCommand, true))
+            {
                 sending = true;
+                vm.LastestStartTime = DateTime.Now;
+                vm.ControlEnabled = false;
+            }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            byte[] data = new byte[] { 0xED };
-            if (Send(data))
+            if (vm.CurrentCommand == null) return;
+            if (Send(vm.CurrentCommand, false))
+            {
+                vm.ControlEnabled = true;
                 sending = false;
+            }
         }
 
         private void Window_Closed(object sender, System.EventArgs e)

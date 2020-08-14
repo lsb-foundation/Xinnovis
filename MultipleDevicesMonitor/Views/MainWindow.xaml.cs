@@ -1,6 +1,7 @@
 ﻿using MultipleDevicesMonitor.ViewModels;
 using System.Windows;
 using MultipleDevicesMonitor.Properties;
+using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.Views
 {
@@ -14,7 +15,7 @@ namespace MultipleDevicesMonitor.Views
         public MainWindow()
         {
             InitializeComponent();
-            main = ViewModelBase.GetViewModelInstance<MainViewModel>() as MainViewModel;
+            main = ViewModelBase.GetViewModelInstance<MainViewModel>();
             DataContext = main;
         }
 

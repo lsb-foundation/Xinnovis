@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.ViewModels
 {

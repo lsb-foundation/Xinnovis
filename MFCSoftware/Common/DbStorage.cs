@@ -50,8 +50,8 @@ namespace MFCSoftware.Common
         public static List<FlowData> QueryLastest2HoursFlowData(int address)
         {
             DateTime now = DateTime.Now;
-            string nowStr = now.ToString("yyyy-MM-dd hh:mm:ss.fff");
-            string twoHoursBeforeStr = now.AddHours(-2).ToString("yyyy-MM-dd hh:mm:ss.fff");
+            string nowStr = now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string twoHoursBeforeStr = now.AddHours(-2).ToString("yyyy-MM-dd HH:mm:ss.fff");
 
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append("SELECT collect_time, curr_flow, accu_flow, unit FROM ")

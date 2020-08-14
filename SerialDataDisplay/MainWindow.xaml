@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SerialDataDisplay"
-        xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d" Closed="Window_Closed" Icon="logo.ico"
         Title="青岛芯笙" Height="450" Width="800">
@@ -45,23 +44,21 @@
                       SelectedIndex="0"
                       SelectedItem="{Binding StopBits}">
             </ComboBox>
-            <!--<RadioButton Name="live">LiveCharts</RadioButton>
-            <RadioButton Name="dynamic">DynamicDataDisplay</RadioButton>-->
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <ComboBox Width="100" Margin="8" IsEnabled="{Binding ControlEnabled}"
+                      ItemsSource="{Binding CommandList, Mode=OneWay}"
+                      SelectedItem="{Binding CurrentCommand, Mode=OneWayToSource}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:SerialCommand}">
+                        <TextBlock Text="{Binding CommandName}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <Button Width="100" Margin="8" Click="btnSend_Click">开始</Button>
             <Button Width="100" Margin="8" Click="btnStop_Click">停止</Button>
             <Button Width="100" Margin="8" Click="btnExport_Click">数据导出</Button>
         </StackPanel>
-        <!--<d3:ChartPlotter Grid.Row="2" x:Name="plotter" Margin="8">
-            <d3:ChartPlotter.VerticalAxis>
-                <d3:VerticalIntegerAxis />
-            </d3:ChartPlotter.VerticalAxis>
-
-            <d3:ChartPlotter.HorizontalAxis>
-                <d3:HorizontalIntegerAxis />
-            </d3:ChartPlotter.HorizontalAxis>
-        </d3:ChartPlotter>-->
 
         <lvc:CartesianChart Grid.Row="2" Margin="0, 0, 0, 0" 
                             Series="{Binding SeriesCollection}"
@@ -75,8 +72,9 @@
                 <lvc:Axis Foreground="Black" FontSize="16"></lvc:Axis>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis Foreground="Black" FontSize="16" Title="电压(mv)" 
-                          LabelFormatter="{Binding VolteLabelsFormatter}"></lvc:Axis>
+                <lvc:Axis Foreground="Black" FontSize="16" 
+                          Title="{Binding CurrentCommand.YAxisTitle}" 
+                          LabelFormatter="{Binding ValueLabelsFormatter}"></lvc:Axis>
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
 
@@ -88,9 +86,8 @@
                     <Setter Property="Foreground" Value="Green"/>
                 </Style>
             </StackPanel.Resources>
-            <TextBlock>当前电压：</TextBlock>
-            <TextBlock Text="{Binding CurrentVolte, StringFormat={}{0:N3}}"/>
-            <TextBlock>mv</TextBlock>
+            <TextBlock Text="{Binding CurrentValue, StringFormat={}{0:N3}}"/>
+            <TextBlock Text="{Binding CurrentCommand.Unit}"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -15,7 +15,7 @@ using System.IO;
 
 namespace SerialDataDisplay
 {
-    public class MainWindowViewModel : BindableBase
+    public class MainWindowViewModel : ViewModelBase
     {
         private readonly string dbFile = "db.sqlite";
         private readonly string tableName = "tb_values";
@@ -61,6 +61,7 @@ namespace SerialDataDisplay
         public List<int> DataBitsCollection { get; private set; } = new List<int>() { 5, 6, 7, 8 };
         public List<Parity> ParityCollection { get => AdvancedSerialPort.GetParities(); }
         public List<StopBits> StopBitsCollection { get => AdvancedSerialPort.GetStopBits(); }
+        public List<SerialCommand> CommandList { get => SerialCommand.GetCommands(); }
 
         public SerialPort Serial { get; }
 
@@ -117,16 +118,32 @@ namespace SerialDataDisplay
             }
         }
 
-        public SeriesCollection SeriesCollection { get; set; }
-
-        private float _currentVolte;
-        public float CurrentVolte
+        private bool _controlEnable = true;
+        public bool ControlEnabled
         {
-            get => _currentVolte;
-            set => SetProperty(ref _currentVolte, value);
+            get => _controlEnable;
+            set => SetProperty(ref _controlEnable, value);
         }
 
-        public Func<double, string> VolteLabelsFormatter { get => v => string.Format("{0:N2}", v); } 
+        private SerialCommand _serialCommand;
+        public SerialCommand CurrentCommand
+        {
+            get => _serialCommand;
+            set => SetProperty(ref _serialCommand, value);
+        }
+
+        public SeriesCollection SeriesCollection { get; set; }
+
+        private float _currentValue;
+        public float CurrentValue
+        {
+            get => _currentValue;
+            set => SetProperty(ref _currentValue, value);
+        }
+
+        public DateTime LastestStartTime { get; set; }
+
+        public Func<double, string> ValueLabelsFormatter { get => v => string.Format("{0:N2}", v); } 
 
         public void InsertValue(float value)
         {
@@ -140,7 +157,8 @@ namespace SerialDataDisplay
 
         public List<TableValue> QueryValues()
         {
-            string sql = $"SELECT * FROM {tableName};";
+            var lastestStartTimeStr = LastestStartTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string sql = $"SELECT * FROM {tableName} WHERE collect_time > '{lastestStartTimeStr}';";
             List<TableValue> values = new List<TableValue>();
             var reader = utils.ExecuteQuery(sql);
             while (reader.Read())

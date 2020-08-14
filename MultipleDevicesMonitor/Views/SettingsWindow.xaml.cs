@@ -1,6 +1,7 @@
 ﻿using MultipleDevicesMonitor.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.Views
 {

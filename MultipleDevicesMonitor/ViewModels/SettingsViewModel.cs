@@ -1,4 +1,5 @@
 ﻿using MultipleDevicesMonitor.Properties;
+using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
@@ -11,7 +12,7 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 Settings.Default.YAxisTitle = value;
                 SaveSettings();
-                var main = GetViewModelInstance<MainViewModel>() as MainViewModel;
+                var main = GetViewModelInstance<MainViewModel>();
                 main.UpdateAxisTitle();
                 RaiseProperty();
             }
@@ -24,7 +25,7 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 Settings.Default.TimerInterval = value;
                 SaveSettings();
-                var main = GetViewModelInstance<MainViewModel>() as MainViewModel;
+                var main = GetViewModelInstance<MainViewModel>();
                 main.UpdateTimerInterval(value);
                 RaiseProperty();
             }

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommonLib.Communication.Serial;
 using MultipleDevicesMonitor.Properties;
+using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
