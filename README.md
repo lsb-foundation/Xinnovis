@@ -6,4 +6,16 @@
 
 ## CalibrationTool
 
-MFD检定工具
+MFD/MFM校准工具
+
+## MFCSoftware
+
+MFC上位机软件
+
+## SerialDataDisplay
+
+采集数据曲线显示软件
+
+## MultipleDevicesMonitor
+
+多设备监测采集软件
