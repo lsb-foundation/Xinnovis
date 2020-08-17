@@ -21,7 +21,7 @@ namespace MFCSoftware
     /// </summary>
     public partial class ChannelUserControl : UserControl
     {
-        private ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
+        private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
         
         public ChannelUserControl()
         {
@@ -110,7 +110,7 @@ namespace MFCSoftware
             int unitCode = unitBytes.ToInt32(0, 2);
             string unit = string.Empty;
             if (unitCode == 0) unit = "SCCM";
-            if (unitCode == 1) unit = "SLM";
+            else if (unitCode == 1) unit = "SLM";
 
             byte[] daysBytes = data.SubArray(17, 2);
             int days = daysBytes.ToInt32(0, 2);
@@ -151,9 +151,12 @@ namespace MFCSoftware
             var flowDatas = DbStorage.QueryLastest2HoursFlowData(Address);
             if (flowDatas.Count > 0)
             {
-                var dialog = new SaveFileDialog();
-                dialog.Filter = "Excel文件|*.xlsx;*.xls";
-                dialog.Title = "保存Excel文件";
+                var dialog = new SaveFileDialog()
+                {
+                    Filter = "Excel文件|*.xlsx;*.xls",
+                    Title = "导出数据"
+                };
+                
                 if ((bool)dialog.ShowDialog())
                 {
                     if (!string.IsNullOrEmpty(dialog.FileName))
@@ -207,9 +210,11 @@ namespace MFCSoftware
 
         private void ClearAccuFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("确定清除？", "清除确认", MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
+            var mbxResult = MessageBox.Show("是否确认清除？", "提示", MessageBoxButton.YesNo);
+            if (mbxResult == MessageBoxResult.Yes)
+            {
                 ClearAccuFlowClicked?.Invoke(this);
+            }
         }
     }
 

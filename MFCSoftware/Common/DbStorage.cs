@@ -10,8 +10,8 @@ namespace MFCSoftware.Common
 {
     public static class DbStorage
     {
-        private static readonly string dbFile = "db.sqlite";
-        private static readonly string flowTableName = "tb_flow";
+        private const string dbFile = "db.sqlite";
+        private const string flowTableName = "tb_flow";
         private static readonly SqliteUtils utils;
 
         static DbStorage()
@@ -29,7 +29,8 @@ namespace MFCSoftware.Common
                 {"unit", "varchar(8)" }
             };
 #if DEBUG
-            //DropTable(flowTableName);
+            //ClearDatabaseTable();
+            //utils.DropTable(flowTableName);
 #endif
             utils.CreateTableIfNotExist(flowTableName, flowTableTypes);
         }
@@ -77,6 +78,12 @@ namespace MFCSoftware.Common
                 catch { continue; }
             }
             return flows;
+        }
+
+        private static void ClearDatabaseTable()
+        {
+            string sql = $"DELETE * FROM {flowTableName};";
+            utils.ExecuteNonQuery(sql);
         }
     }
 }

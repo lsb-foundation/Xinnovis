@@ -11,9 +11,12 @@ namespace MFCSoftware.Common
     public static class SerialPortInstance
     {
         private static SerialPort com;
-        private static ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
+        private static readonly ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
         private static SerialCommand<byte[]> currentCommand = null;
         private static bool timeOut;
+        private const int waitTime = 100;
+
+        //public static event Action<byte[]> DataHandler;
 
         static SerialPortInstance()
         {
@@ -22,29 +25,30 @@ namespace MFCSoftware.Common
             com.DataReceived += Com_DataReceived;
         }
 
-        private static object locked = new object();
+        private readonly static object syncObj = new object();
         private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            lock (locked)
+            lock (syncObj)
             {
-                if (timeOut)
-                {   //超时之后收到的数据不加入队列，但是要从串口缓存中读取出来。
-                    com.ReadExisting();
-                    return;
-                }
-
                 int count = com.BytesToRead;
                 byte[] buff = new byte[count];
                 com.Read(buff, 0, count);
                 foreach (var item in buff)
+                {
+                    if (timeOut) break;
                     buffer.Enqueue(item);
+                }
             }
         }
 
         public static SerialPort GetSerialPortInstance()
         {
             if (com == null)
+            {
                 com = new SerialPort();
+                com.DtrEnable = true;
+                com.DataReceived += Com_DataReceived;
+            }
             return com;
         }
 
@@ -54,6 +58,10 @@ namespace MFCSoftware.Common
             {
                 if (!com.IsOpen)
                     com.Open();
+
+                if (timeOut)
+                    PreHandleTimeOut();
+
                 com.Write(command.Command, 0, command.Command.Length);
                 currentCommand = command;
                 timeOut = false;
@@ -64,38 +72,51 @@ namespace MFCSoftware.Common
             }
         }
 
+        //发送之前预处理超时
+        private static void PreHandleTimeOut()
+        {
+            com.ReadExisting();
+            while(buffer.Count > 0)
+            {
+                buffer.TryDequeue(out byte _);
+            }
+        }
+
+
+        /// <summary>
+        /// 异步获取数据。在确定的等待时间内，如果获取到的数据长度不足，抛出TimeoutException异常。
+        /// </summary>
+        /// <returns></returns>
         public async static Task<byte[]> GetResponseBytes()
         {
-            //最多给100毫秒时间获取数据，如果获取到的数据长度不足，抛出TimeoutException
-            using (System.Timers.Timer timer = new System.Timers.Timer(100))
+            using (System.Timers.Timer timer = new System.Timers.Timer(waitTime))
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 timer.AutoReset = false;
                 timer.Elapsed += (s, e) => cts.Cancel();
 
-                List<byte> buff = new List<byte>();
+                List<byte> datas = new List<byte>();
                 await Task.Run(() =>
                 {
                     timer.Start();
-                    while (buff.Count < currentCommand.ResponseLength)
+                    while (datas.Count < currentCommand.ResponseLength)
                     {
-                        if (cts.IsCancellationRequested)
-                            break;
+                        if (cts.IsCancellationRequested) break;
+
                         if (buffer.TryDequeue(out byte data))
-                            buff.Add(data);
+                            datas.Add(data);
                     }
                 }, cts.Token);
 
-                if (cts.IsCancellationRequested)
+                timer.Stop();
+
+                if (datas.Count < currentCommand.ResponseLength)
                 {
                     timeOut = true;
                     throw new TimeoutException();
                 }
-                else
-                {
-                    timer.Stop();
-                    return buff.ToArray();
-                }
+
+                return datas.ToArray();
             }  
         }
     }

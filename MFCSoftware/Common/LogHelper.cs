@@ -5,8 +5,8 @@ namespace MFCSoftware.Common
 {
     public class LogHelper
     {
-        public static readonly ILog logInfo = LogManager.GetLogger("loginfo");
-        public static readonly ILog logError = LogManager.GetLogger("logerror");
+        private static readonly ILog logInfo = LogManager.GetLogger("loginfo");
+        private static readonly ILog logError = LogManager.GetLogger("logerror");
 
         public static void WriteLog(string info)
         {

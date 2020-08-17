@@ -28,8 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibTests", "CommonLib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialDataDisplay", "SerialDataDisplay\SerialDataDisplay.csproj", "{A4F4EF35-23E1-452E-A434-83BE9FF5B832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftwareTests", "MFCSoftwareTests\MFCSoftwareTests.csproj", "{0B7BC3D9-E350-4519-B5CE-4F3EAB7D9067}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDevicesMonitor", "MultipleDevicesMonitor\MultipleDevicesMonitor.csproj", "{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}"
 EndProject
 Global
@@ -58,10 +56,6 @@ Global
 		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4F4EF35-23E1-452E-A434-83BE9FF5B832}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B7BC3D9-E350-4519-B5CE-4F3EAB7D9067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B7BC3D9-E350-4519-B5CE-4F3EAB7D9067}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B7BC3D9-E350-4519-B5CE-4F3EAB7D9067}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B7BC3D9-E350-4519-B5CE-4F3EAB7D9067}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Release|Any CPU.ActiveCfg = Release|Any CPU

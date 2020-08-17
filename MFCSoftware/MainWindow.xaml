@@ -6,7 +6,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:MFCSoftware"
         mc:Ignorable="d"
-        Title="MFCSoftware" Height="800" Width="1200">
+        Title="MFMSoftware-青岛芯笙" Height="800" Width="1200">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

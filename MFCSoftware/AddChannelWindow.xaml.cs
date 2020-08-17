@@ -20,7 +20,7 @@ namespace MFCSoftware
     /// </summary>
     public partial class AddChannelWindow : Window
     {
-        private AddChannelWindowViewModel vm;
+        private readonly AddChannelWindowViewModel vm;
         public AddChannelWindow()
         {
             InitializeComponent();

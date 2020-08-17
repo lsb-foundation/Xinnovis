@@ -3,6 +3,7 @@ using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -14,15 +15,15 @@ namespace MFCSoftware
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel mainVm;
+        private readonly MainWindowViewModel mainVm;
+        private readonly LinkedList<ChannelUserControl> controlList = new LinkedList<ChannelUserControl>();
 
-        private List<int> addedAddrs = new List<int>();
-        private LinkedList<ChannelUserControl> controlList = new LinkedList<ChannelUserControl>();
         private LinkedListNode<ChannelUserControl> currentNode;
-        private System.Timers.Timer timer;
+        private Timer timer;
         private Task sendTask;
 
-        private int totalMilliSeconds = 1000;
+        private const int totalInterval = 1000;
+        private const int minInterval = 100;      //最小的发送间隔时间固定为100毫秒
         
         public MainWindow()
         {
@@ -35,19 +36,23 @@ namespace MFCSoftware
 
         private void OpenSetSerialPortWindow(object sender, EventArgs e)
         {
-            SetSerialPortWindow window = new SetSerialPortWindow();
-            window.Owner = this;
-            window.ShowInTaskbar = false;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SetSerialPortWindow window = new SetSerialPortWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ShowInTaskbar = false
+            };
             window.ShowDialog();
         }
 
         private void OpenSetAddressWindow(object sender, EventArgs e)
         {
-            SetAddressWindow window = new SetAddressWindow();
-            window.Owner = this;
-            window.ShowInTaskbar = false;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SetAddressWindow window = new SetAddressWindow
+            {
+                Owner = this,
+                ShowInTaskbar = false,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             window.ShowDialog();
         }
 
@@ -58,12 +63,13 @@ namespace MFCSoftware
             timer.Dispose();
 
             ChannelGrid.Children.Clear();
-            addedAddrs.Clear();
             controlList.Clear();
         }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        private async void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            await WaitSendTaskCompleteAsync();
+
             //定时发送的后台任务
             sendTask = Task.Run(async () =>
             {
@@ -96,6 +102,17 @@ namespace MFCSoftware
             });
         }
 
+        /// <summary>
+        /// 异步等待当前发送任务执行结束
+        /// </summary>
+        /// <returns></returns>
+        private async Task WaitSendTaskCompleteAsync()
+        {
+            if (sendTask == null) return;
+            if (!sendTask.IsCompleted)
+                await sendTask;
+        }
+
         private bool Send(SerialCommand<byte[]> sc)
         {
             try
@@ -113,106 +130,98 @@ namespace MFCSoftware
 
         private void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
-            AddChannelWindow window = new AddChannelWindow();
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            window.Owner = this;
-            window.ShowInTaskbar = false;
+            AddChannelWindow window = new AddChannelWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ShowInTaskbar = false
+            };
+
             window.ShowDialog();
 
-            if (window.IsAddressSetted)
+            if (!window.IsAddressSetted) return;
+
+            bool addrExists = controlList.Any(c => c.Address == window.Address);
+            if (!addrExists)
             {
-                if (!addedAddrs.Contains(window.Address))
-                {
-                    ChannelUserControl channelControl = new ChannelUserControl();
-                    channelControl.SetAddress(window.Address);
-                    channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
-                    channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
+                ChannelUserControl channelControl = new ChannelUserControl();
+                channelControl.SetAddress(window.Address);
+                channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
+                channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
 
-                    ChannelGrid.Children.Add(channelControl);
-                    SetTimerInterval();
-                    addedAddrs.Add(window.Address);
-                    controlList.AddLast(channelControl);
-                    ChannelAdded(channelControl);
-                    mainVm.ChannelCount++;
-                }
-                else MessageBox.Show("地址重复。");
+                ChannelGrid.Children.Add(channelControl);
+                SetTimerInterval();
+                controlList.AddLast(channelControl);
+                ChannelAdded(channelControl);
+                mainVm.ChannelCount++;
             }
-        }
-
-        private async void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
-        {
-            if (!(bool)sendTask?.IsCompleted)   //等待当前发送任务完成
-                await sendTask;
-
-            timer.Stop();
-            if (Send(channel.ClearAccuFlowBytes))
-            {
-                try
-                {
-                    byte[] data = await SerialPortInstance.GetResponseBytes();
-                    channel.ResolveData(data, ResolveType.ClearAccuFlowData);
-                    timer.Start();
-                }
-                catch (TimeoutException) 
-                {
-                    channel.WhenTimeOut();
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.WriteLog(ex.Message, ex);
-                }
-            }
-        }
-
-        private void ChannelControl_ControlWasRemoved(ChannelUserControl sender)
-        {
-            timer.Stop();
-            addedAddrs.Remove(sender.Address);
-            controlList.Remove(sender);
-            ChannelGrid.Children.Remove(sender);
-            mainVm.ChannelCount--;
-
-            SetTimerInterval();
-            timer.Start();
+            else MessageBox.Show("地址重复，请重新添加。");
         }
 
         private async void ChannelAdded(ChannelUserControl channel)
         {
-            if (!(bool)sendTask?.IsCompleted)       //等待当前发送任务完成
-                await sendTask;
+            //添加通道后读取基本信息
+            await WaitSendTaskCompleteAsync();
+            SendSingleCommand(channel, channel.ReadBaseInfoBytes, ResolveType.BaseInfoData);
+        }
 
-            timer.Stop();   //添加通道后自动发送获取基本信息指令，需要暂停timer轮询
-            if (Send(channel.ReadBaseInfoBytes))
+        private async void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
+        {
+            await WaitSendTaskCompleteAsync();
+            SendSingleCommand(channel, channel.ClearAccuFlowBytes, ResolveType.ClearAccuFlowData);
+        }
+
+        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, ResolveType type)
+        {
+            await WaitSendTaskCompleteAsync();
+
+            timer.Stop();
+            if (Send(command))
             {
                 try
                 {
                     byte[] data = await SerialPortInstance.GetResponseBytes();
-                    channel.ResolveData(data, ResolveType.BaseInfoData);
-                    timer.Start();
+                    channel.ResolveData(data, type);
                 }
-                catch (TimeoutException) 
+                catch (TimeoutException)
                 {
                     channel.WhenTimeOut();
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     LogHelper.WriteLog(ex.Message, ex);
+                }
+                finally
+                {
+                    timer.Start();
                 }
             }
         }
 
+        private void ChannelControl_ControlWasRemoved(ChannelUserControl channel)
+        {
+            controlList.Remove(channel);
+            ChannelGrid.Children.Remove(channel);
+            mainVm.ChannelCount--;
+            SetTimerInterval();
+        }
+
         private void InitializeTimer()
         {
-            timer = new System.Timers.Timer();
-            timer.Interval = totalMilliSeconds;
+            timer = new Timer();
+            timer.Interval = totalInterval;
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
 
         private void SetTimerInterval()
         {
-            if (addedAddrs.Count == 0) return;
-            timer.Interval = totalMilliSeconds / addedAddrs.Count;
+            if (controlList.Count == 0) return;
+
+            var interval = totalInterval / controlList.Count;
+            if (interval < minInterval) 
+                interval = minInterval;
+            timer.Interval = interval;
         }
     }
 }
