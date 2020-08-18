@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Data.SQLite;
 using System.IO;
 using MFCSoftware.Models;
 using CommonLib.DbUtils;
@@ -25,25 +24,25 @@ namespace MFCSoftware.Common
                 {"address", "int" },
                 {"collect_time", "datetime" },
                 {"curr_flow", "float" },
+                {"unit", "varchar(8)" },
                 {"accu_flow", "float" },
-                {"unit", "varchar(8)" }
+                {"accu_unit", "varchar(8)" }
             };
-#if DEBUG
-            //ClearDatabaseTable();
-            //utils.DropTable(flowTableName);
-#endif
-            utils.CreateTableIfNotExist(flowTableName, flowTableTypes);
+
+            utils.DropTableIfExists(flowTableName);
+            utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
         }
 
         public static void InsertFlowData(int address, FlowData data)
         {
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append($"INSERT INTO {flowTableName}(address, collect_time, curr_flow, accu_flow, unit) VALUES (")
+            sqlBuilder.Append($"INSERT INTO {flowTableName}(address, collect_time, curr_flow, unit, accu_flow, accu_unit) VALUES (")
                 .Append($"{address},")
                 .Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'),")
                 .Append($"{data.CurrentFlow},")
+                .Append($"'{data.Unit}',")
                 .Append($"{data.AccuFlow},")
-                .Append($"'{data.Unit}');");
+                .Append($"'{data.AccuFlowUnit}');");
             string sql = sqlBuilder.ToString();
             utils.ExecuteNonQuery(sql);
         }
@@ -55,11 +54,10 @@ namespace MFCSoftware.Common
             string twoHoursBeforeStr = now.AddHours(-2).ToString("yyyy-MM-dd HH:mm:ss.fff");
 
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append("SELECT collect_time, curr_flow, accu_flow, unit FROM ")
-                .Append(flowTableName)
+            sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
                 .Append($" WHERE address={address}")
                 .Append($" AND collect_time BETWEEN '{twoHoursBeforeStr}' AND '{nowStr}'")
-                .Append(" ORDER BY collect_time DESC;");
+                .Append(" ORDER BY collect_time;");
             string sql = sqlBuilder.ToString();
 
             List<FlowData> flows = new List<FlowData>();
@@ -71,19 +69,14 @@ namespace MFCSoftware.Common
                     var flow = new FlowData();
                     flow.CollectTime = reader.GetDateTime(0);
                     flow.CurrentFlow = reader.GetFloat(1);
-                    flow.AccuFlow = reader.GetFloat(2);
-                    flow.Unit = reader.GetString(3);
+                    flow.Unit = reader.GetString(2);
+                    flow.AccuFlow = reader.GetFloat(3);
+                    flow.AccuFlowUnit = reader.GetString(4);
                     flows.Add(flow);
                 }
                 catch { continue; }
             }
             return flows;
-        }
-
-        private static void ClearDatabaseTable()
-        {
-            string sql = $"DELETE * FROM {flowTableName};";
-            utils.ExecuteNonQuery(sql);
         }
     }
 }

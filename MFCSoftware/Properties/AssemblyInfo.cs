@@ -8,11 +8,11 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("MFCSoftware")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("上位机软件")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("青岛芯笙微纳电子科技有限公司")]
 [assembly: AssemblyProduct("MFCSoftware")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright © 青岛芯笙微纳电子科技有限公司 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

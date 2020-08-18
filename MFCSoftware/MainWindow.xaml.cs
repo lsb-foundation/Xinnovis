@@ -68,7 +68,7 @@ namespace MFCSoftware
 
         private async void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            await WaitSendTaskCompleteAsync();
+            await SendTaskCompletedAsync();
 
             //定时发送的后台任务
             sendTask = Task.Run(async () =>
@@ -106,7 +106,7 @@ namespace MFCSoftware
         /// 异步等待当前发送任务执行结束
         /// </summary>
         /// <returns></returns>
-        private async Task WaitSendTaskCompleteAsync()
+        private async Task SendTaskCompletedAsync()
         {
             if (sendTask == null) return;
             if (!sendTask.IsCompleted)
@@ -120,10 +120,11 @@ namespace MFCSoftware
                 SerialPortInstance.Send(sc);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 timer.Stop();
                 MessageBox.Show("串口可能被其他程序占用，请检查！");
+                LogHelper.WriteLog(e.Message, e);
                 return false;
             }
         }
@@ -150,8 +151,8 @@ namespace MFCSoftware
                 channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
 
                 ChannelGrid.Children.Add(channelControl);
-                SetTimerInterval();
                 controlList.AddLast(channelControl);
+                SetTimerInterval();
                 ChannelAdded(channelControl);
                 mainVm.ChannelCount++;
             }
@@ -161,19 +162,19 @@ namespace MFCSoftware
         private async void ChannelAdded(ChannelUserControl channel)
         {
             //添加通道后读取基本信息
-            await WaitSendTaskCompleteAsync();
+            await SendTaskCompletedAsync();
             SendSingleCommand(channel, channel.ReadBaseInfoBytes, ResolveType.BaseInfoData);
         }
 
         private async void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
         {
-            await WaitSendTaskCompleteAsync();
+            await SendTaskCompletedAsync();
             SendSingleCommand(channel, channel.ClearAccuFlowBytes, ResolveType.ClearAccuFlowData);
         }
 
         private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, ResolveType type)
         {
-            await WaitSendTaskCompleteAsync();
+            await SendTaskCompletedAsync();
 
             timer.Stop();
             if (Send(command))
@@ -216,10 +217,14 @@ namespace MFCSoftware
 
         private void SetTimerInterval()
         {
-            if (controlList.Count == 0) return;
+            if (controlList.Count == 0)
+            {
+                timer.Interval = totalInterval;
+                return;
+            }
 
             var interval = totalInterval / controlList.Count;
-            if (interval < minInterval) 
+            if (interval < minInterval)
                 interval = minInterval;
             timer.Interval = interval;
         }

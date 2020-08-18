@@ -9,6 +9,7 @@
         Title="增加通道" Height="200" Width="300">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
         <TextBox Width="100" Text="{Binding Address}" Margin="4"
+                 x:Name="addressTextBox"
                  md:HintAssist.Hint="地址" md:HintAssist.FloatingScale="1"
                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"></TextBox>
         <Button Height="32" Margin="8" Click="Button_Click">确定</Button>

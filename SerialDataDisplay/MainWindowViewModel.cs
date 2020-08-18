@@ -182,7 +182,7 @@ namespace SerialDataDisplay
                 {"collect_time", "datetime" },
                 {"value", "float" }
             };
-            utils.CreateTableIfNotExist(tableName, tableTypes);
+            utils.CreateTableIfNotExists(tableName, tableTypes);
             utils.ClearTable(tableName);
         }
     }

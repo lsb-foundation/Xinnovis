@@ -6,6 +6,8 @@ using MFCSoftware.Models;
 using LiveCharts.Wpf;
 using LiveCharts;
 using LiveCharts.Defaults;
+using System.Text;
+using System.Windows.Media;
 
 namespace MFCSoftware.ViewModels
 {
@@ -26,7 +28,14 @@ namespace MFCSoftware.ViewModels
 
         public string[] DisplayUnits { get; } = new string[] { "SCCM", "SLM", "%F.S" };
 
-        public string DisplayUnit { get; set; }
+        private string _displayUnit;
+        public string DisplayUnit
+        {
+            get => _displayUnit;
+            set => SetProperty(ref _displayUnit, value);
+        }
+
+        public SolidColorBrush StatusColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
 
         public BaseInformation BaseInfo { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();
@@ -49,12 +58,27 @@ namespace MFCSoftware.ViewModels
             if (BaseInfo == null)
                 BaseInfo = new BaseInformation();
 
-            BaseInfo.SN = info.SN;
+            BaseInfo.SN = ConvertSN(info.SN);
             BaseInfo.Range = info.Range;
             BaseInfo.GasType = info.GasType;
             BaseInfo.Unit = info.Unit;
-            DisplayUnit = info.Unit.Unit;
+            DisplayUnit = info.Unit?.Unit;
+
             RaiseProperty(nameof(BaseInfo));
+            WhenSuccess();
+        }
+
+        private string ConvertSN(string sn)
+        {
+            var builder = new StringBuilder();
+            string[] splitter = sn.Split(' ');
+            for(int index = 0; index < splitter.Length; index++)
+            {
+                builder.Append(splitter[index]);
+                if ((index + 1) % 2 == 0 && index < splitter.Length - 1)
+                    builder.Append(" ");
+            }
+            return builder.ToString();
         }
 
         public void SetFlow(FlowData flow)
@@ -62,16 +86,16 @@ namespace MFCSoftware.ViewModels
             if (Flow == null) 
                 Flow = new FlowData();
 
-            //Flow.CurrentFlow = flow.CurrentFlow;
             SetCurrentFlowByUnit(flow.CurrentFlow);
             Flow.AccuFlow = flow.AccuFlow;
-            Flow.Unit = flow.Unit;
+            Flow.AccuFlowUnit = flow.AccuFlowUnit;
             Flow.Days = flow.Days;
             Flow.Hours = flow.Hours;
             Flow.Minutes = flow.Minutes;
             Flow.Seconds = flow.Seconds;
 
             RaiseProperty(nameof(Flow));
+            WhenSuccess();
         }
 
         public void UpdateSeries()
@@ -101,7 +125,7 @@ namespace MFCSoftware.ViewModels
         private void SetCurrentFlowByUnit(float flow)
         {
             //UCCM和CCM与SCCM等价，因此均按照SCCM进行处理
-            var meterUnit = BaseInfo.Unit.Unit == "SLM" ? "SLM" : "SCCM";
+            var meterUnit = BaseInfo.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
             Func<float, float> converterFunc = v => v;       //默认不转换
 
             if (meterUnit == "SCCM")
@@ -116,10 +140,25 @@ namespace MFCSoftware.ViewModels
                 if (DisplayUnit == "SCCM")          //SLM->SCCM
                     converterFunc = v => v * 1000;
                 else if (DisplayUnit == "%F.S")     //SLM->%F.S
-                    converterFunc = v => v * 1000 / BaseInfo.Range * 100;
+                    converterFunc = v => v / BaseInfo.Range * 100;
             }
 
             Flow.CurrentFlow = converterFunc.Invoke(flow);
+        }
+
+        public void WhenTimeOut() => SetStatusColor(ReceivedStatus.Timeout);
+        public void WhenSuccess() => SetStatusColor(ReceivedStatus.Success);
+        public void WhenResolveFailed() => SetStatusColor(ReceivedStatus.ResolveFailed);
+
+        private void SetStatusColor(ReceivedStatus status)
+        {
+            if (status == ReceivedStatus.Success)
+                StatusColor.Color = Colors.Green;
+            else if (status == ReceivedStatus.ResolveFailed)
+                StatusColor.Color = Colors.Yellow;
+            else if (status == ReceivedStatus.Timeout)
+                StatusColor.Color = Colors.Red;
+            RaiseProperty(nameof(StatusColor));
         }
 
         private void SetReadFlowBytes()
@@ -156,6 +195,13 @@ namespace MFCSoftware.ViewModels
             var crc = bytes.ToArray().GetCRC16(bytes.Count);
             bytes.AddRange(crc);
             ClearAccuFlowBytes = new SerialCommand<byte[]>(bytes.ToArray(), 7);
+        }
+
+        enum ReceivedStatus
+        {
+            Success,
+            ResolveFailed,
+            Timeout
         }
     }
 }

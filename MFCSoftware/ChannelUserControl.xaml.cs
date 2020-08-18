@@ -48,7 +48,8 @@ namespace MFCSoftware
             {
                 try
                 {
-                    if (!data.CheckCRC16ByDefault()) return;
+                    if (!data.CheckCRC16ByDefault())
+                        throw new Exception("CRC校验失败。");
 
                     if (type == ResolveType.BaseInfoData)
                         ResolveBaseInfoData(data);
@@ -59,6 +60,7 @@ namespace MFCSoftware
                 }
                 catch(Exception e)
                 {
+                    viewModel.WhenResolveFailed();
                     LogHelper.WriteLog(e.Message, e);
                 }
             });
@@ -67,7 +69,9 @@ namespace MFCSoftware
         private void ResolveClearAccuFlowData(byte[] data)
         {
             //addr 0x06 0x02 0x00 0x00 CRCL CRCH
-            
+            bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x00;
+            if (success) viewModel.WhenSuccess();
+            else throw new Exception("累积流量清除失败。");
         }
 
         private void ResolveBaseInfoData(byte[] data)
@@ -97,8 +101,8 @@ namespace MFCSoftware
         private void ResolveFlowData(byte[] data)
         {
             //addr 0x03 0x16 FLOW1 FLOW2 FLOW3 FLOW4
-            //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8 
-            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2 
+            //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
+            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2
             //CRCL CRCH
             byte[] flowBytes = data.SubArray(3, 4);
             float flow = flowBytes.ToInt32(0, 4) / 100.0f;
@@ -109,8 +113,8 @@ namespace MFCSoftware
             byte[] unitBytes = data.SubArray(15, 2);
             int unitCode = unitBytes.ToInt32(0, 2);
             string unit = string.Empty;
-            if (unitCode == 0) unit = "SCCM";
-            else if (unitCode == 1) unit = "SLM";
+            if (unitCode == 0) unit = "L";
+            else if (unitCode == 1) unit = "m³";
 
             byte[] daysBytes = data.SubArray(17, 2);
             int days = daysBytes.ToInt32(0, 2);
@@ -127,8 +131,9 @@ namespace MFCSoftware
             FlowData flowData = new FlowData()
             {
                 CurrentFlow = flow,
+                Unit = viewModel.BaseInfo.Unit?.Unit,
                 AccuFlow = accuFlow,
-                Unit = unit,
+                AccuFlowUnit = unit,
                 Days = days,
                 Hours = hours,
                 Minutes = mins,
@@ -141,7 +146,11 @@ namespace MFCSoftware
 
         public void WhenTimeOut()
         {
-            
+            this.Dispatcher.Invoke(() =>
+            {
+                viewModel.WhenTimeOut();
+                Console.WriteLine($"Channel {Address}: TimeoutException");
+            });
         }
 
         public void SetAddress(int addr) => viewModel.SetAddress(addr);
@@ -185,17 +194,19 @@ namespace MFCSoftware
                     else sheet = package.Workbook.Worksheets.Add("流量数据表");
 
                     //Epplus操作Excel从1开始
-                    sheet.SetValue(1, 1, "瞬时流量");
-                    sheet.SetValue(1, 2, "累积流量");
-                    sheet.SetValue(1, 3, "采样时间");
-                    sheet.SetValue(1, 4, "单位");
+                    sheet.SetValue(1, 1, "采样时间");
+                    sheet.SetValue(1, 2, "瞬时流量");
+                    sheet.SetValue(1, 3, "瞬时流量单位");
+                    sheet.SetValue(1, 4, "累积流量");
+                    sheet.SetValue(1, 5, "累积流量单位");
 
                     for (int index = 0; index < flowDatas.Count; index++)
                     {
-                        sheet.SetValue(index + 2, 1, flowDatas[index].CurrentFlow);
-                        sheet.SetValue(index + 2, 2, flowDatas[index].AccuFlow);
-                        sheet.SetValue(index + 2, 3, flowDatas[index].CollectTime);
-                        sheet.SetValue(index + 2, 4, flowDatas[index].Unit);
+                        sheet.SetValue(index + 2, 1, flowDatas[index].CollectTime.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                        sheet.SetValue(index + 2, 2, flowDatas[index].CurrentFlow);
+                        sheet.SetValue(index + 2, 3, flowDatas[index].Unit);
+                        sheet.SetValue(index + 2, 4, flowDatas[index].AccuFlow);
+                        sheet.SetValue(index + 2, 5, flowDatas[index].AccuFlowUnit);
                     }
                     await package.SaveAsync();
                     sheet.Dispose();

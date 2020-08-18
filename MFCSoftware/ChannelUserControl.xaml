@@ -57,7 +57,7 @@
                           md:HintAssist.Hint="显示单位"
                           md:HintAssist.FloatingScale="1"
                           ItemsSource="{Binding DisplayUnits, Mode=OneWay}"
-                          SelectedItem="{Binding DisplayUnit, Mode=OneWayToSource}"
+                          SelectedItem="{Binding DisplayUnit}"
                           Style="{StaticResource MaterialDesignFloatingHintComboBox}">
                 </ComboBox>
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
@@ -77,30 +77,43 @@
             </StackPanel>
 
             <Grid Grid.Column="1" Margin="4">
-                <StackPanel HorizontalAlignment="Right" Margin="0,0,16,0" Panel.ZIndex="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal">
                     <StackPanel.Resources>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}" x:Key="ValueTextStyle">
                             <Setter Property="Foreground" Value="{StaticResource PrimaryHueMidBrush}"/>
-                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="FontSize" Value="20"/>
                         </Style>
                     </StackPanel.Resources>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock>当前流量：</TextBlock>
-                        <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N6}}"/>
-                        <Separator/>
+                    <Ellipse Margin="8"
+                             Panel.ZIndex="1" HorizontalAlignment="Left"
+                             VerticalAlignment="Top" Width="50" Height="50" 
+                             Fill="{Binding StatusColor}"/>
+                    <StackPanel Margin="16,8,0,0">
+                        <TextBlock>当前流量</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N3}}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding DisplayUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock>累积流量：</TextBlock>
-                        <TextBlock Text="{Binding Flow.AccuFlow, StringFormat={}{0:N6}}"/>
-                        <TextBlock Text="{Binding Flow.Unit}" Margin="16,0,0,0"/>
+                    <StackPanel Margin="16,8,0,0">
+                        <TextBlock>累积流量</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Flow.AccuFlow, StringFormat={}{0:N3}}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding Flow.AccuFlowUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock>累积时间：</TextBlock>
-                        <TextBlock Text="{Binding Flow, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}"/>
+                    <StackPanel Margin="16,8,0,0">
+                        <TextBlock>累积时间</TextBlock>
+                        <TextBlock Text="{Binding Flow, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}" Style="{StaticResource ValueTextStyle}"/>
                     </StackPanel>
                 </StackPanel>
 
-                <lvc:CartesianChart Grid.Column="1" Margin="8"
+                <lvc:CartesianChart Grid.Row="1" Margin="4"
                                     Series="{Binding FlowSeries}" 
                                     DataTooltip="{x:Null}" Focusable="False">
                     <lvc:CartesianChart.Resources>

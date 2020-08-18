@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CommonLib.DbUtils
 {
-    public class SqliteUtils:IDisposable
+    public sealed class SqliteUtils : IDisposable
     {
         private readonly SQLiteConnection connection;
 
@@ -51,7 +51,7 @@ namespace CommonLib.DbUtils
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="fieldsWithType"></param>
-        public void CreateTableIfNotExist(string tableName, Dictionary<string, string> fieldsWithType)
+        public void CreateTableIfNotExists(string tableName, Dictionary<string, string> fieldsWithType)
         {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append("CREATE TABLE IF NOT EXISTS ").Append(tableName).Append("(");
@@ -75,7 +75,7 @@ namespace CommonLib.DbUtils
         /// 删除指定数据表
         /// </summary>
         /// <param name="tableName"></param>
-        public void DropTable(string tableName)
+        public void DropTableIfExists(string tableName)
         {
             string sql = $"DROP TABLE IF EXISTS {tableName};";
             ExecuteNonQuery(sql);
@@ -87,7 +87,7 @@ namespace CommonLib.DbUtils
         /// <param name="tableName"></param>
         public void ClearTable(string tableName)
         {
-            string sql = $"DELETE FROM {tableName} WHERE 1=1;";
+            string sql = $"DELETE FROM {tableName};";
             ExecuteNonQuery(sql);
         }
 
