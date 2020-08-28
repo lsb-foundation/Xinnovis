@@ -66,7 +66,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -136,10 +136,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AddChannelWindow.xaml.cs">
+    <Compile Include="ViewModels\ExportSelectWindowViewModel.cs" />
+    <Compile Include="Views\AddChannelWindow.xaml.cs">
       <DependentUpon>AddChannelWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ChannelUserControl.xaml.cs">
+    <Compile Include="Views\ChannelUserControl.xaml.cs">
       <DependentUpon>ChannelUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\SerialPortInstance.cs" />
@@ -148,10 +149,13 @@
     <Compile Include="Models\BaseInformation.cs" />
     <Compile Include="Models\FlowData.cs" />
     <Compile Include="Models\SerialCommand.cs" />
-    <Compile Include="SetAddressWindow.xaml.cs">
+    <Compile Include="Views\ExportSelectWindow.xaml.cs">
+      <DependentUpon>ExportSelectWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SetAddressWindow.xaml.cs">
       <DependentUpon>SetAddressWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SetSerialPortWindow.xaml.cs">
+    <Compile Include="Views\SetSerialPortWindow.xaml.cs">
       <DependentUpon>SetSerialPortWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\AddChannelWindowViewModel.cs" />
@@ -159,15 +163,19 @@
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SetAddressWindowViewModel.cs" />
     <Compile Include="ViewModels\SetSerialPortWindowViewModel.cs" />
-    <Page Include="AddChannelWindow.xaml">
+    <Page Include="Views\AddChannelWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ChannelUserControl.xaml">
+    <Page Include="Views\ChannelUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\ExportSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -175,15 +183,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SetAddressWindow.xaml">
+    <Page Include="Views\SetAddressWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SetSerialPortWindow.xaml">
+    <Page Include="Views\SetSerialPortWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -209,7 +217,6 @@
     <None Include="app.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MFCSoftware_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

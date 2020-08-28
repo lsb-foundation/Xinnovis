@@ -13,8 +13,10 @@ using OfficeOpenXml;
 using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
+using System.Timers;
+using System.Windows.Media;
 
-namespace MFCSoftware
+namespace MFCSoftware.Views
 {
     /// <summary>
     /// ChannelUserControl.xaml 的交互逻辑
@@ -22,11 +24,16 @@ namespace MFCSoftware
     public partial class ChannelUserControl : UserControl
     {
         private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
-        
+        private readonly Timer timer;
+        private bool canInsert;
+
         public ChannelUserControl()
         {
             InitializeComponent();
+            timer = new Timer { AutoReset = false, Interval = 60 * 1000 };
+            timer.Elapsed += (s, e) => canInsert = true;
             this.DataContext = viewModel;
+            timer.Start();
         }
 
         public event Action<ChannelUserControl> ControlWasRemoved; //控件被移除
@@ -141,7 +148,13 @@ namespace MFCSoftware
             };
             viewModel.SetFlow(flowData);
             viewModel.UpdateSeries();
-            DbStorage.InsertFlowData(Address, flowData);
+
+            if (canInsert)
+            {
+                DbStorage.InsertFlowData(Address, flowData);
+                canInsert = false;
+                timer.Start();
+            }
         }
 
         public void WhenTimeOut()
@@ -155,28 +168,49 @@ namespace MFCSoftware
 
         public void SetAddress(int addr) => viewModel.SetAddress(addr);
 
+        //递归查找当前控件的根节点Window对象
+        private DependencyObject GetCurrentWindow(DependencyObject obj)
+        {
+            if (obj is Window) return obj;
+            return GetCurrentWindow(VisualTreeHelper.GetParent(obj));
+        }
+
         private void ExportFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            var flowDatas = DbStorage.QueryLastest2HoursFlowData(Address);
-            if (flowDatas.Count > 0)
+            var win = new ExportSelectWindow
             {
-                var dialog = new SaveFileDialog()
+                Owner = GetCurrentWindow(this) as Window,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ShowInTaskbar = false
+            };
+            win.ShowDialog();
+
+            if(win.IsReady)
+            {
+                var flowDatas = win.ExportType == ExportType.ByTime ?
+                    DbStorage.QueryFlowDatas(win.FromTime, win.ToTime, Address) :
+                    DbStorage.QueryAllFlowDatas(Address);
+
+                if (flowDatas?.Count > 0)
                 {
-                    Filter = "Excel文件|*.xlsx;*.xls",
-                    Title = "导出数据"
-                };
-                
-                if ((bool)dialog.ShowDialog())
-                {
-                    if (!string.IsNullOrEmpty(dialog.FileName))
+                    var dialog = new SaveFileDialog()
                     {
-                        ExportHistoryFlowDataToExcel(dialog.FileName, flowDatas);
+                        Filter = "Excel文件|*.xlsx;*.xls",
+                        Title = "导出数据"
+                    };
+
+                    if ((bool)dialog.ShowDialog())
+                    {
+                        if (!string.IsNullOrEmpty(dialog.FileName))
+                        {
+                            ExportHistoryFlowDataToExcel(dialog.FileName, flowDatas);
+                        }
                     }
                 }
-            }
-            else
-            {
-                MessageBox.Show("未查询到数据！");
+                else
+                {
+                    MessageBox.Show("未查询到数据！");
+                }
             }
         }
 

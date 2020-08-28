@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using MFCSoftware.ViewModels;
 
-namespace MFCSoftware
+namespace MFCSoftware.Views
 {
     /// <summary>
     /// SetSerialPortWindow.xaml 的交互逻辑

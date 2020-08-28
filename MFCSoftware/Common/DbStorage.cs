@@ -29,7 +29,7 @@ namespace MFCSoftware.Common
                 {"accu_unit", "varchar(8)" }
             };
 
-            utils.DropTableIfExists(flowTableName);
+            //utils.DropTableIfExists(flowTableName);
             utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
         }
 
@@ -47,19 +47,39 @@ namespace MFCSoftware.Common
             utils.ExecuteNonQuery(sql);
         }
 
-        public static List<FlowData> QueryLastest2HoursFlowData(int address)
+        public static List<FlowData> QueryLastest2HoursFlowDatas(int address)
         {
             DateTime now = DateTime.Now;
-            string nowStr = now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string twoHoursBeforeStr = now.AddHours(-2).ToString("yyyy-MM-dd HH:mm:ss.fff");
+            DateTime twoHoursAgo = now.AddHours(-2);
+            return QueryFlowDatas(twoHoursAgo, now, address);
+        }
+
+        public static List<FlowData> QueryFlowDatas(DateTime fromTime, DateTime toTime, int address)
+        {
+            string fromTimeStr = fromTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string toTimeStr = toTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
                 .Append($" WHERE address={address}")
-                .Append($" AND collect_time BETWEEN '{twoHoursBeforeStr}' AND '{nowStr}'")
+                .Append($" AND collect_time BETWEEN '{toTimeStr}' AND '{fromTimeStr}'")
                 .Append(" ORDER BY collect_time;");
-            string sql = sqlBuilder.ToString();
 
+            return QueryFlowDatasBySql(sqlBuilder.ToString());
+        }
+
+        public static List<FlowData> QueryAllFlowDatas(int address)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
+                .Append($" WHERE address={address}")
+                .Append(" ORDER BY collect_time;");
+
+            return QueryFlowDatasBySql(sqlBuilder.ToString());
+        }
+
+        private static List<FlowData> QueryFlowDatasBySql(string sql)
+        {
             List<FlowData> flows = new List<FlowData>();
             var reader = utils.ExecuteQuery(sql);
             while (reader.Read())

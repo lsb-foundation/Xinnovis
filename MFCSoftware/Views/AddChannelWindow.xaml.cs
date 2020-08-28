@@ -1,7 +1,7 @@
 ﻿using MFCSoftware.ViewModels;
 using System.Windows;
 
-namespace MFCSoftware
+namespace MFCSoftware.Views
 {
     /// <summary>
     /// AddChannelWindow.xaml 的交互逻辑

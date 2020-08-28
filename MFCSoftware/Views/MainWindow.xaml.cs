@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 
-namespace MFCSoftware
+namespace MFCSoftware.Views
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑

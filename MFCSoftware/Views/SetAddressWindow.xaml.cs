@@ -7,7 +7,7 @@ using MFCSoftware.Common;
 using System.Timers;
 using MFCSoftware.Models;
 
-namespace MFCSoftware
+namespace MFCSoftware.Views
 {
     /// <summary>
     /// SetAddressWindow.xaml 的交互逻辑
