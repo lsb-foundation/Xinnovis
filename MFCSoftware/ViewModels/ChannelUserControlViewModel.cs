@@ -40,6 +40,21 @@ namespace MFCSoftware.ViewModels
         public BaseInformation BaseInfo { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();
 
+        private uint _insertInterval = 1;
+        public uint InsertInterval
+        {
+            get => _insertInterval;
+            set
+            {
+                if(value > 0)
+                {
+                    SetProperty(ref _insertInterval, value);
+                    InsertIntervalChanged?.Invoke();
+                }
+            }
+        }
+        public event Action InsertIntervalChanged;
+
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }

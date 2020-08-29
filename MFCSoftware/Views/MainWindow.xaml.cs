@@ -123,7 +123,7 @@ namespace MFCSoftware.Views
             catch(Exception e)
             {
                 timer.Stop();
-                MessageBox.Show("串口可能被其他程序占用，请检查！");
+                MessageBox.Show("串口可能被其他程序占用，请检查！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 LogHelper.WriteLog(e.Message, e);
                 return false;
             }
@@ -156,7 +156,7 @@ namespace MFCSoftware.Views
                 ChannelAdded(channelControl);
                 mainVm.ChannelCount++;
             }
-            else MessageBox.Show("地址重复，请重新添加。");
+            else MessageBox.Show("地址重复，请重新添加。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private async void ChannelAdded(ChannelUserControl channel)

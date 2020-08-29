@@ -56,7 +56,7 @@ namespace MFCSoftware.Views
 
                 if (!result)
                 {
-                    MessageBox.Show("数据解析失败！");
+                    MessageBox.Show("数据解析失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch(Exception e)
@@ -117,7 +117,7 @@ namespace MFCSoftware.Views
         {
             if(viewModel.WriterAddress < 1 || viewModel.WriterAddress > 250)
             {
-                MessageBox.Show("请确保地址范围在1-250之间。");
+                MessageBox.Show("请确保地址范围在1-250之间。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
             Send(viewModel.WriteAddressBytes, ActionType.WriteAddress);
@@ -141,11 +141,11 @@ namespace MFCSoftware.Views
             }
             catch (TimeoutException)
             {
-                MessageBox.Show("接收数据超时。");
+                MessageBox.Show("接收数据超时。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch
             {
-                MessageBox.Show("串口可能被其他程序占用，请检查");
+                MessageBox.Show("串口可能被其他程序占用，请检查", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -53,7 +53,7 @@
                          md:HintAssist.Hint="量程"/>
                 <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"
                          md:HintAssist.Hint="单位"/>
-                <ComboBox Margin="0,4,0,0"
+                <ComboBox Margin="0,4,0,4"
                           md:HintAssist.Hint="显示单位"
                           md:HintAssist.FloatingScale="1"
                           ItemsSource="{Binding DisplayUnits, Mode=OneWay}"
@@ -62,6 +62,7 @@
                 </ComboBox>
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
+                <TextBox Text="{Binding InsertInterval}" md:HintAssist.Hint="存储时间间隔(分钟)"/>
 
                 <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
                                   Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"

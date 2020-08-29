@@ -8,12 +8,12 @@ namespace CommonLib.DbUtils
 {
     public sealed class SqliteUtils : IDisposable
     {
-        private readonly SQLiteConnection connection;
+        public SQLiteConnection Connection { get; }
 
         public SqliteUtils(string connectionString)
         {
-            connection = new SQLiteConnection(connectionString);
-            connection.Open();
+            Connection = new SQLiteConnection(connectionString);
+            Connection.Open();
         }
 
         private readonly object syncObject = new object();
@@ -21,7 +21,7 @@ namespace CommonLib.DbUtils
         {
             lock (syncObject)
             {
-                using (var command = connection.CreateCommand())
+                using (var command = Connection.CreateCommand())
                 {
                     command.CommandText = sql;
                     return command.ExecuteNonQuery();
@@ -38,7 +38,7 @@ namespace CommonLib.DbUtils
         {
             lock (syncObject)
             {
-                using (var command = connection.CreateCommand())
+                using (var command = Connection.CreateCommand())
                 {
                     command.CommandText = sql;
                     return command.ExecuteReader();
@@ -93,8 +93,8 @@ namespace CommonLib.DbUtils
 
         public void Dispose()
         {
-            connection.Close();
-            connection.Dispose();
+            Connection.Close();
+            Connection.Dispose();
         }
     }
 }

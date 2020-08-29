@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
@@ -25,13 +26,20 @@ namespace MFCSoftware.Views
     {
         private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
         private readonly Timer timer;
-        private bool canInsert;
+        private bool canInsert = true;
 
         public ChannelUserControl()
         {
             InitializeComponent();
             timer = new Timer { AutoReset = false, Interval = 60 * 1000 };
             timer.Elapsed += (s, e) => canInsert = true;
+            viewModel.InsertIntervalChanged += () =>
+            {
+                if (viewModel.InsertInterval > 0)
+                {
+                    timer.Interval = viewModel.InsertInterval * 60 * 1000;
+                }
+            };
             this.DataContext = viewModel;
             timer.Start();
         }
@@ -188,7 +196,7 @@ namespace MFCSoftware.Views
             if(win.IsReady)
             {
                 var flowDatas = win.ExportType == ExportType.ByTime ?
-                    DbStorage.QueryFlowDatas(win.FromTime, win.ToTime, Address) :
+                    DbStorage.QueryFlowDatasByTime(win.FromTime, win.ToTime, Address) :
                     DbStorage.QueryAllFlowDatas(Address);
 
                 if (flowDatas?.Count > 0)
@@ -209,7 +217,7 @@ namespace MFCSoftware.Views
                 }
                 else
                 {
-                    MessageBox.Show("未查询到数据！");
+                    MessageBox.Show("未查询到数据！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -228,6 +236,10 @@ namespace MFCSoftware.Views
                     else sheet = package.Workbook.Worksheets.Add("流量数据表");
 
                     //Epplus操作Excel从1开始
+                    for(int column = 1; column <=5; column++)
+                    {
+                        sheet.Cells[1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
                     sheet.SetValue(1, 1, "采样时间");
                     sheet.SetValue(1, 2, "瞬时流量");
                     sheet.SetValue(1, 3, "瞬时流量单位");
@@ -236,12 +248,29 @@ namespace MFCSoftware.Views
 
                     for (int index = 0; index < flowDatas.Count; index++)
                     {
-                        sheet.SetValue(index + 2, 1, flowDatas[index].CollectTime.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                        sheet.SetValue(index + 2, 2, flowDatas[index].CurrentFlow);
-                        sheet.SetValue(index + 2, 3, flowDatas[index].Unit);
-                        sheet.SetValue(index + 2, 4, flowDatas[index].AccuFlow);
-                        sheet.SetValue(index + 2, 5, flowDatas[index].AccuFlowUnit);
+                        int row = index + 2;
+                        for (int column = 1; column <= 5; column++)
+                        {
+                            sheet.Cells[row, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        } 
+
+                        sheet.Cells[row, 1].Style.Numberformat.Format = "YYYY/MM/DD HH:mm:ss";
+                        sheet.SetValue(row, 1, flowDatas[index].CollectTime);
+
+                        sheet.Cells[row, 2].Style.Numberformat.Format = "#,##0.00";   //瞬时流量保留两位小数
+                        sheet.SetValue(row, 2, flowDatas[index].CurrentFlow);
+                        sheet.SetValue(row, 3, flowDatas[index].Unit);
+
+                        sheet.Cells[row, 4].Style.Numberformat.Format = "#,###0.000"; //累积流量保留三位小数
+                        sheet.SetValue(row, 4, flowDatas[index].AccuFlow);
+                        sheet.SetValue(row, 5, flowDatas[index].AccuFlowUnit);
                     }
+
+                    for(int column = 1; column <= 5; column++)
+                    {   //调整列宽度为自适应
+                        sheet.Column(column).AutoFit();
+                    }
+
                     await package.SaveAsync();
                     sheet.Dispose();
                 }
@@ -249,13 +278,13 @@ namespace MFCSoftware.Views
             catch (Exception e)
             {
                 LogHelper.WriteLog(e.Message, e);
-                MessageBox.Show("导出Excel出错：\n" + e.Message);
+                MessageBox.Show("导出Excel出错：\n" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void ClearAccuFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            var mbxResult = MessageBox.Show("是否确认清除？", "提示", MessageBoxButton.YesNo);
+            var mbxResult = MessageBox.Show("是否确认清除？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (mbxResult == MessageBoxResult.Yes)
             {
                 ClearAccuFlowClicked?.Invoke(this);
@@ -274,9 +303,8 @@ namespace MFCSoftware.Views
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var flowData = value as FlowData;
             var timeText = string.Empty;
-            if (flowData != null)
+            if (value is FlowData flowData)
             {
                 timeText = $"{flowData.Days}:{flowData.Hours}:{flowData.Minutes}:{flowData.Seconds}";
             }

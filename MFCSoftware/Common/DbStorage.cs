@@ -4,6 +4,8 @@ using System.Text;
 using System.IO;
 using MFCSoftware.Models;
 using CommonLib.DbUtils;
+using System.Timers;
+using System.Threading.Tasks;
 
 namespace MFCSoftware.Common
 {
@@ -12,6 +14,8 @@ namespace MFCSoftware.Common
         private const string dbFile = "db.sqlite";
         private const string flowTableName = "tb_flow";
         private static readonly SqliteUtils utils;
+        private static readonly Timer timer;
+        private const int recordsMaxNumber = 1000_0000;
 
         static DbStorage()
         {
@@ -29,8 +33,51 @@ namespace MFCSoftware.Common
                 {"accu_unit", "varchar(8)" }
             };
 
-            //utils.DropTableIfExists(flowTableName);
             utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
+
+            timer = new Timer { AutoReset = true, Interval = 30 * 60 * 1000 };
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
+        }
+
+        private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            //每30分钟检查数据库存储数量是否超过一千万
+            Task.Run(() =>
+            {
+                using (var transaction = utils.Connection.BeginTransaction())
+                {
+                    string sql = $"SELECT COUNT(1) FROM {flowTableName};";
+                    var reader = utils.ExecuteQuery(sql);
+                    if (reader.NextResult())
+                    {
+                        int count = reader.GetInt32(0) - recordsMaxNumber;
+                        if (count > 0)
+                        {
+                            sql = $"SELECT MAX(collect_time) FROM " +
+                                  $"(SELECT collect_time FROM {flowTableName} ORDER BY collect_time LIMIT {count});";
+                            reader = utils.ExecuteQuery(sql);
+                            if (reader.NextResult())
+                            {
+                                DateTime timeToDelete = reader.GetDateTime(0);
+                                sql = $"DELETE FROM {flowTableName} WHERE collect_time <= '{timeToDelete:yyyy-MM-dd HH:mm:ss.fff}';";
+                                utils.ExecuteNonQuery(sql);
+                            }
+                        }
+                    }
+                    transaction.Commit();
+                }
+            });
+        }
+
+        public static void InsertFlowDatasByTransaction(int address, List<FlowData> flows)
+        {
+            using(var transaction = utils.Connection.BeginTransaction())
+            {
+                foreach (var data in flows)
+                    InsertFlowData(address, data);
+                transaction.Commit();
+            }
         }
 
         public static void InsertFlowData(int address, FlowData data)
@@ -51,10 +98,10 @@ namespace MFCSoftware.Common
         {
             DateTime now = DateTime.Now;
             DateTime twoHoursAgo = now.AddHours(-2);
-            return QueryFlowDatas(twoHoursAgo, now, address);
+            return QueryFlowDatasByTime(twoHoursAgo, now, address);
         }
 
-        public static List<FlowData> QueryFlowDatas(DateTime fromTime, DateTime toTime, int address)
+        public static List<FlowData> QueryFlowDatasByTime(DateTime fromTime, DateTime toTime, int address)
         {
             string fromTimeStr = fromTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
             string toTimeStr = toTime.ToString("yyyy-MM-dd HH:mm:ss.fff");

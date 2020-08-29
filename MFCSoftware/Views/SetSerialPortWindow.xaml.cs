@@ -27,7 +27,7 @@ namespace MFCSoftware.Views
             }
             catch
             {
-                MessageBox.Show("串口连接失败，请检查线缆连接情况或重新插拔USB并重启软件。");
+                MessageBox.Show("串口连接失败，请检查线缆连接情况或重新插拔USB并重启软件。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
