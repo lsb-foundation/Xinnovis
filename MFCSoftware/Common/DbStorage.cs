@@ -16,6 +16,7 @@ namespace MFCSoftware.Common
         private static readonly SqliteUtils utils;
         private static readonly Timer timer;
         private const int recordsMaxNumber = 1000_0000;
+        private const int deleteCheckTime = 30;         //定时删除检查时间，单位：分钟
 
         static DbStorage()
         {
@@ -35,7 +36,7 @@ namespace MFCSoftware.Common
 
             utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
 
-            timer = new Timer { AutoReset = true, Interval = 30 * 60 * 1000 };
+            timer = new Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
