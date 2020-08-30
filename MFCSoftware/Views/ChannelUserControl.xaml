@@ -62,7 +62,7 @@
                 </ComboBox>
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
-                <TextBox Text="{Binding InsertInterval}" md:HintAssist.Hint="存储时间间隔(分钟)"/>
+                <TextBox Text="{Binding InsertInterval}" md:HintAssist.Hint="保存时间间隔(分钟)"/>
 
                 <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
                                   Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
@@ -92,7 +92,7 @@
                     </StackPanel.Resources>
                     <Ellipse Margin="8"
                              Panel.ZIndex="1" HorizontalAlignment="Left"
-                             VerticalAlignment="Top" Width="50" Height="50" 
+                             VerticalAlignment="Top" Width="50" Height="50"
                              Fill="{Binding StatusColor}"/>
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>当前流量</TextBlock>

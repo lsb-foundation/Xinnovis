@@ -16,6 +16,7 @@ using System.IO;
 using System.Globalization;
 using System.Timers;
 using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace MFCSoftware.Views
 {
@@ -183,7 +184,7 @@ namespace MFCSoftware.Views
             return GetCurrentWindow(VisualTreeHelper.GetParent(obj));
         }
 
-        private void ExportFlowButton_Click(object sender, RoutedEventArgs e)
+        private async void ExportFlowButton_Click(object sender, RoutedEventArgs e)
         {
             var win = new ExportSelectWindow
             {
@@ -196,8 +197,8 @@ namespace MFCSoftware.Views
             if(win.IsReady)
             {
                 var flowDatas = win.ExportType == ExportType.ByTime ?
-                    DbStorage.QueryFlowDatasByTime(win.FromTime, win.ToTime, Address) :
-                    DbStorage.QueryAllFlowDatas(Address);
+                    await DbStorage.QueryFlowDatasByTimeAsync(win.FromTime, win.ToTime, Address) :
+                    await DbStorage.QueryAllFlowDatasAsync(Address);
 
                 if (flowDatas?.Count > 0)
                 {
@@ -226,54 +227,58 @@ namespace MFCSoftware.Views
         {
             try
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-                using (var package = new ExcelPackage(stream))
+                await Task.Run(async () =>
                 {
-                    ExcelWorksheet sheet;
-                    if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
-                        sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
-                    else sheet = package.Workbook.Worksheets.Add("流量数据表");
-
-                    //Epplus操作Excel从1开始
-                    for(int column = 1; column <=5; column++)
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    using (var package = new ExcelPackage(stream))
                     {
-                        sheet.Cells[1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    }
-                    sheet.SetValue(1, 1, "采样时间");
-                    sheet.SetValue(1, 2, "瞬时流量");
-                    sheet.SetValue(1, 3, "瞬时流量单位");
-                    sheet.SetValue(1, 4, "累积流量");
-                    sheet.SetValue(1, 5, "累积流量单位");
+                        ExcelWorksheet sheet;
+                        if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
+                            sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
+                        else sheet = package.Workbook.Worksheets.Add("流量数据表");
 
-                    for (int index = 0; index < flowDatas.Count; index++)
-                    {
-                        int row = index + 2;
+                        //Epplus操作Excel从1开始
                         for (int column = 1; column <= 5; column++)
                         {
-                            sheet.Cells[row, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        } 
+                            sheet.Cells[1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        }
+                        sheet.SetValue(1, 1, "采样时间");
+                        sheet.SetValue(1, 2, "瞬时流量");
+                        sheet.SetValue(1, 3, "瞬时流量单位");
+                        sheet.SetValue(1, 4, "累积流量");
+                        sheet.SetValue(1, 5, "累积流量单位");
 
-                        sheet.Cells[row, 1].Style.Numberformat.Format = "YYYY/MM/DD HH:mm:ss";
-                        sheet.SetValue(row, 1, flowDatas[index].CollectTime);
+                        for (int index = 0; index < flowDatas.Count; index++)
+                        {
+                            int row = index + 2;
+                            for (int column = 1; column <= 5; column++)
+                            {
+                                sheet.Cells[row, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            }
 
-                        sheet.Cells[row, 2].Style.Numberformat.Format = "#,##0.00";   //瞬时流量保留两位小数
-                        sheet.SetValue(row, 2, flowDatas[index].CurrentFlow);
-                        sheet.SetValue(row, 3, flowDatas[index].Unit);
+                            sheet.Cells[row, 1].Style.Numberformat.Format = "YYYY/MM/DD HH:mm:ss";
+                            sheet.SetValue(row, 1, flowDatas[index].CollectTime);
 
-                        sheet.Cells[row, 4].Style.Numberformat.Format = "#,###0.000"; //累积流量保留三位小数
-                        sheet.SetValue(row, 4, flowDatas[index].AccuFlow);
-                        sheet.SetValue(row, 5, flowDatas[index].AccuFlowUnit);
+                            sheet.Cells[row, 2].Style.Numberformat.Format = "#,##0.00";   //瞬时流量保留两位小数
+                            sheet.SetValue(row, 2, flowDatas[index].CurrentFlow);
+                            sheet.SetValue(row, 3, flowDatas[index].Unit);
+
+                            sheet.Cells[row, 4].Style.Numberformat.Format = "#,###0.000"; //累积流量保留三位小数
+                            sheet.SetValue(row, 4, flowDatas[index].AccuFlow);
+                            sheet.SetValue(row, 5, flowDatas[index].AccuFlowUnit);
+                        }
+
+                        for (int column = 1; column <= 5; column++)
+                        {   //调整列宽度为自适应
+                            sheet.Column(column).AutoFit();
+                        }
+
+                        await package.SaveAsync();
+                        sheet.Dispose();
                     }
-
-                    for(int column = 1; column <= 5; column++)
-                    {   //调整列宽度为自适应
-                        sheet.Column(column).AutoFit();
-                    }
-
-                    await package.SaveAsync();
-                    sheet.Dispose();
-                }
+                });
+                MessageBox.Show("导出完成。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception e)
             {

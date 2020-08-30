@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MFCSoftware.Views"
         mc:Ignorable="d" ResizeMode="NoResize"
-        Title="选择要导出的数据" Height="200" Width="350">
+        Title="选择要导出的数据" Height="200" Width="360">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Margin="4">
             <RadioButton GroupName="ExportType" Name="byTimeRadio"
@@ -22,5 +22,6 @@
         <RadioButton GroupName="ExportType" Name="allRadio" Margin="4"
                      Checked="RadioButton_Checked">全部数据</RadioButton>
         <Button Margin="4" Click="Button_Click">确定</Button>
+        <Label>数据导出时间取决于数据量，可能较慢，请耐心等待。</Label>
     </StackPanel>
 </Window>

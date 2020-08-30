@@ -6,6 +6,7 @@ using MFCSoftware.Models;
 using CommonLib.DbUtils;
 using System.Timers;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace MFCSoftware.Common
 {
@@ -14,8 +15,8 @@ namespace MFCSoftware.Common
         private const string dbFile = "db.sqlite";
         private const string flowTableName = "tb_flow";
         private static readonly SqliteUtils utils;
-        private static readonly Timer timer;
-        private const int recordsMaxNumber = 1000_0000;
+        private static readonly System.Timers.Timer timer;
+        private const int recordsMaxNumber = 100_0000;
         private const int deleteCheckTime = 30;         //定时删除检查时间，单位：分钟
 
         static DbStorage()
@@ -36,37 +37,31 @@ namespace MFCSoftware.Common
 
             utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
 
-            timer = new Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
+            timer = new System.Timers.Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
 
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            //每30分钟检查数据库存储数量是否超过一千万
+            //定时任务检查并删除数据库中超出的最早数据
             Task.Run(() =>
             {
                 using (var transaction = utils.Connection.BeginTransaction())
                 {
                     string sql = $"SELECT COUNT(1) FROM {flowTableName};";
                     var reader = utils.ExecuteQuery(sql);
-                    if (reader.NextResult())
+                    if (reader.Read())
                     {
                         int count = reader.GetInt32(0) - recordsMaxNumber;
                         if (count > 0)
                         {
-                            sql = $"SELECT MAX(collect_time) FROM " +
-                                  $"(SELECT collect_time FROM {flowTableName} ORDER BY collect_time LIMIT {count});";
-                            reader = utils.ExecuteQuery(sql);
-                            if (reader.NextResult())
-                            {
-                                DateTime timeToDelete = reader.GetDateTime(0);
-                                sql = $"DELETE FROM {flowTableName} WHERE collect_time <= '{timeToDelete:yyyy-MM-dd HH:mm:ss.fff}';";
-                                utils.ExecuteNonQuery(sql);
-                            }
+                            sql = $"DELETE FROM {flowTableName} WHERE collect_time <= (SELECT MAX(collect_time) FROM " +
+                                  $"(SELECT collect_time FROM {flowTableName} ORDER BY collect_time LIMIT {count}));";
+                            utils.ExecuteNonQuery(sql);
+                            transaction.Commit();
                         }
                     }
-                    transaction.Commit();
                 }
             });
         }
@@ -95,56 +90,102 @@ namespace MFCSoftware.Common
             utils.ExecuteNonQuery(sql);
         }
 
-        public static List<FlowData> QueryLastest2HoursFlowDatas(int address)
+        public static async Task<List<FlowData>> QueryLastest2HoursFlowDatasAsync(int address)
         {
             DateTime now = DateTime.Now;
             DateTime twoHoursAgo = now.AddHours(-2);
-            return QueryFlowDatasByTime(twoHoursAgo, now, address);
+            return await QueryFlowDatasByTimeAsync(twoHoursAgo, now, address);
         }
 
-        public static List<FlowData> QueryFlowDatasByTime(DateTime fromTime, DateTime toTime, int address)
+        public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)
         {
-            string fromTimeStr = fromTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string toTimeStr = toTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
-
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
                 .Append($" WHERE address={address}")
-                .Append($" AND collect_time BETWEEN '{toTimeStr}' AND '{fromTimeStr}'")
+                .Append($" AND collect_time BETWEEN '{fromTime:yyyy-MM-dd HH:mm:ss.fff}' AND '{toTime:yyyy-MM-dd HH:mm:ss.fff}'")
                 .Append(" ORDER BY collect_time;");
 
-            return QueryFlowDatasBySql(sqlBuilder.ToString());
+            return await QueryFlowDatasBySqlAsync(sqlBuilder.ToString());
         }
 
-        public static List<FlowData> QueryAllFlowDatas(int address)
+        public static async Task<List<FlowData>> QueryAllFlowDatasAsync(int address)
         {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
                 .Append($" WHERE address={address}")
                 .Append(" ORDER BY collect_time;");
 
-            return QueryFlowDatasBySql(sqlBuilder.ToString());
+            return await QueryFlowDatasBySqlAsync(sqlBuilder.ToString());
         }
 
-        private static List<FlowData> QueryFlowDatasBySql(string sql)
+        private static async Task<List<FlowData>> QueryFlowDatasBySqlAsync(string sql)
         {
-            List<FlowData> flows = new List<FlowData>();
-            var reader = utils.ExecuteQuery(sql);
-            while (reader.Read())
+            var task = new Task<List<FlowData>>(() =>
             {
-                try
+                List<FlowData> flows = new List<FlowData>();
+                var reader = utils.ExecuteQuery(sql);
+                while (reader.Read())
                 {
-                    var flow = new FlowData();
-                    flow.CollectTime = reader.GetDateTime(0);
-                    flow.CurrentFlow = reader.GetFloat(1);
-                    flow.Unit = reader.GetString(2);
-                    flow.AccuFlow = reader.GetFloat(3);
-                    flow.AccuFlowUnit = reader.GetString(4);
-                    flows.Add(flow);
+                    try
+                    {
+                        var flow = new FlowData
+                        {
+                            CollectTime = reader.GetDateTime(0),
+                            CurrentFlow = reader.GetFloat(1),
+                            Unit = reader.GetString(2),
+                            AccuFlow = reader.GetFloat(3),
+                            AccuFlowUnit = reader.GetString(4)
+                        };
+                        flows.Add(flow);
+                    }
+                    catch { }
                 }
-                catch { continue; }
-            }
-            return flows;
+                return flows;
+            });
+            task.Start();
+            return await task;
+        }
+    }
+
+
+    /// <summary>
+    /// 仅用于测试定时任务数据删除，不在正式运行的代码中起作用
+    /// </summary>
+    public static class DbStorageTest
+    {
+        private static readonly System.Timers.Timer timer = new System.Timers.Timer { AutoReset = false, Interval = 5 * 60 * 1000 };
+        private static readonly CancellationTokenSource tokenSource;
+
+        static DbStorageTest()
+        {
+            tokenSource = new CancellationTokenSource();
+            timer.Elapsed += (s, e) => tokenSource.Cancel();
+            timer.Start();
+        }
+
+        public static void Run()
+        {
+            Task.Run(() =>
+            {
+                Random random = new Random();
+                float accuFlow = 0f;
+                while (true)
+                {
+                    if (tokenSource.IsCancellationRequested) return;
+
+                    float currFlow = (float)random.NextDouble();
+                    accuFlow += currFlow;
+                    FlowData flow = new FlowData
+                    {
+                        CurrentFlow = currFlow,
+                        Unit = "SCCM",
+                        AccuFlow = accuFlow,
+                        AccuFlowUnit = "SCCM"
+                    };
+                    DbStorage.InsertFlowData(0, flow);
+                    System.Threading.Thread.Sleep(1000*10);
+                }
+            }, tokenSource.Token);
         }
     }
 }
