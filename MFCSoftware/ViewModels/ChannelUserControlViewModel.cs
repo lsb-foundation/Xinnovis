@@ -13,6 +13,7 @@ namespace MFCSoftware.ViewModels
 {
     public class ChannelUserControlViewModel:BindableBase
     {
+        private const int xValuesCount = 200;
         public ChannelUserControlViewModel()
         {
             InitializeFlowSeries();
@@ -22,6 +23,13 @@ namespace MFCSoftware.ViewModels
         public Func<double, string> FlowLabelsFomatter
         {
             get => val => string.Format("{0:N2}", val);
+        }
+
+        private double _maxYValue = 100;
+        public double MaxYValue
+        {   //Y轴最大值
+            get => _maxYValue;
+            set => SetProperty(ref _maxYValue, value);
         }
 
         public int Address { get; private set; }
@@ -78,6 +86,7 @@ namespace MFCSoftware.ViewModels
             BaseInfo.GasType = info.GasType;
             BaseInfo.Unit = info.Unit;
             DisplayUnit = info.Unit?.Unit;
+            MaxYValue = info.Range; //更新Y轴最大值
 
             RaiseProperty(nameof(BaseInfo));
             WhenSuccess();
@@ -122,7 +131,7 @@ namespace MFCSoftware.ViewModels
         private void InitializeFlowSeries()
         {
             var values = new ChartValues<ObservableValue>();
-            for(int index = 0; index < 100; index++)
+            for(int index = 0; index < xValuesCount; index++)
             {
                 var value = new ObservableValue();
                 values.Add(value);

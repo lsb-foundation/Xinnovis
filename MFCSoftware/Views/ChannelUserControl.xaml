@@ -133,7 +133,9 @@
                         <lvc:Axis/>
                     </lvc:CartesianChart.AxisX>
                     <lvc:CartesianChart.AxisY>
-                        <lvc:Axis Title="瞬时流量" LabelFormatter="{Binding FlowLabelsFomatter}"/>
+                        <lvc:Axis Title="瞬时流量" MinValue="0" 
+                                  MaxValue="{Binding MaxYValue, Mode=OneWay}" 
+                                  LabelFormatter="{Binding FlowLabelsFomatter}"/>
                     </lvc:CartesianChart.AxisY>
                 </lvc:CartesianChart>
             </Grid>
