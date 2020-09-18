@@ -76,5 +76,12 @@ namespace CommonLib.Extensions
 
             return crc[0] == byteArray[length - 2] && crc[1] == byteArray[length - 1];
         }
+
+        public static byte[] ToHex(this int value, bool reverse = true)
+        {
+            if (reverse) 
+                return BitConverter.GetBytes(value).Reverse().ToArray();
+            return BitConverter.GetBytes(value);
+        }
     }
 }

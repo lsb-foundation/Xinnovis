@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <md:ColorZone Mode="PrimaryMid" Padding="16">
@@ -23,8 +24,14 @@
 
         <ScrollViewer Grid.Row="1"
                       Style="{DynamicResource MaterialDesignScrollViewer}">
-            <UniformGrid  Name="ChannelGrid" Columns="2">
+            <UniformGrid Name="ChannelGrid" Columns="2">
             </UniformGrid>
         </ScrollViewer>
+
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock Text="{Binding AppMessage}"></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

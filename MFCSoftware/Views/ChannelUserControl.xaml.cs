@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Timers;
 using System.Windows.Media;
 using System.Threading.Tasks;
+using System.Windows.Markup.Localizer;
 
 namespace MFCSoftware.Views
 {
@@ -67,12 +68,24 @@ namespace MFCSoftware.Views
                     if (!data.CheckCRC16ByDefault())
                         throw new Exception("CRC校验失败。");
 
-                    if (type == ResolveType.BaseInfoData)
-                        ResolveBaseInfoData(data);
-                    else if (type == ResolveType.FlowData)
-                        ResolveFlowData(data);
-                    else if (type == ResolveType.ClearAccuFlowData)
-                        ResolveClearAccuFlowData(data);
+                    switch (type)
+                    {
+                        case ResolveType.BaseInfoData:
+                            ResolveBaseInfoData(data);
+                            break;
+                        case ResolveType.FlowData:
+                            ResolveFlowData(data);
+                            break;
+                        case ResolveType.ClearAccuFlowData:
+                            ResolveClearAccuFlowData(data);
+                            break;
+                        case ResolveType.SetFlow:
+                            ResolveSetFlowData(data);
+                            break;
+                        case ResolveType.ValveControl:
+                            ResolveValveControlData(data);
+                            break;
+                    }
                 }
                 catch(Exception e)
                 {
@@ -80,6 +93,20 @@ namespace MFCSoftware.Views
                     LogHelper.WriteLog(e.Message, e);
                 }
             });
+        }
+
+        private void ResolveSetFlowData(byte[] data)
+        {
+            //addr 0x06 0x02 0x00 0x00 CRCL CRCH
+            bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x00;
+            throw new NotImplementedException();
+        }
+
+        private void ResolveValveControlData(byte[] data)
+        {
+            //addr 0x06 0x02 0x00 0x03 CRCL CRCH
+            bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x03;
+            throw new NotImplementedException();
         }
 
         private void ResolveClearAccuFlowData(byte[] data)
@@ -295,13 +322,20 @@ namespace MFCSoftware.Views
                 ClearAccuFlowClicked?.Invoke(this);
             }
         }
+
+        private void ControlButton_Clicked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public enum ResolveType
     {
         BaseInfoData,
         FlowData,
-        ClearAccuFlowData
+        ClearAccuFlowData,
+        SetFlow,
+        ValveControl
     }
 
     public class FlowDataToTimeTextConverter : IValueConverter

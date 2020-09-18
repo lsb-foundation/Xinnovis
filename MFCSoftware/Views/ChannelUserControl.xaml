@@ -63,7 +63,19 @@
                 <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
                 <TextBox Text="{Binding InsertInterval}" md:HintAssist.Hint="保存时间间隔(分钟)"/>
-
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0.4,0" Width="134">
+                        <RadioButton GroupName="{Binding RadioGroup}"></RadioButton>
+                        <TextBox md:HintAssist.Hint="流量"></TextBox>
+                        <TextBlock></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                        <RadioButton GroupName="{Binding RadioGroup}"></RadioButton>
+                        <TextBox md:HintAssist.Hint="阀门开度值"></TextBox>
+                        <TextBlock>%</TextBlock>
+                    </StackPanel>
+                    <Button Click="ControlButton_Clicked">发送</Button>
+                </StackPanel>
                 <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
                                   Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
                                   FromValue="50" ToValue="250"

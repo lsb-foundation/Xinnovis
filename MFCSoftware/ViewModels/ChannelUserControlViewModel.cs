@@ -32,6 +32,8 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _maxYValue, value);
         }
 
+        public string RadioGroup { get; } = new Guid().ToString();
+
         public int Address { get; private set; }
 
         public string[] DisplayUnits { get; } = new string[] { "SCCM", "SLM", "%F.S" };
@@ -66,6 +68,8 @@ namespace MFCSoftware.ViewModels
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
+        public SerialCommand<byte[]> SetFlowBytes { get; private set; }
+        public SerialCommand<byte[]> SetValveBytes { get; private set; }
 
         public void SetAddress(int addr)
         {
@@ -219,6 +223,38 @@ namespace MFCSoftware.ViewModels
             var crc = bytes.ToArray().GetCRC16(bytes.Count);
             bytes.AddRange(crc);
             ClearAccuFlowBytes = new SerialCommand<byte[]>(bytes.ToArray(), 7);
+        }
+
+        private void CreateSetFlowBytes(float flow)
+        {
+            //addr 0x06 0x00 0x21 0x00 0x00 [FLOW_1] {FLOW_2] {FLOW_3] {FLOW_4] CRCL CRCH
+            byte addr = Convert.ToByte(Address);
+            List<byte> flowBytes = new List<byte>();
+            flowBytes.Add(addr);
+            flowBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 });
+
+            int flowIntValue = (int)(flow * 100);
+            flowBytes.AddRange(flowIntValue.ToHex());
+
+            byte[] crc = flowBytes.ToArray().GetCRC16(flowBytes.Count);
+            flowBytes.AddRange(crc);
+            SetFlowBytes = new SerialCommand<byte[]>(flowBytes.ToArray(), 7);
+        }
+
+        private void CreateSetValveBytes(float valveOpenValue)
+        {
+            //addr 0x06 0x00 0x21 0x00 0x03 [VALVE_VALUE_1] [VALVE_VALUE_2] CRCL CRCH
+            byte addr = Convert.ToByte(Address);
+            List<byte> valveOpenBytes = new List<byte>();
+            valveOpenBytes.Add(addr);
+            valveOpenBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 });
+
+            int openIntValue = (int)(valveOpenValue * 100);
+            valveOpenBytes.AddRange(openIntValue.ToHex().SubArray(2, 2));
+
+            byte[] crc = valveOpenBytes.ToArray().GetCRC16(valveOpenBytes.Count);
+            valveOpenBytes.AddRange(crc);
+            SetValveBytes = new SerialCommand<byte[]>(valveOpenBytes.ToArray(), 7);
         }
 
         enum ReceivedStatus
