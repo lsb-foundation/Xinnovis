@@ -18,6 +18,7 @@ using System.Timers;
 using System.Windows.Media;
 using System.Threading.Tasks;
 using System.Windows.Markup.Localizer;
+using CommonLib.Mvvm;
 
 namespace MFCSoftware.Views
 {
@@ -29,6 +30,7 @@ namespace MFCSoftware.Views
         private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
         private readonly Timer timer;
         private bool canInsert = true;
+        private ControlSelector controlWays = ControlSelector.NotSetted;
 
         public ChannelUserControl()
         {
@@ -48,11 +50,15 @@ namespace MFCSoftware.Views
 
         public event Action<ChannelUserControl> ControlWasRemoved; //控件被移除
         public event Action<ChannelUserControl> ClearAccuFlowClicked; //清除累积流量
+        public event Action<ChannelUserControl> WriteFlowValue;     //写入流量数据
+        public event Action<ChannelUserControl> ControlValveOpenValue;    //控制阀门开关度
 
         public int Address { get => viewModel.Address; }
         public SerialCommand<byte[]> ReadFlowBytes { get => viewModel.ReadFlowBytes; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get => viewModel.ReadBaseInfoBytes; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get => viewModel.ClearAccuFlowBytes; }
+        public SerialCommand<byte[]> WriteFlowBytes { get => viewModel.WriteFlowBytes; }
+        public SerialCommand<byte[]> WriteValveBytes { get => viewModel.WriteValveBytes; }
 
         private void Closed(object sender, RoutedEventArgs e)
         {
@@ -73,7 +79,7 @@ namespace MFCSoftware.Views
                         case ResolveType.BaseInfoData:
                             ResolveBaseInfoData(data);
                             break;
-                        case ResolveType.FlowData:
+                        case ResolveType.ReadFlow:
                             ResolveFlowData(data);
                             break;
                         case ResolveType.ClearAccuFlowData:
@@ -90,6 +96,7 @@ namespace MFCSoftware.Views
                 catch(Exception e)
                 {
                     viewModel.WhenResolveFailed();
+                    MainWindowViewModel.ShowAppMessage(e.Message);
                     LogHelper.WriteLog(e.Message, e);
                 }
             });
@@ -99,21 +106,35 @@ namespace MFCSoftware.Views
         {
             //addr 0x06 0x02 0x00 0x00 CRCL CRCH
             bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x00;
-            throw new NotImplementedException();
+            if (success)
+            {
+                viewModel.WhenSuccess();
+                MainWindowViewModel.ShowAppMessage("流量设置成功。");
+            }
+            else throw new Exception("流量设置失败。");
         }
 
         private void ResolveValveControlData(byte[] data)
         {
             //addr 0x06 0x02 0x00 0x03 CRCL CRCH
             bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x03;
-            throw new NotImplementedException();
+            if (success)
+            {
+                viewModel.WhenSuccess();
+                MainWindowViewModel.ShowAppMessage("阀门开度设置成功。");
+            }
+            else throw new Exception("阀门开度设置失败。");
         }
 
         private void ResolveClearAccuFlowData(byte[] data)
         {
             //addr 0x06 0x02 0x00 0x00 CRCL CRCH
             bool success = data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00 && data[4] == 0x00;
-            if (success) viewModel.WhenSuccess();
+            if (success)
+            {
+                viewModel.WhenSuccess();
+                MainWindowViewModel.ShowAppMessage("累积流量清除成功。");
+            }
             else throw new Exception("累积流量清除失败。");
         }
 
@@ -245,7 +266,7 @@ namespace MFCSoftware.Views
                 }
                 else
                 {
-                    MessageBox.Show("未查询到数据！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MainWindowViewModel.ShowAppMessage("未查询到数据！");
                 }
             }
         }
@@ -305,12 +326,12 @@ namespace MFCSoftware.Views
                         sheet.Dispose();
                     }
                 });
-                MessageBox.Show("导出完成。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MainWindowViewModel.ShowAppMessage("导出完成。");
             }
             catch (Exception e)
             {
                 LogHelper.WriteLog(e.Message, e);
-                MessageBox.Show("导出Excel出错：\n" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindowViewModel.ShowAppMessage("导出Excel出错：\n" + e.Message);
             }
         }
 
@@ -325,17 +346,71 @@ namespace MFCSoftware.Views
 
         private void ControlButton_Clicked(object sender, RoutedEventArgs e)
         {
+            if(controlWays == ControlSelector.FlowValue)
+            {
+                CheckFlowValueAndSendCommand();
+            }
+            else if(controlWays == ControlSelector.ValveOpenValue)
+            {
+                CheckValveOpenValueAndSendCommand();
+            }
+        }
 
+        private void ControlRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            var radioContent = (sender as RadioButton).Content as string;
+            if(radioContent == "流量")
+            {
+                controlWays = ControlSelector.FlowValue;
+            }
+            else if(radioContent == "阀门开度")
+            {
+                controlWays = ControlSelector.ValveOpenValue;
+            }
+        }
+
+        private void CheckFlowValueAndSendCommand()
+        {
+            if (viewModel.BaseInfo == null)
+            {
+                MainWindowViewModel.ShowAppMessage("未获取到基础数据，量程未知。");
+                return;
+            }
+            if (viewModel.FlowValue < 0 || viewModel.FlowValue > viewModel.BaseInfo.Range)
+            {
+                MainWindowViewModel.ShowAppMessage("流量数据必须大于等于0，小于等于量程。");
+                return;
+            }
+            viewModel.SetWriteFlowBytes();
+            WriteFlowValue?.Invoke(this);
+        }
+
+        private void CheckValveOpenValueAndSendCommand()
+        {
+            if(viewModel.ValveOpenValue < 0 || viewModel.ValveOpenValue > 100)
+            {
+                MainWindowViewModel.ShowAppMessage("阀门开度必须大于等于0，小于等于100。");
+                return;
+            }
+            viewModel.SetWriteValveBytes();
+            ControlValveOpenValue?.Invoke(this);
         }
     }
 
     public enum ResolveType
     {
         BaseInfoData,
-        FlowData,
+        ReadFlow,
         ClearAccuFlowData,
         SetFlow,
         ValveControl
+    }
+
+    public enum ControlSelector
+    {
+        FlowValue,
+        ValveOpenValue,
+        NotSetted  //未设置
     }
 
     public class FlowDataToTimeTextConverter : IValueConverter

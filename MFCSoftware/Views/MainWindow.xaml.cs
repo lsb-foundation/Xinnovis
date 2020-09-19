@@ -1,4 +1,5 @@
-﻿using MFCSoftware.Common;
+﻿using CommonLib.Mvvm;
+using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
 using System;
@@ -29,7 +30,7 @@ namespace MFCSoftware.Views
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
-            mainVm = new MainWindowViewModel();
+            mainVm = ViewModelBase.GetViewModelInstance<MainWindowViewModel>();
             this.DataContext = mainVm;
             InitializeTimer();
         }
@@ -87,7 +88,7 @@ namespace MFCSoftware.Views
                         try
                         {
                             byte[] data = await SerialPortInstance.GetResponseBytes();
-                            channel.ResolveData(data, ResolveType.FlowData);
+                            channel.ResolveData(data, ResolveType.ReadFlow);
                         }
                         catch (TimeoutException)
                         {
@@ -123,7 +124,7 @@ namespace MFCSoftware.Views
             catch(Exception e)
             {
                 timer.Stop();
-                MessageBox.Show("串口可能被其他程序占用，请检查！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindowViewModel.ShowAppMessage("串口可能被其他程序占用，请检查！");
                 LogHelper.WriteLog(e.Message, e);
                 return false;
             }
@@ -149,6 +150,8 @@ namespace MFCSoftware.Views
                 channelControl.SetAddress(window.Address);
                 channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
                 channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
+                channelControl.WriteFlowValue += ChannelControl_WriteFlowValue;
+                channelControl.ControlValveOpenValue += ChannelControl_ControlValveOpenValue;
 
                 ChannelGrid.Children.Add(channelControl);
                 controlList.AddLast(channelControl);
@@ -156,20 +159,28 @@ namespace MFCSoftware.Views
                 ChannelAdded(channelControl);
                 mainVm.ChannelCount++;
             }
-            else MessageBox.Show("地址重复，请重新添加。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            else MainWindowViewModel.ShowAppMessage("地址重复，请重新添加。");
         }
 
-        private async void ChannelAdded(ChannelUserControl channel)
+        private void ChannelAdded(ChannelUserControl channel)
         {
             //添加通道后读取基本信息
-            await SendTaskCompletedAsync();
             SendSingleCommand(channel, channel.ReadBaseInfoBytes, ResolveType.BaseInfoData);
         }
 
-        private async void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
+        private void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
         {
-            await SendTaskCompletedAsync();
             SendSingleCommand(channel, channel.ClearAccuFlowBytes, ResolveType.ClearAccuFlowData);
+        }
+
+        private void ChannelControl_ControlValveOpenValue(ChannelUserControl channel)
+        {
+            SendSingleCommand(channel, channel.WriteValveBytes, ResolveType.ValveControl);
+        }
+
+        private void ChannelControl_WriteFlowValue(ChannelUserControl channel)
+        {
+            SendSingleCommand(channel, channel.WriteFlowBytes, ResolveType.SetFlow);
         }
 
         private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, ResolveType type)

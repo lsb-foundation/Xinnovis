@@ -6,7 +6,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:MFCSoftware"
         mc:Ignorable="d" Icon="../Images/icon.ico"
-        Title="MFMSoftware-青岛芯笙" Height="800" Width="1200">
+        Title="MFCSoftware-青岛芯笙" Height="800" Width="1200" WindowState="Maximized">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,8 +14,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <md:ColorZone Mode="PrimaryMid" Padding="16">
+        <md:ColorZone Padding="4">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
+                        <Setter Property="Margin" Value="4"/>
+                    </Style>
+                </StackPanel.Resources>
                 <Button Click="OpenSetSerialPortWindow" IsEnabled="{Binding Enable, Mode=OneWay}">串口设置</Button>
                 <Button Click="OpenSetAddressWindow" IsEnabled="{Binding Enable, Mode=OneWay}">设置地址</Button>
                 <Button Click="AddChannelButton_Click">添加通道</Button>

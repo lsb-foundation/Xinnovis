@@ -7,16 +7,16 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" BorderThickness="1.5"
-             d:DesignHeight="480" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     
     <UserControl.Resources>
         <local:FlowDataToTimeTextConverter x:Key="FlowToTimeConverter"/>
         <Style TargetType="Button" x:Key="CloseButtonStyle"
-               BasedOn="{StaticResource MaterialDesignFloatingActionButton}">
+               BasedOn="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Red"/>
-                    <Setter Property="BorderBrush" Value="Red"/>
+                    <Setter Property="Background" Value="DarkRed"/>
+                    <Setter Property="BorderBrush" Value="DarkRed"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -25,57 +25,85 @@
     <md:Card Margin="8" md:ShadowAssist.ShadowDepth="Depth3">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="180"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
             <Button Grid.ColumnSpan="2" Click="Closed"
-                    Margin="8" Panel.ZIndex="1" 
+                    Margin="8" Panel.ZIndex="1" Background="Red"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Width="20" Height="20" Content="X" FontSize="12" 
                     Style="{StaticResource CloseButtonStyle}">
             </Button>
 
-            <StackPanel Margin="8">
-                <StackPanel.Resources>
-                    <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
-                        <Setter Property="md:HintAssist.FloatingScale" Value="1"/>
-                        <Setter Property="Margin" Value="0,4,0,0"/>
-                    </Style>
-                </StackPanel.Resources>
-                <TextBox Text="{Binding Address, Mode=OneWay}" 
-                         md:HintAssist.Hint="地址"/>
-                <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}"
-                         md:HintAssist.Hint="SN"/>
-                <TextBox Text="{Binding BaseInfo.GasType.GasName, Mode=OneWay}"
-                         md:HintAssist.Hint="气体类型"/>
-                <TextBox Text="{Binding BaseInfo.Range, Mode=OneWay}"
-                         md:HintAssist.Hint="量程"/>
-                <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"
-                         md:HintAssist.Hint="单位"/>
-                <ComboBox Margin="0,4,0,4"
+            <md:ColorZone Grid.ColumnSpan="2" Mode="Inverted" Background="DarkBlue">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                            <Setter Property="Margin" Value="0,8,8,0"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBox Text="{Binding Address, Mode=OneWay}" 
+                         md:HintAssist.Hint="地址" Width="100"/>
+                    <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}"
+                         md:HintAssist.Hint="SN" Width="200"/>
+                    <TextBox Text="{Binding BaseInfo.GasType.GasName, Mode=OneWay}"
+                         md:HintAssist.Hint="气体类型" Width="100"/>
+                    <TextBox Text="{Binding BaseInfo.Range, Mode=OneWay}"
+                         md:HintAssist.Hint="量程" Width="100"/>
+                    <TextBox Text="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"
+                         md:HintAssist.Hint="单位" Width="100"/>
+                </StackPanel>
+            </md:ColorZone>
+
+            <StackPanel Grid.Row="1" Margin="4">
+                <ComboBox Margin="4"
                           md:HintAssist.Hint="显示单位"
                           md:HintAssist.FloatingScale="1"
                           ItemsSource="{Binding DisplayUnits, Mode=OneWay}"
                           SelectedItem="{Binding DisplayUnit}"
                           Style="{StaticResource MaterialDesignFloatingHintComboBox}">
                 </ComboBox>
-                <Button Click="ExportFlowButton_Click" Margin="4">数据导出</Button>
+
+                <Button Click="ExportFlowButton_Click" Margin="4,8,4,4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
-                <TextBox Text="{Binding InsertInterval}" md:HintAssist.Hint="保存时间间隔(分钟)"/>
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0.4,0" Width="134">
-                        <RadioButton GroupName="{Binding RadioGroup}"></RadioButton>
-                        <TextBox md:HintAssist.Hint="流量"></TextBox>
-                        <TextBlock></TextBlock>
+
+                <Border BorderThickness="1" Margin="4" CornerRadius="5"
+                        BorderBrush="{StaticResource PrimaryHueDarkBrush}">
+                    <StackPanel>
+                        <TextBox Text="{Binding InsertInterval}" Margin="4"
+                                 md:HintAssist.Hint="保存时间间隔(分钟)"
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                        <!--此按钮应客户要求添加，无实际作用。-->
+                        <Button Margin="4">确定</Button>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                        <RadioButton GroupName="{Binding RadioGroup}"></RadioButton>
-                        <TextBox md:HintAssist.Hint="阀门开度值"></TextBox>
-                        <TextBlock>%</TextBlock>
+                </Border>
+
+                <Border BorderThickness="1" Margin="4" CornerRadius="5"
+                        BorderBrush="{StaticResource PrimaryHueDarkBrush}">
+                    <StackPanel>
+                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked">流量</RadioButton>
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <TextBox Width="100"
+                                     md:HintAssist.Hint="流量值"
+                                     Text="{Binding FlowValue}"></TextBox>
+                            <Label Content="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"></Label>
+                        </StackPanel>
+                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked">阀门开度</RadioButton>
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <TextBox Width="100" 
+                                     md:HintAssist.Hint="开度值"
+                                     Text="{Binding ValveOpenValue}"></TextBox>
+                            <Label>%</Label>
+                        </StackPanel>
+                        <Button Click="ControlButton_Clicked" Margin="4">确定</Button>
                     </StackPanel>
-                    <Button Click="ControlButton_Clicked">发送</Button>
-                </StackPanel>
+                </Border>
+
                 <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
                                   Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
                                   FromValue="50" ToValue="250"
@@ -89,7 +117,7 @@
                 </lvc:AngularGauge>-->
             </StackPanel>
 
-            <Grid Grid.Column="1" Margin="4">
+            <Grid Grid.Row="1" Grid.Column="1" Margin="4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>

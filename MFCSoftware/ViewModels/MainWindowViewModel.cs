@@ -1,9 +1,12 @@
 ﻿using CommonLib.Mvvm;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MFCSoftware.ViewModels
 {
-    public class MainWindowViewModel:BindableBase
+    public class MainWindowViewModel:ViewModelBase
     {
         public bool Enable
         {
@@ -28,18 +31,19 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _appMessage, value);
         }
 
-        private Task showMessageTask;
-        public async void ShowMessage(string message)
+        private void ShowMessage(string message)
         {
-            if (showMessageTask != null)
-                await showMessageTask;
-
-            showMessageTask = Task.Run(async () =>
+            Task.Run(() =>
             {
-                AppMessage = message;
-                await Task.Delay(2000);
-                AppMessage = string.Empty;
+                Application.Current.Dispatcher.Invoke(() => AppMessage = message);
+                Thread.Sleep(2000);
+                Application.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
             });
+        }
+
+        public static void ShowAppMessage(string message)
+        {
+            ViewModelBase.GetViewModelInstance<MainWindowViewModel>().ShowMessage(message);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace MFCSoftware.ViewModels
 {
     public class ChannelUserControlViewModel:BindableBase
     {
-        private const int xValuesCount = 200;
+        private const int xValuesCount = 300;
         public ChannelUserControlViewModel()
         {
             InitializeFlowSeries();
@@ -31,8 +31,6 @@ namespace MFCSoftware.ViewModels
             get => _maxYValue;
             set => SetProperty(ref _maxYValue, value);
         }
-
-        public string RadioGroup { get; } = new Guid().ToString();
 
         public int Address { get; private set; }
 
@@ -63,13 +61,28 @@ namespace MFCSoftware.ViewModels
                 }
             }
         }
+
         public event Action InsertIntervalChanged;
+
+        private float _flowValue;
+        public float FlowValue
+        {
+            get => _flowValue;
+            set => SetProperty(ref _flowValue, value);
+        }
+
+        private float _valveOpenValue;
+        public float ValveOpenValue
+        {
+            get => _valveOpenValue;
+            set => SetProperty(ref _valveOpenValue, value);
+        }
 
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
-        public SerialCommand<byte[]> SetFlowBytes { get; private set; }
-        public SerialCommand<byte[]> SetValveBytes { get; private set; }
+        public SerialCommand<byte[]> WriteFlowBytes { get; private set; }
+        public SerialCommand<byte[]> WriteValveBytes { get; private set; }
 
         public void SetAddress(int addr)
         {
@@ -225,7 +238,7 @@ namespace MFCSoftware.ViewModels
             ClearAccuFlowBytes = new SerialCommand<byte[]>(bytes.ToArray(), 7);
         }
 
-        private void CreateSetFlowBytes(float flow)
+        public void SetWriteFlowBytes()
         {
             //addr 0x06 0x00 0x21 0x00 0x00 [FLOW_1] {FLOW_2] {FLOW_3] {FLOW_4] CRCL CRCH
             byte addr = Convert.ToByte(Address);
@@ -233,15 +246,15 @@ namespace MFCSoftware.ViewModels
             flowBytes.Add(addr);
             flowBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 });
 
-            int flowIntValue = (int)(flow * 100);
+            int flowIntValue = (int)(FlowValue * 100);
             flowBytes.AddRange(flowIntValue.ToHex());
 
             byte[] crc = flowBytes.ToArray().GetCRC16(flowBytes.Count);
             flowBytes.AddRange(crc);
-            SetFlowBytes = new SerialCommand<byte[]>(flowBytes.ToArray(), 7);
+            WriteFlowBytes = new SerialCommand<byte[]>(flowBytes.ToArray(), 7);
         }
 
-        private void CreateSetValveBytes(float valveOpenValue)
+        public void SetWriteValveBytes()
         {
             //addr 0x06 0x00 0x21 0x00 0x03 [VALVE_VALUE_1] [VALVE_VALUE_2] CRCL CRCH
             byte addr = Convert.ToByte(Address);
@@ -249,12 +262,12 @@ namespace MFCSoftware.ViewModels
             valveOpenBytes.Add(addr);
             valveOpenBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 });
 
-            int openIntValue = (int)(valveOpenValue * 100);
+            int openIntValue = (int)(ValveOpenValue * 100);
             valveOpenBytes.AddRange(openIntValue.ToHex().SubArray(2, 2));
 
             byte[] crc = valveOpenBytes.ToArray().GetCRC16(valveOpenBytes.Count);
             valveOpenBytes.AddRange(crc);
-            SetValveBytes = new SerialCommand<byte[]>(valveOpenBytes.ToArray(), 7);
+            WriteValveBytes = new SerialCommand<byte[]>(valveOpenBytes.ToArray(), 7);
         }
 
         enum ReceivedStatus
