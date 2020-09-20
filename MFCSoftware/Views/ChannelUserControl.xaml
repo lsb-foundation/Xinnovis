@@ -75,18 +75,19 @@
                 <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
-                        <TextBox Text="{Binding InsertInterval}" Margin="4"
-                                 md:HintAssist.Hint="保存时间间隔(分钟)"
+                        <TextBox Margin="4" md:HintAssist.Hint="保存时间间隔(分钟)"
+                                 Text="{Binding InsertInterval}"
+                                 Name="saveIntervalTextBox"
                                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                        <!--此按钮应客户要求添加，无实际作用。-->
-                        <Button Margin="4">确定</Button>
+                        <!--此按钮应客户要求添加,。-->
+                        <Button Margin="4" Click="SetSaveTimeButton_Clicked">确定</Button>
                     </StackPanel>
                 </Border>
 
                 <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
-                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked">流量</RadioButton>
+                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked" IsChecked="True">流量</RadioButton>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <TextBox Width="100"
                                      md:HintAssist.Hint="流量值"

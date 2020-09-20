@@ -395,6 +395,13 @@ namespace MFCSoftware.Views
             viewModel.SetWriteValveBytes();
             ControlValveOpenValue?.Invoke(this);
         }
+
+        private void SetSaveTimeButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (uint.TryParse(saveIntervalTextBox.Text, out uint _))
+                MainWindowViewModel.ShowAppMessage("保存时间间隔设置成功。");
+            else MainWindowViewModel.ShowAppMessage("输入有误，请重新输入。");
+        }
     }
 
     public enum ResolveType
