@@ -30,7 +30,6 @@ namespace MFCSoftware.Views
         private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
         private readonly Timer timer;
         private bool canInsert = true;
-        private ControlSelector controlWays = ControlSelector.NotSetted;
 
         public ChannelUserControl()
         {
@@ -346,26 +345,13 @@ namespace MFCSoftware.Views
 
         private void ControlButton_Clicked(object sender, RoutedEventArgs e)
         {
-            if(controlWays == ControlSelector.FlowValue)
+            if(viewModel.Selector == ControlSelector.FlowValue)
             {
                 CheckFlowValueAndSendCommand();
             }
-            else if(controlWays == ControlSelector.ValveOpenValue)
+            else if(viewModel.Selector == ControlSelector.ValveOpenValue)
             {
                 CheckValveOpenValueAndSendCommand();
-            }
-        }
-
-        private void ControlRadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-            var radioContent = (sender as RadioButton).Content as string;
-            if(radioContent == "流量")
-            {
-                controlWays = ControlSelector.FlowValue;
-            }
-            else if(radioContent == "阀门开度")
-            {
-                controlWays = ControlSelector.ValveOpenValue;
             }
         }
 
@@ -413,13 +399,6 @@ namespace MFCSoftware.Views
         ValveControl
     }
 
-    public enum ControlSelector
-    {
-        FlowValue,
-        ValveOpenValue,
-        NotSetted  //未设置
-    }
-
     public class FlowDataToTimeTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -435,6 +414,29 @@ namespace MFCSoftware.Views
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class EnumToBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(parameter is string parameterString))
+                return DependencyProperty.UnsetValue;
+
+            if (Enum.IsDefined(value.GetType(), value) == false)
+                return DependencyProperty.UnsetValue;
+
+            object parameterValue = Enum.Parse(value.GetType(), parameterString);
+            return parameterValue.Equals(value);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(parameter is string parameterString))
+                return DependencyProperty.UnsetValue;
+
+            return Enum.Parse(targetType, parameterString);
         }
     }
 }

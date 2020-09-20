@@ -11,6 +11,7 @@
     
     <UserControl.Resources>
         <local:FlowDataToTimeTextConverter x:Key="FlowToTimeConverter"/>
+        <local:EnumToBooleanConverter x:Key="EnumToBoolConverter"/>
         <Style TargetType="Button" x:Key="CloseButtonStyle"
                BasedOn="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">
             <Style.Triggers>
@@ -87,14 +88,18 @@
                 <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
-                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked" IsChecked="True">流量</RadioButton>
+                        <RadioButton Margin="4" 
+                                     IsChecked="{Binding Path=Selector, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=FlowValue}"
+                                     >流量</RadioButton>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <TextBox Width="100"
                                      md:HintAssist.Hint="流量值"
                                      Text="{Binding FlowValue}"></TextBox>
                             <Label Content="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"></Label>
                         </StackPanel>
-                        <RadioButton Margin="4" Checked="ControlRadioButton_Checked">阀门开度</RadioButton>
+                        <RadioButton Margin="4"
+                                     IsChecked="{Binding Path=Selector, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=ValveOpenValue}"
+                                     >阀门开度</RadioButton>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <TextBox Width="100" 
                                      md:HintAssist.Hint="开度值"

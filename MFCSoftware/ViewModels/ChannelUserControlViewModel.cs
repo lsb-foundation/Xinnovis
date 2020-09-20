@@ -78,6 +78,13 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _valveOpenValue, value);
         }
 
+        private ControlSelector _selector = ControlSelector.FlowValue;
+        public ControlSelector Selector
+        {
+            get => _selector;
+            set => SetProperty(ref _selector, value);
+        }
+
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
@@ -276,5 +283,11 @@ namespace MFCSoftware.ViewModels
             ResolveFailed,
             Timeout
         }
+    }
+
+    public enum ControlSelector
+    {
+        FlowValue,
+        ValveOpenValue
     }
 }
