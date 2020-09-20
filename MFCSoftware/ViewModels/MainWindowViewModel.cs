@@ -31,14 +31,30 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _appMessage, value);
         }
 
-        private void ShowMessage(string message)
+        private Task showMessageTask;
+        private readonly CancellationTokenSource cts = new CancellationTokenSource();
+        private async void ShowMessage(string message)
         {
-            Task.Run(() =>
+            if (showMessageTask != null && !showMessageTask.IsCompleted)
+            {
+                cts.Cancel();
+                await showMessageTask;
+            }
+
+            showMessageTask = Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() => AppMessage = message);
-                Thread.Sleep(2000);
+                for(int i = 0; i < 20; i++)
+                {
+                    if (cts.Token.IsCancellationRequested)
+                    {
+                        Application.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
+                        return;
+                    }
+                    Thread.Sleep(100);
+                }
                 Application.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
-            });
+            }, cts.Token);
         }
 
         public static void ShowAppMessage(string message)
