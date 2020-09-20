@@ -2,7 +2,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace MFCSoftware.ViewModels
 {
@@ -32,7 +31,7 @@ namespace MFCSoftware.ViewModels
         }
 
         private Task showMessageTask;
-        private readonly CancellationTokenSource cts = new CancellationTokenSource();
+        private CancellationTokenSource cts = new CancellationTokenSource();
         private async void ShowMessage(string message)
         {
             if (showMessageTask != null && !showMessageTask.IsCompleted)
@@ -41,20 +40,21 @@ namespace MFCSoftware.ViewModels
                 await showMessageTask;
             }
 
-            showMessageTask = Task.Run(() =>
+            lock (cts)
             {
-                Application.Current.Dispatcher.Invoke(() => AppMessage = message);
-                for(int i = 0; i < 20; i++)
+                cts = new CancellationTokenSource();
+                showMessageTask = Task.Run(() =>
                 {
-                    if (cts.Token.IsCancellationRequested)
+                    AppMessage = message;
+                    for (int i = 0; i < 20; i++)
                     {
-                        Application.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
-                        return;
+                        if (cts.Token.IsCancellationRequested)
+                            break;
+                        Thread.Sleep(100);
                     }
-                    Thread.Sleep(100);
-                }
-                Application.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
-            }, cts.Token);
+                    AppMessage = string.Empty;
+                }, cts.Token);
+            }
         }
 
         public static void ShowAppMessage(string message)
