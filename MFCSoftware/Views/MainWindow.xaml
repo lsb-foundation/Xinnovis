@@ -35,7 +35,7 @@
 
         <StatusBar Grid.Row="2">
             <StatusBarItem>
-                <TextBlock Text="{Binding AppMessage}"></TextBlock>
+                <TextBlock Text="{Binding AppMessage}" Margin="8,0,0,0"></TextBlock>
             </StatusBarItem>
         </StatusBar>
     </Grid>
