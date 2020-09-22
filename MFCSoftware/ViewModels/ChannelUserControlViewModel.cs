@@ -253,7 +253,7 @@ namespace MFCSoftware.ViewModels
             flowBytes.Add(addr);
             flowBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 });
 
-            int flowIntValue = (int)(FlowValue * 100);
+            int flowIntValue = ParseFloatToInt32(FlowValue * 100);
             flowBytes.AddRange(flowIntValue.ToHex());
 
             byte[] crc = flowBytes.ToArray().GetCRC16(flowBytes.Count);
@@ -269,12 +269,19 @@ namespace MFCSoftware.ViewModels
             valveOpenBytes.Add(addr);
             valveOpenBytes.AddRange(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 });
 
-            int openIntValue = (int)(ValveOpenValue * 100);
+            int openIntValue = ParseFloatToInt32(ValveOpenValue * 100);
             valveOpenBytes.AddRange(openIntValue.ToHex().SubArray(2, 2));
 
             byte[] crc = valveOpenBytes.ToArray().GetCRC16(valveOpenBytes.Count);
             valveOpenBytes.AddRange(crc);
             WriteValveBytes = new SerialCommand<byte[]>(valveOpenBytes.ToArray(), 7);
+        }
+
+        private int ParseFloatToInt32(float value)
+        {
+            //防止float直接转int导致精度丢失
+            var valueStr = value.ToString("#0.000").Split('.')[0];
+            return int.Parse(valueStr);
         }
 
         enum ReceivedStatus

@@ -143,7 +143,7 @@
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>当前流量</TextBlock>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N3}}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}" Style="{StaticResource ValueTextStyle}"/>
                             <TextBlock Text="{Binding DisplayUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
