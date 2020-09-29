@@ -149,9 +149,7 @@ namespace MFCSoftware.Views
                 ChannelUserControl channelControl = new ChannelUserControl();
                 channelControl.SetAddress(window.Address);
                 channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
-                channelControl.ClearAccuFlowClicked += ChannelControl_ClearAccuFlowClicked;
-                channelControl.WriteFlowValue += ChannelControl_WriteFlowValue;
-                channelControl.ControlValveOpenValue += ChannelControl_ControlValveOpenValue;
+                channelControl.SingleCommandSended += (channel, command, type) => SendSingleCommand(channel, command, type);
 
                 ChannelGrid.Children.Add(channelControl);
                 controlList.AddLast(channelControl);
@@ -162,25 +160,11 @@ namespace MFCSoftware.Views
             else MainWindowViewModel.ShowAppMessage("地址重复，请重新添加。");
         }
 
+
         private void ChannelAdded(ChannelUserControl channel)
         {
             //添加通道后读取基本信息
             SendSingleCommand(channel, channel.ReadBaseInfoBytes, ResolveType.BaseInfoData);
-        }
-
-        private void ChannelControl_ClearAccuFlowClicked(ChannelUserControl channel)
-        {
-            SendSingleCommand(channel, channel.ClearAccuFlowBytes, ResolveType.ClearAccuFlowData);
-        }
-
-        private void ChannelControl_ControlValveOpenValue(ChannelUserControl channel)
-        {
-            SendSingleCommand(channel, channel.WriteValveBytes, ResolveType.ValveControl);
-        }
-
-        private void ChannelControl_WriteFlowValue(ChannelUserControl channel)
-        {
-            SendSingleCommand(channel, channel.WriteFlowBytes, ResolveType.SetFlow);
         }
 
         private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, ResolveType type)

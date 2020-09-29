@@ -1,5 +1,6 @@
 ﻿using CommonLib.Mvvm;
 using System;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +22,11 @@ namespace MFCSoftware.ViewModels
                 _channelCount = value;
                 RaiseProperty(nameof(Enable));
             }
+        }
+
+        public string AppName
+        {
+            get => ConfigurationManager.AppSettings["AppName"] + "-青岛芯笙";
         }
 
         private string _appMessage;

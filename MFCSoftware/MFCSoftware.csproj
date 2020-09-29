@@ -136,6 +136,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\SerialCommandBuilder.cs" />
     <Compile Include="ViewModels\ExportSelectWindowViewModel.cs" />
     <Compile Include="Views\AddChannelWindow.xaml.cs">
       <DependentUpon>AddChannelWindow.xaml</DependentUpon>

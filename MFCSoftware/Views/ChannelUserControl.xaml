@@ -72,6 +72,8 @@
 
                 <Button Click="ExportFlowButton_Click" Margin="4,8,4,4">数据导出</Button>
                 <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
+                <Button Click="ZeroPointCaliButton_Click" Margin="4" Visibility="{Binding ControlVisibility}">零点校准</Button>
+                <Button Click="FactoryRecoveryButton_Click" Margin="4" Visibility="{Binding ControlVisibility}">恢复出厂</Button>
 
                 <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
@@ -85,7 +87,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border BorderThickness="1" Margin="4" CornerRadius="5"
+                <Border BorderThickness="1" Margin="4" CornerRadius="5" Visibility="{Binding ControlVisibility}"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
                         <RadioButton Margin="4" 
