@@ -96,11 +96,7 @@ namespace MFCSoftware.ViewModels
             get
             {
                 string appName = ViewModelBase.GetViewModelInstance<MainWindowViewModel>().AppName;
-                if (appName == null)
-                    return Visibility.Collapsed;
-                if (appName.Contains("MFC"))
-                    return Visibility.Visible;
-                return Visibility.Collapsed;
+                return appName.Contains("MFC") ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 

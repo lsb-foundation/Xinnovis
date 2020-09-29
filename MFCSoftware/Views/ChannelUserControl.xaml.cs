@@ -47,7 +47,7 @@ namespace MFCSoftware.Views
         }
 
         public event Action<ChannelUserControl> ControlWasRemoved; //控件被移除
-        public event Action<ChannelUserControl, SerialCommand<byte[]>, ResolveType> SingleCommandSended;    //单指令发送
+        public event Action<ChannelUserControl, SerialCommand<byte[]>, SerialCommandType> SingleCommandSended;    //单指令发送
 
         public int Address { get => viewModel.Address; }
         public SerialCommand<byte[]> ReadFlowBytes { get => viewModel.ReadFlowBytes; }
@@ -58,7 +58,7 @@ namespace MFCSoftware.Views
             ControlWasRemoved?.Invoke(this);
         }
 
-        public void ResolveData(byte[] data, ResolveType type)
+        public void ResolveData(byte[] data, SerialCommandType type)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -69,18 +69,18 @@ namespace MFCSoftware.Views
 
                     switch (type)
                     {
-                        case ResolveType.BaseInfoData:
+                        case SerialCommandType.BaseInfoData:
                             ResolveBaseInfoData(data);
                             break;
-                        case ResolveType.ReadFlow:
+                        case SerialCommandType.ReadFlow:
                             ResolveFlowData(data);
                             break;
-                        case ResolveType.ClearAccuFlowData:
-                        case ResolveType.SetFlow:
-                        case ResolveType.ValveControl:
-                        case ResolveType.ZeroPointCalibration:
-                        case ResolveType.FactoryRecovery:
-                            AutoResolveData(data, type);
+                        case SerialCommandType.ClearAccuFlowData:
+                        case SerialCommandType.SetFlow:
+                        case SerialCommandType.ValveControl:
+                        case SerialCommandType.ZeroPointCalibration:
+                        case SerialCommandType.FactoryRecovery:
+                            MainWindowViewModel.ShowAppMessage(ResolveActionAttribute.CheckAutomatically(data, type));
                             break;
                     }
                 }
@@ -91,15 +91,6 @@ namespace MFCSoftware.Views
                     LogHelper.WriteLog(e.Message, e);
                 }
             });
-        }
-
-        private void AutoResolveData(byte[] data, ResolveType type)
-        {
-            var resolveNameAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
-            if (resolveNameAttr == null) return;
-            if (!resolveNameAttr.AutoResolve) return;
-            string message = resolveNameAttr.ActionName + (resolveNameAttr.Check(data) ? "成功。" : "失败。");
-            MainWindowViewModel.ShowAppMessage(message);
         }
 
         private void ResolveBaseInfoData(byte[] data)
@@ -306,7 +297,7 @@ namespace MFCSoftware.Views
             var mbxResult = MessageBox.Show("是否确认清除？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (mbxResult == MessageBoxResult.Yes)
             {
-                SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes, ResolveType.ClearAccuFlowData);
+                SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes, SerialCommandType.ClearAccuFlowData);
             }
         }
 
@@ -335,7 +326,7 @@ namespace MFCSoftware.Views
                 return;
             }
             viewModel.SetWriteFlowBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteFlowBytes, ResolveType.SetFlow);
+            SingleCommandSended?.Invoke(this, viewModel.WriteFlowBytes, SerialCommandType.SetFlow);
         }
 
         private void CheckValveOpenValueAndSendCommand()
@@ -346,7 +337,7 @@ namespace MFCSoftware.Views
                 return;
             }
             viewModel.SetWriteValveBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteValveBytes, ResolveType.ValveControl);
+            SingleCommandSended?.Invoke(this, viewModel.WriteValveBytes, SerialCommandType.ValveControl);
         }
 
         private void SetSaveTimeButton_Clicked(object sender, RoutedEventArgs e)
@@ -361,7 +352,7 @@ namespace MFCSoftware.Views
             var mbxResult = MessageBox.Show("零点校准确认？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (mbxResult == MessageBoxResult.Yes)
             {
-                SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes, ResolveType.ZeroPointCalibration);
+                SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes, SerialCommandType.ZeroPointCalibration);
             }
         }
 
@@ -370,63 +361,8 @@ namespace MFCSoftware.Views
             var mbxResult = MessageBox.Show("恢复出厂确认？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (mbxResult == MessageBoxResult.Yes)
             {
-                SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes, ResolveType.FactoryRecovery);
+                SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes, SerialCommandType.FactoryRecovery);
             }
-        }
-    }
-
-    public enum ResolveType
-    {
-        [ResolveAction("获取基本信息")]
-        BaseInfoData,
-
-        [ResolveAction("读取流量")]
-        ReadFlow,
-
-        [ResolveAction("清除累积流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]
-        ClearAccuFlowData,
-
-        [ResolveAction("设置流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]
-        SetFlow,
-
-        [ResolveAction("设置阀门开度", true, new byte[] { 0x06, 0x02, 0x00, 0x03 })]
-        ValveControl,
-
-        [ResolveAction("零点校准", true, new byte[] { 0x06, 0x02, 0x00, 0x01 })]
-        ZeroPointCalibration,
-
-        [ResolveAction("恢复出厂", true, new byte[] { 0x06, 0x02, 0x00, 0x02 })]
-        FactoryRecovery
-    }
-
-    /// <summary>
-    /// 用于实现自动解析的特性
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public sealed class ResolveActionAttribute : Attribute
-    {
-        public string ActionName { get; }
-        public bool AutoResolve { get; }
-        public byte[] CheckBytes { get; }
-        public ResolveActionAttribute(string actionName, bool autoResolve = false, byte[] checkBytes = null)
-        {
-            ActionName = actionName;
-            AutoResolve = AutoResolve;
-            CheckBytes = checkBytes;
-        }
-
-        public bool Check(byte[] data)
-        {
-            if (!AutoResolve) return true;
-            if (CheckBytes == null || CheckBytes.Length <= 0) return false;
-            if (CheckBytes.Length != data.Length - 3) return false;     //不校验地址及CRC
-
-            for(int index = 0; index < CheckBytes.Length; index++)
-            {
-                if (CheckBytes[index] != data[index + 1])
-                    return false;
-            }
-            return true;
         }
     }
 

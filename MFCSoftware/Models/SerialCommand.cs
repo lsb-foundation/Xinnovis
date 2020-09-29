@@ -1,10 +1,4 @@
-﻿using OfficeOpenXml.ConditionalFormatting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace MFCSoftware.Models
 {
     public class SerialCommand<T>

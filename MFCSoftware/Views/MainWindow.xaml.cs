@@ -88,7 +88,7 @@ namespace MFCSoftware.Views
                         try
                         {
                             byte[] data = await SerialPortInstance.GetResponseBytes();
-                            channel.ResolveData(data, ResolveType.ReadFlow);
+                            channel.ResolveData(data, SerialCommandType.ReadFlow);
                         }
                         catch (TimeoutException)
                         {
@@ -164,10 +164,10 @@ namespace MFCSoftware.Views
         private void ChannelAdded(ChannelUserControl channel)
         {
             //添加通道后读取基本信息
-            SendSingleCommand(channel, channel.ReadBaseInfoBytes, ResolveType.BaseInfoData);
+            SendSingleCommand(channel, channel.ReadBaseInfoBytes, SerialCommandType.BaseInfoData);
         }
 
-        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, ResolveType type)
+        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, SerialCommandType type)
         {
             await SendTaskCompletedAsync();
 
