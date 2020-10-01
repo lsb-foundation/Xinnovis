@@ -17,7 +17,6 @@ using System.Globalization;
 using System.Timers;
 using System.Windows.Media;
 using System.Threading.Tasks;
-using System.Reflection;
 
 namespace MFCSoftware.Views
 {
@@ -294,8 +293,7 @@ namespace MFCSoftware.Views
 
         private void ClearAccuFlowButton_Click(object sender, RoutedEventArgs e)
         {
-            var mbxResult = MessageBox.Show("是否确认清除？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (mbxResult == MessageBoxResult.Yes)
+            if (SendSingleCommandConfirm(sender))
             {
                 SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes, SerialCommandType.ClearAccuFlowData);
             }
@@ -349,8 +347,7 @@ namespace MFCSoftware.Views
 
         private void ZeroPointCaliButton_Click(object sender, RoutedEventArgs e)
         {
-            var mbxResult = MessageBox.Show("零点校准确认？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (mbxResult == MessageBoxResult.Yes)
+            if (SendSingleCommandConfirm(sender))
             {
                 SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes, SerialCommandType.ZeroPointCalibration);
             }
@@ -358,11 +355,16 @@ namespace MFCSoftware.Views
 
         private void FactoryRecoveryButton_Click(object sender, RoutedEventArgs e)
         {
-            var mbxResult = MessageBox.Show("恢复出厂确认？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (mbxResult == MessageBoxResult.Yes)
+            if (SendSingleCommandConfirm(sender))
             {
                 SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes, SerialCommandType.FactoryRecovery);
             }
+        }
+
+        private bool SendSingleCommandConfirm(object sender)
+        {
+            var buttonText = (sender as Button).Content as string;
+            return MessageBox.Show($"{buttonText}确认?", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK;
         }
     }
 
