@@ -72,7 +72,7 @@
 
                 <Button Click="ExportFlowButton_Click" Margin="4,8,4,4">数据导出</Button>
 
-                <Border BorderThickness="1" Margin="4,4,4,8" CornerRadius="5"
+                <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
                         <TextBox Margin="4" md:HintAssist.Hint="保存时间间隔(分钟)"
@@ -84,11 +84,7 @@
                     </StackPanel>
                 </Border>
 
-                <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
-                <Button Click="ZeroPointCaliButton_Click" Margin="4" Visibility="{Binding ControlVisibility}">零点校准</Button>
-                <Button Click="FactoryRecoveryButton_Click" Margin="4" Visibility="{Binding ControlVisibility}">恢复出厂</Button>
-
-                <Border BorderThickness="1" Margin="4,8,4,4" CornerRadius="5" Visibility="{Binding ControlVisibility}"
+                <Border BorderThickness="1" Margin="4" CornerRadius="5" Visibility="{Binding ControlVisibility}"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
                         <RadioButton Margin="4" 
@@ -113,6 +109,10 @@
                     </StackPanel>
                 </Border>
 
+                <Button Click="ClearAccuFlowButton_Click" Margin="4">累积流量清零</Button>
+                <Button Click="ZeroPointCaliButton_Click" Margin="4">零点校准</Button>
+                <Button Click="FactoryRecoveryButton_Click" Margin="4">恢复出厂</Button>
+                
                 <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
                                   Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
                                   FromValue="50" ToValue="250"
