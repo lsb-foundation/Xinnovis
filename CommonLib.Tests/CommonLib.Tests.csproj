@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C2660E8B-4412-4942-8877-52A1612E51ED}</ProjectGuid>
+    <ProjectGuid>{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CommonLibTests</RootNamespace>
-    <AssemblyName>CommonLibTests</AssemblyName>
+    <RootNamespace>CommonLib.Tests</RootNamespace>
+    <AssemblyName>CommonLib.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -55,7 +55,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Extensions\ByteExtensionTests.cs" />
+    <Compile Include="Extensions\EnumExtensionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonLib\CommonLib.csproj">
-      <Project>{d8cdf989-c229-4ce8-bd34-eb702056623f}</Project>
+      <Project>{D8CDF989-C229-4CE8-BD34-EB702056623F}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
   </ItemGroup>

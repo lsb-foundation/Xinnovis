@@ -57,7 +57,7 @@ namespace MFCSoftware.Views
         }
 
         public event Action<ChannelUserControl> ChannelClosed; //控件被移除
-        public event Action<ChannelUserControl, SerialCommand<byte[]>, SerialCommandType> SingleCommandSended;    //单指令发送
+        public event Action<ChannelUserControl, SerialCommand<byte[]>> SingleCommandSended;    //单指令发送
 
         public int Address { get => viewModel.Address; }
         public SerialCommand<byte[]> ReadFlowBytes { get => viewModel.ReadFlowBytes; }
@@ -309,7 +309,7 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes, SerialCommandType.ClearAccuFlowData);
+                SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes);
             }
         }
 
@@ -338,7 +338,7 @@ namespace MFCSoftware.Views
                 return;
             }
             viewModel.SetWriteFlowBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteFlowBytes, SerialCommandType.SetFlow);
+            SingleCommandSended?.Invoke(this, viewModel.WriteFlowBytes);
         }
 
         private void CheckValveOpenValueAndSendCommand()
@@ -349,7 +349,7 @@ namespace MFCSoftware.Views
                 return;
             }
             viewModel.SetWriteValveBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteValveBytes, SerialCommandType.ValveControl);
+            SingleCommandSended?.Invoke(this, viewModel.WriteValveBytes);
         }
 
         private void SetSaveTimeButton_Clicked(object sender, RoutedEventArgs e)
@@ -363,7 +363,7 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes, SerialCommandType.ZeroPointCalibration);
+                SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes);
             }
         }
 
@@ -371,7 +371,7 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes, SerialCommandType.FactoryRecovery);
+                SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes);
             }
         }
 

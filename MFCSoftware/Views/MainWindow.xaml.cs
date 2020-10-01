@@ -88,7 +88,7 @@ namespace MFCSoftware.Views
                         try
                         {
                             byte[] data = await SerialPortInstance.GetResponseBytes();
-                            channel.ResolveData(data, SerialCommandType.ReadFlow);
+                            channel.ResolveData(data, channel.ReadFlowBytes.Type);
                         }
                         catch (TimeoutException)
                         {
@@ -149,7 +149,7 @@ namespace MFCSoftware.Views
                 ChannelUserControl channelControl = new ChannelUserControl();
                 channelControl.SetAddress(window.Address);
                 channelControl.ChannelClosed += ChannelControl_ControlWasRemoved;
-                channelControl.SingleCommandSended += (channel, command, type) => SendSingleCommand(channel, command, type);
+                channelControl.SingleCommandSended += (channel, command) => SendSingleCommand(channel, command);
 
                 ChannelGrid.Children.Add(channelControl);
                 controlList.AddLast(channelControl);
@@ -164,10 +164,10 @@ namespace MFCSoftware.Views
         private void ChannelAdded(ChannelUserControl channel)
         {
             //添加通道后读取基本信息
-            SendSingleCommand(channel, channel.ReadBaseInfoBytes, SerialCommandType.BaseInfoData);
+            SendSingleCommand(channel, channel.ReadBaseInfoBytes);
         }
 
-        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command, SerialCommandType type)
+        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command)
         {
             await SendTaskCompletedAsync();
 
@@ -177,7 +177,7 @@ namespace MFCSoftware.Views
                 try
                 {
                     byte[] data = await SerialPortInstance.GetResponseBytes();
-                    channel.ResolveData(data, type);
+                    channel.ResolveData(data, command.Type);
                 }
                 catch (TimeoutException)
                 {

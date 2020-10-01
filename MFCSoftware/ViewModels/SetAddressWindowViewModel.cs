@@ -1,5 +1,4 @@
 ﻿using CommonLib.Communication.Serial;
-using CommonLib.Extensions;
 using CommonLib.Mvvm;
 using MFCSoftware.Models;
 using System;
@@ -50,7 +49,7 @@ namespace MFCSoftware.ViewModels
             get
             {
                 byte[] command = new byte[] { 0xFE, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0x05 };
-                return new SerialCommand<byte[]>(command, 7);
+                return new SerialCommand<byte[]>(command, SerialCommandType.ReadAddress, 7);
             } 
         }
 
@@ -61,8 +60,11 @@ namespace MFCSoftware.ViewModels
                 //0xFE 0x06 0x00 0x00 0x00 addr CRCL CRCH
                 byte addr = Convert.ToByte(_writerAddress);
                 byte[] header = { 0xFE, 0x06, 0x00, 0x00, 0x00 };
-                byte[] command = GetBytesCommand(header, addr);
-                return new SerialCommand<byte[]>(command, 7);
+                return new SerialCommandBuilder(SerialCommandType.WriteAddress)
+                    .AppendBytes(header)
+                    .AppendBytes(addr)
+                    .AppendCrc16()
+                    .ToSerialCommand(7);
             }
         }
 
@@ -73,19 +75,12 @@ namespace MFCSoftware.ViewModels
                 //0xFE 0x06 0x00 0x01 0x00 baudcode CRCL CRCH
                 byte[] header = { 0xFE, 0x06, 0x00, 0x01, 0x00 };
                 byte baudcode = Convert.ToByte(_baudRateCode.Code);
-                byte[] command = GetBytesCommand(header, baudcode);
-                return new SerialCommand<byte[]>(command, 7);
+                return new SerialCommandBuilder(SerialCommandType.SetBaudRate)
+                    .AppendBytes(header)
+                    .AppendBytes(baudcode)
+                    .AppendCrc16()
+                    .ToSerialCommand(7);
             }
-        }
-
-        private byte[] GetBytesCommand(byte[] header, params byte[] data)
-        {
-            List<byte> ret = new List<byte>();
-            ret.AddRange(header);
-            ret.AddRange(data);
-            byte[] crcCode = ret.ToArray().GetCRC16(ret.Count);
-            ret.AddRange(crcCode);
-            return ret.ToArray();
         }
     }
 }

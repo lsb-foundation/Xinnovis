@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommonLib.Extensions
 {
@@ -59,6 +55,16 @@ namespace CommonLib.Extensions
                 }
             }
             return BitConverter.GetBytes(crc);
+        }
+
+        /// <summary>
+        /// 默认获取整个数组的CRC16校验码
+        /// </summary>
+        /// <param name="byteArray"></param>
+        /// <returns></returns>
+        public static byte[] GetCRC16ByDefault(this byte[] byteArray)
+        {
+            return GetCRC16(byteArray, byteArray.Length);
         }
 
         /// <summary>

@@ -1,10 +1,20 @@
-﻿using System;
+﻿using CommonLib.Extensions;
+using System;
 using System.Reflection;
 
 namespace MFCSoftware.Models
 {
     public enum SerialCommandType
     {
+        [ResolveAction("读取地址", true, new byte[] { 0xFE, 0x03, 0x02, 0x00 })]
+        ReadAddress,
+
+        [ResolveAction("设置地址", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        WriteAddress,
+
+        [ResolveAction("设置波特率", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        SetBaudRate,
+
         [ResolveAction("获取基本信息")]
         BaseInfoData,
 
@@ -45,28 +55,35 @@ namespace MFCSoftware.Models
             CheckBytes = checkBytes;
         }
 
-        private bool Check(byte[] data)
+        public bool Check(byte[] data, int startIndex = 1)
         {
             if (!AutoResolve) return true;
             if (CheckBytes == null || CheckBytes.Length <= 0) return false;
-            if (CheckBytes.Length != data.Length - 3) return false;     //不校验地址及CRC
+            if (CheckBytes.Length > data.Length - 2 - startIndex) return false; //校验位在数据接收后第一时间检查，这里不做处理
 
             for (int index = 0; index < CheckBytes.Length; index++)
             {
-                if (CheckBytes[index] != data[index + 1])
+                if (CheckBytes[index] != data[index + startIndex])
                     return false;
             }
             return true;
         }
 
+        /// <summary>
+        /// 自动检查，默认第一位为地址
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="type"></param>
+        /// <param name="startIndex"></param>
+        /// <returns></returns>
         public static string CheckAutomatically(byte[] data, SerialCommandType type)
         {
-            var resolveNameAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
-            if (resolveNameAttr == null)
+            var resolveActionAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
+            if (resolveActionAttr == null)
                 throw new NullReferenceException("Can't find " + nameof(ResolveActionAttribute));
-            if (!resolveNameAttr.AutoResolve)
+            if (!resolveActionAttr.AutoResolve)
                 throw new ArgumentException("AutoResolve is false.", nameof(AutoResolve));
-            return resolveNameAttr.ActionName + (resolveNameAttr.Check(data) ? "成功。" : "失败。");
+            return resolveActionAttr.ActionName + (resolveActionAttr.Check(data) ? "成功。" : "失败。");
         }
     }
 }

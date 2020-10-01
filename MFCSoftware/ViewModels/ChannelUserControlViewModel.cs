@@ -8,7 +8,6 @@ using LiveCharts;
 using LiveCharts.Defaults;
 using System.Text;
 using System.Windows.Media;
-using System.Linq;
 using System.Windows;
 
 namespace MFCSoftware.ViewModels
@@ -117,11 +116,16 @@ namespace MFCSoftware.ViewModels
 
         private void SetCommands()
         {
-            SetReadFlowBytes();
-            SetReadBaseInfoBytes();
-            SetClearAccuFlowBytes();
-            SetZeroPointCalibrationBytes();
-            SetFactoryRecoveryBytes();
+            byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
+            ReadFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ReadFlow, 27);
+            bytes = new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 };
+            ReadBaseInfoBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.BaseInfoData, 37);
+            bytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
+            ClearAccuFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ClearAccuFlowData);
+            bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 };
+            ZeroPointCalibrationBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ZeroPointCalibration);
+            bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 };
+            FactoryRecoveryBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.FactoryRecovery);
         }
 
         public void SetBaseInfomation(BaseInformation info)
@@ -233,46 +237,11 @@ namespace MFCSoftware.ViewModels
             RaiseProperty(nameof(StatusColor));
         }
 
-        private void SetReadFlowBytes()
-        {
-            //addr 0x03 0x00 0x16 0x00 0x0B CRCL CRCH
-            var bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-            ReadFlowBytes = GetSerialCommandFromBytes(bytes, 27);
-        }
-
-        private void SetReadBaseInfoBytes()
-        {
-            //addr 0x03 0x00 0x03 0x00 0x10 CRCL CRCH
-            var bytes = new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 };
-            ReadBaseInfoBytes = GetSerialCommandFromBytes(bytes, 37);
-        }
-
-        private void SetClearAccuFlowBytes()
-        {
-            //addr 0x06 0x00 0x18 0x00 0x00 CRCL CRCH
-            var bytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
-            ClearAccuFlowBytes = GetSerialCommandFromBytes(bytes, 7);
-        }
-
-        private void SetZeroPointCalibrationBytes()
-        {
-            //addr 0x06 0x00 0x25 0x00 0x01 CRCL CRCH
-            var bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 };
-            ZeroPointCalibrationBytes = GetSerialCommandFromBytes(bytes, 7);
-        }
-
-        private void SetFactoryRecoveryBytes()
-        {
-            //addr 0x06 0x00 0x25 0x00 0x02 CRCL CRCH
-            var bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 };
-            FactoryRecoveryBytes = GetSerialCommandFromBytes(bytes, 7);
-        }
-
         public void SetWriteFlowBytes()
         {
             //addr 0x06 0x00 0x21 0x00 0x00 [FLOW_1] {FLOW_2] {FLOW_3] {FLOW_4] CRCL CRCH
             int flowIntValue = ParseFloatToInt32(FlowValue * 100);
-            WriteFlowBytes = new SerialCommandBuilder()
+            WriteFlowBytes = new SerialCommandBuilder(SerialCommandType.SetFlow)
                 .AppendAddress(Address)
                 .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 })
                 .AppendBytes(flowIntValue.ToHex())
@@ -284,7 +253,7 @@ namespace MFCSoftware.ViewModels
         {
             //addr 0x06 0x00 0x21 0x00 0x03 [VALVE_VALUE_1] [VALVE_VALUE_2] CRCL CRCH
             int openIntValue = ParseFloatToInt32(ValveOpenValue * 100);
-            WriteValveBytes = new SerialCommandBuilder()
+            WriteValveBytes = new SerialCommandBuilder(SerialCommandType.ValveControl)
                 .AppendAddress(Address)
                 .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 })
                 .AppendBytes(openIntValue.ToHex().SubArray(2, 2))
@@ -299,24 +268,24 @@ namespace MFCSoftware.ViewModels
             return int.Parse(valueStr);
         }
 
-        private SerialCommand<byte[]> GetSerialCommandFromBytes(byte[] bytes, int returnedLength)
+        private SerialCommand<byte[]> GetSerialCommandFromBytes(byte[] bytes, SerialCommandType type, int responseLength = 7)
         {
-            return new SerialCommandBuilder()
+            return new SerialCommandBuilder(type)
                 .AppendAddress(Address)
                 .AppendBytes(bytes)
                 .AppendCrc16()
-                .ToSerialCommand(returnedLength);
+                .ToSerialCommand(responseLength);
         }
 
-        private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList, int returnedLength)
+        private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList, SerialCommandType type, int responseLength = 7)
         {
-            SerialCommandBuilder builder = new SerialCommandBuilder().AppendAddress(Address);
+            SerialCommandBuilder builder = new SerialCommandBuilder(type).AppendAddress(Address);
             foreach(byte[] bytes in bytesList)
             {
                 builder.AppendBytes(bytes);
             }
             builder.AppendCrc16();
-            return builder.ToSerialCommand(returnedLength);
+            return builder.ToSerialCommand(responseLength);
         }
 
         enum ReceivedStatus

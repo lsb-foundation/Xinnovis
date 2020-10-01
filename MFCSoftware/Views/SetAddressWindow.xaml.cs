@@ -6,6 +6,7 @@ using CommonLib.Extensions;
 using MFCSoftware.Common;
 using System.Timers;
 using MFCSoftware.Models;
+using System.Reflection;
 
 namespace MFCSoftware.Views
 {
@@ -16,8 +17,6 @@ namespace MFCSoftware.Views
     {
         private SetAddressWindowViewModel viewModel;
         private Timer timer;
-
-        private ActionType currentAction;
 
         public SetAddressWindow()
         {
@@ -39,7 +38,7 @@ namespace MFCSoftware.Views
             timer.Stop();
         }
 
-        private void ResolveData(byte[] data)
+        private void ResolveData(byte[] data, SerialCommandType type)
         {
             if (timer.Enabled) timer.Stop();
             
@@ -47,12 +46,16 @@ namespace MFCSoftware.Views
 
             try
             {
-                bool result;
-                if (currentAction == ActionType.ReadAddress)
-                    result = HandleReadAddress(data);
-                else if (currentAction == ActionType.WriteAddress)
-                    result = HandleWriteAdderss(data);
-                else result = HandleSetBaudRate(data);
+                bool result = data.CheckCRC16ByDefault();
+                if (result)
+                {
+                    if (type == SerialCommandType.ReadAddress)
+                        result = HandleReadAddress(data);
+                    else if (type == SerialCommandType.WriteAddress)
+                        result = HandleWriteAdderss(data);
+                    else if (type == SerialCommandType.SetBaudRate)
+                        result = HandleSetBaudRate(data);
+                }
 
                 if (!result)
                 {
@@ -67,50 +70,45 @@ namespace MFCSoftware.Views
 
         private bool HandleReadAddress(byte[] data)
         {
-            if (!data.CheckCRC16ByDefault()) return false;
-
-            //0xFE 0x03 0x02 0x00 addr CRCL CRCH
-            bool isHeaderCorrect = data[0] ==
-                0xfe && data[1] == 0x03 && data[2] == 0x02 && data[3] == 0x00;
-
-            if (!isHeaderCorrect) return false;
-
-            viewModel.ReaderAddress = data[4];
-            return true;
+            if (AutoCheck(data, SerialCommandType.ReadAddress))
+            {
+                viewModel.ReaderAddress = data[4];
+                return true;
+            }
+            return false;
         }
 
         private bool HandleWriteAdderss(byte[] data)
         {
-            if (!data.CheckCRC16ByDefault()) return false;
-
-            //0xFE 0x06 0x02 0x00 addr CRCL CRCH
-            bool isHeaderCorrect = data[0] ==
-                0xfe && data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00;
-
-            if (!isHeaderCorrect) return false;
-
-            viewModel.WriterAddress = data[4];
-            return true;
+            if (AutoCheck(data, SerialCommandType.WriteAddress))
+            {
+                viewModel.WriterAddress = data[4];
+                return true;
+            }
+            return false;
         }
 
         private bool HandleSetBaudRate(byte[] data)
         {
-            if (!data.CheckCRC16ByDefault()) return false;
+            if(AutoCheck(data, SerialCommandType.SetBaudRate))
+            {
+                uint intBaudcode = data[4];
+                viewModel.BaudRateCode = viewModel.BaudRateCodes.FirstOrDefault(c => c.Code == intBaudcode);
+                return true;
+            }
+            return false;
+        }
 
-            //0xFE 0x06 0x02 0x00 baudcode CRCL CRCH
-            bool isHeaderCorrect = data[0] ==
-                0xfe && data[1] == 0x06 && data[2] == 0x02 && data[3] == 0x00;
-            if (!isHeaderCorrect) return false;
-
-            uint intBaudcode = data[4];
-            viewModel.BaudRateCode = viewModel.BaudRateCodes.FirstOrDefault(c => c.Code == intBaudcode);
-
-            return true;
+        private bool AutoCheck(byte[] data, SerialCommandType type)
+        {
+            var resolveActionAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
+            if (resolveActionAttr == null) return false;
+            return resolveActionAttr.Check(data, 0);
         }
 
         private void ReadAddressButton_Click(object sender, RoutedEventArgs e)
         {
-            Send(viewModel.ReadAddressBytes, ActionType.ReadAddress);
+            Send(viewModel.ReadAddressBytes);
         }
 
         private void SetAddressButton_Click(object sender, RoutedEventArgs e)
@@ -120,24 +118,23 @@ namespace MFCSoftware.Views
                 MessageBox.Show("请确保地址范围在1-250之间。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            Send(viewModel.WriteAddressBytes, ActionType.WriteAddress);
+            Send(viewModel.WriteAddressBytes);
         }
 
         private void SetBaudRateButton_Click(object sender, RoutedEventArgs e)
         {
-            Send(viewModel.SetBaudRateBytes, ActionType.SetBaudRate);
+            Send(viewModel.SetBaudRateBytes);
         }
 
-        private async void Send(SerialCommand<byte[]> command, ActionType act)
+        private async void Send(SerialCommand<byte[]> command)
         {
             try
             {
                 SerialPortInstance.Send(command);
-                currentAction = act;
                 viewModel.Enable = false;
                 timer.Start();
                 var data = await SerialPortInstance.GetResponseBytes();
-                ResolveData(data);
+                ResolveData(data, command.Type);
             }
             catch (TimeoutException)
             {
@@ -147,13 +144,6 @@ namespace MFCSoftware.Views
             {
                 MessageBox.Show("串口可能被其他程序占用，请检查", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        enum ActionType
-        {
-            ReadAddress,
-            WriteAddress,
-            SetBaudRate
         }
     }
 }
