@@ -148,7 +148,7 @@ namespace MFCSoftware.Views
             {
                 ChannelUserControl channelControl = new ChannelUserControl();
                 channelControl.SetAddress(window.Address);
-                channelControl.ControlWasRemoved += ChannelControl_ControlWasRemoved;
+                channelControl.ChannelClosed += ChannelControl_ControlWasRemoved;
                 channelControl.SingleCommandSended += (channel, command, type) => SendSingleCommand(channel, command, type);
 
                 ChannelGrid.Children.Add(channelControl);

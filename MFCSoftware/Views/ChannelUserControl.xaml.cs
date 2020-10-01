@@ -28,24 +28,35 @@ namespace MFCSoftware.Views
         private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
         private readonly Timer timer;
         private bool canInsert = true;
+        private readonly object timerSync = new object();   //防止canInsert被同时修改。
 
         public ChannelUserControl()
         {
             InitializeComponent();
-            timer = new Timer { AutoReset = false, Interval = 60 * 1000 };
-            timer.Elapsed += (s, e) => canInsert = true;
-            viewModel.InsertIntervalChanged += () =>
+            timer = new Timer 
+            { 
+                AutoReset = false, 
+                Interval = TimeSpan.FromMinutes(viewModel.InsertInterval).TotalMilliseconds 
+            };
+            timer.Elapsed += (s, e) =>
+            {
+                lock (timerSync)
+                {
+                    canInsert = true;
+                }
+            };
+            viewModel.InsertIntervalChanged += minutes =>
             {
                 if (viewModel.InsertInterval > 0)
                 {
-                    timer.Interval = viewModel.InsertInterval * 60 * 1000;
+                    timer.Interval = TimeSpan.FromMinutes(minutes).TotalMilliseconds;
                 }
             };
             this.DataContext = viewModel;
             timer.Start();
         }
 
-        public event Action<ChannelUserControl> ControlWasRemoved; //控件被移除
+        public event Action<ChannelUserControl> ChannelClosed; //控件被移除
         public event Action<ChannelUserControl, SerialCommand<byte[]>, SerialCommandType> SingleCommandSended;    //单指令发送
 
         public int Address { get => viewModel.Address; }
@@ -54,7 +65,7 @@ namespace MFCSoftware.Views
 
         private void Closed(object sender, RoutedEventArgs e)
         {
-            ControlWasRemoved?.Invoke(this);
+            ChannelClosed?.Invoke(this);
         }
 
         public void ResolveData(byte[] data, SerialCommandType type)
@@ -160,11 +171,14 @@ namespace MFCSoftware.Views
             viewModel.SetFlow(flowData);
             viewModel.UpdateSeries();
 
-            if (canInsert)
+            lock (timerSync)
             {
-                DbStorage.InsertFlowData(Address, flowData);
-                canInsert = false;
-                timer.Start();
+                if (canInsert)
+                {
+                    DbStorage.InsertFlowData(Address, flowData);
+                    canInsert = false;
+                    timer.Start();
+                }
             }
         }
 

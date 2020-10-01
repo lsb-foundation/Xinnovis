@@ -63,12 +63,12 @@ namespace MFCSoftware.ViewModels
                 if(value > 0)
                 {
                     SetProperty(ref _insertInterval, value);
-                    InsertIntervalChanged?.Invoke();
+                    InsertIntervalChanged?.Invoke(value);
                 }
             }
         }
 
-        public event Action InsertIntervalChanged;
+        public event Action<uint> InsertIntervalChanged;
 
         private float _flowValue;
         public float FlowValue
