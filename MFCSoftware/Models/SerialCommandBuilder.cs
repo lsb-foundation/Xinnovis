@@ -7,12 +7,19 @@ namespace MFCSoftware.Models
     public class SerialCommandBuilder
     {
         private readonly List<byte> serialBytes = new List<byte>();
+        private readonly bool typeIsSetted;
 
-        public SerialCommandType Type { get; }
+        public SerialCommandType Type { get; }  //可以不需要
+
+        public SerialCommandBuilder()
+        {
+            typeIsSetted = false;
+        }
 
         public SerialCommandBuilder(SerialCommandType type)
         {
             Type = type;
+            typeIsSetted = true;
         }
 
         public SerialCommandBuilder AppendAddress(int addr)
@@ -47,7 +54,9 @@ namespace MFCSoftware.Models
 
         public SerialCommand<byte[]> ToSerialCommand(int responseLength)
         {
-            return new SerialCommand<byte[]>(serialBytes.ToArray(), Type, responseLength);
+            if(typeIsSetted)
+                return new SerialCommand<byte[]>(serialBytes.ToArray(), Type, responseLength);
+            return new SerialCommand<byte[]>(serialBytes.ToArray(), responseLength);
         }
     }
 }

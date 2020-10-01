@@ -277,7 +277,7 @@ namespace MFCSoftware.ViewModels
                 .ToSerialCommand(responseLength);
         }
 
-        private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList, SerialCommandType type, int responseLength = 7)
+        private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList ,SerialCommandType type, int responseLength = 7)
         {
             SerialCommandBuilder builder = new SerialCommandBuilder(type).AppendAddress(Address);
             foreach(byte[] bytes in bytesList)
