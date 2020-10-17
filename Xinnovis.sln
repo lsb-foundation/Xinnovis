@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware.Tests", "MFCSof
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.Tests", "CommonLib.Tests\CommonLib.Tests.csproj", "{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualSerialPortClient", "VirtualSerialPortClient\VirtualSerialPortClient.csproj", "{A79B17BE-F598-4E91-B2E4-93280E9BAF86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,10 @@ Global
 		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

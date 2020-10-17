@@ -35,16 +35,6 @@
 
         <oxy:PlotView Grid.Row="2" Margin="5"
                       Model="{Binding SeriesPlotModel}">
-            <oxy:PlotView.Resources>
-                <Style TargetType="oxy:DateTimeAxis">
-                    <Setter Property="TicklineColor" Value="White"/>
-                    <Setter Property="TitleFontSize" Value="16"/>
-                </Style>
-                <Style TargetType="oxy:LinearAxis">
-                    <Setter Property="TicklineColor" Value="White"/>
-                    <Setter Property="TitleFontSize" Value="16"/>
-                </Style>
-            </oxy:PlotView.Resources>
         </oxy:PlotView>
     </Grid>
 </Window>

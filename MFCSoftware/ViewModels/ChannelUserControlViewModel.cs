@@ -5,10 +5,13 @@ using System.Collections.Generic;
 using MFCSoftware.Models;
 using LiveCharts.Wpf;
 using LiveCharts;
+using LiveCharts.Geared;
 using LiveCharts.Defaults;
 using System.Text;
 using System.Windows.Media;
 using System.Windows;
+using OxyPlot;
+using OxyPlot.Axes;
 
 namespace MFCSoftware.ViewModels
 {
@@ -17,14 +20,16 @@ namespace MFCSoftware.ViewModels
         private const int xValuesCount = 300;
         public ChannelUserControlViewModel()
         {
-            InitializeFlowSeries();
+            //InitializeFlowSeries();
+            SetPlotModel();
         }
 
-        public SeriesCollection FlowSeries { get; set; }
-        public Func<double, string> FlowLabelsFomatter
-        {
-            get => val => string.Format("{0:N2}", val);
-        }
+        public PlotModel SeriesPlotModel { get; set; }
+        //public SeriesCollection FlowSeries { get; set; }
+        //public Func<double, string> FlowLabelsFomatter
+        //{
+        //    get => val => string.Format("{0:N2}", val);
+        //}
 
         private double _maxYValue = 100;
         public double MaxYValue
@@ -138,7 +143,8 @@ namespace MFCSoftware.ViewModels
             BaseInfo.GasType = info.GasType;
             BaseInfo.Unit = info.Unit;
             DisplayUnit = info.Unit?.Unit;
-            MaxYValue = info.Range; //更新Y轴最大值
+            //MaxYValue = info.Range; //更新Y轴最大值
+            UpdateYAxisMaxValue(info.Range);
 
             RaiseProperty(nameof(BaseInfo));
             WhenSuccess();
@@ -176,27 +182,96 @@ namespace MFCSoftware.ViewModels
 
         public void UpdateSeries()
         {
-            FlowSeries[0].Values.Add(new ObservableValue(Flow.CurrentFlow));
-            FlowSeries[0].Values.RemoveAt(0);
+            //FlowSeries[0].Values.Add(new ObservableValue(Flow.CurrentFlow));
+            //FlowSeries[0].Values.RemoveAt(0);
+
+            lock (SeriesPlotModel.SyncRoot)
+            {
+                for (int i = 0; i < SeriesPlotModel.Series.Count; i++)
+                {
+                    var s = (OxyPlot.Series.LineSeries)SeriesPlotModel.Series[i];
+
+                    double x = DateTimeAxis.ToDouble(DateTime.Now);
+                    double y = Flow.CurrentFlow;
+                    s.Points.Add(new DataPoint(x, y));
+
+                    if (s.Points.Count > xValuesCount)
+                    {
+                        s.Points.RemoveAt(0);
+                    }
+                }
+            }
+            SeriesPlotModel.InvalidatePlot(true);
         }
 
-        private void InitializeFlowSeries()
+        private void SetPlotModel()
         {
-            var values = new ChartValues<ObservableValue>();
-            for(int index = 0; index < xValuesCount; index++)
+            SeriesPlotModel = new PlotModel();
+
+            var dateTimeAxis = new DateTimeAxis
             {
-                var value = new ObservableValue();
-                values.Add(value);
-            }
-            FlowSeries = new SeriesCollection()
-            {
-                new LineSeries()
-                {
-                    AreaLimit = -10,
-                    Values = values
-                }
+                Title = "时间",
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                IntervalType = DateTimeIntervalType.Seconds,
+                IsZoomEnabled = false,
+                IsPanEnabled = false,
+                IntervalLength = 50,
+                TitleFontSize = 16
             };
+            SeriesPlotModel.Axes.Add(dateTimeAxis);
+
+            var valueAxis = new LinearAxis
+            {
+                Title = "瞬时流量",
+                LabelFormatter = num => $"{num:N2}",
+                IsZoomEnabled = false,
+                IsPanEnabled = false,
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                TitleFontSize = 16
+            };
+            SeriesPlotModel.Axes.Add(valueAxis);
+
+            var line = new OxyPlot.Series.LineSeries
+            {
+                StrokeThickness = 2,
+                MarkerType = MarkerType.Circle,
+                MarkerStrokeThickness = 2.5,
+                InterpolationAlgorithm = InterpolationAlgorithms.CanonicalSpline
+            };
+            SeriesPlotModel.Series.Add(line);
+            RaiseProperty(nameof(SeriesPlotModel));
         }
+
+        public void UpdateYAxisMaxValue(double yMax)
+        {
+            foreach (var axis in SeriesPlotModel.Axes)
+            {
+                if (axis.GetType() == typeof(LinearAxis))
+                {
+                    axis.Maximum = yMax;
+                    //RaiseProperty(nameof(SeriesPlotModel));
+                }
+            }
+        }
+
+        //private void InitializeFlowSeries()
+        //{
+        //    var values = new GearedValues<ObservableValue>();
+        //    values.WithQuality(Quality.Highest);
+        //    for(int index = 0; index < xValuesCount; index++)
+        //    {
+        //        var value = new ObservableValue();
+        //        values.Add(value);
+        //    }
+        //    FlowSeries = new SeriesCollection()
+        //    {
+        //        new GLineSeries()
+        //        {
+        //            AreaLimit = -10,
+        //            Values = values
+        //        }
+        //    };
+        //}
 
         private void SetCurrentFlowByUnit(float flow)
         {

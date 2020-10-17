@@ -111,7 +111,11 @@ namespace MFCSoftware.Views
         {
             if (sendTask == null) return;
             if (!sendTask.IsCompleted)
+            {
+                timer.Stop();
                 await sendTask;
+                timer.Start();
+            }
         }
 
         private bool Send(SerialCommand<byte[]> sc)

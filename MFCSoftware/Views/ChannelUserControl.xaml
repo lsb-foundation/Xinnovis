@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:MFCSoftware.Views"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:geared="clr-namespace:LiveCharts.Geared;assembly=LiveCharts.Geared"
+             xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d" BorderThickness="1.5"
              d:DesignHeight="600" d:DesignWidth="800">
     
@@ -163,7 +165,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <lvc:CartesianChart Grid.Row="1" Margin="4"
+                <!--<lvc:CartesianChart Grid.Row="1" Margin="4"
                                     Series="{Binding FlowSeries}" 
                                     DataTooltip="{x:Null}" Focusable="False">
                     <lvc:CartesianChart.Resources>
@@ -171,7 +173,7 @@
                             <Setter Property="FontSize" Value="16"/>
                             <Setter Property="Foreground" Value="Black"/>
                         </Style>
-                        <Style TargetType="lvc:LineSeries">
+                        <Style TargetType="geared:GLineSeries">
                             <Setter Property="PointGeometrySize" Value="0"/>
                             <Setter Property="LineSmoothness" Value="0"/>
                             <Setter Property="Stroke" Value="{DynamicResource PrimaryHueMidBrush}"/>
@@ -186,7 +188,20 @@
                                   MaxValue="{Binding MaxYValue, Mode=OneWay}" 
                                   LabelFormatter="{Binding FlowLabelsFomatter}"/>
                     </lvc:CartesianChart.AxisY>
-                </lvc:CartesianChart>
+                </lvc:CartesianChart>-->
+                
+                <oxy:PlotView Grid.Row="1" Margin="4" Model="{Binding SeriesPlotModel}">
+                    <oxy:PlotView.Resources>
+                        <Style TargetType="oxy:DateTimeAxis">
+                            <!--<Setter Property="TicklineColor" Value="White"/>-->
+                            <Setter Property="TitleFontSize" Value="16"/>
+                        </Style>
+                        <Style TargetType="oxy:LinearAxis">
+                            <!--<Setter Property="TicklineColor" Value="White"/>-->
+                            <Setter Property="TitleFontSize" Value="16"/>
+                        </Style>
+                    </oxy:PlotView.Resources>
+                </oxy:PlotView>
             </Grid>
         </Grid>
     </md:Card>
