@@ -2,6 +2,7 @@
 using System;
 using CommonLib.Extensions;
 using System.Threading;
+using System.Configuration;
 
 namespace VirtualSerialPortClient
 {
@@ -12,17 +13,27 @@ namespace VirtualSerialPortClient
     {
         private static SerialPort port;
         private static string portName = "COM2";
+
         static void Main(string[] args)
         {
-            port = new SerialPort();
-            port.PortName = portName;
-            port.BaudRate = 9600;
-            port.DtrEnable = true;
-            port.DataReceived += Port_DataReceived;
-            port.Open();
-            Console.ReadKey();
-            port.Close();
-            port.Dispose();
+            portName = ConfigurationManager.AppSettings["Port"];
+            if(!string.IsNullOrWhiteSpace(portName))
+            {
+                port = new SerialPort();
+                port.PortName = portName;
+                port.BaudRate = 9600;
+                port.DtrEnable = true;
+                port.DataReceived += Port_DataReceived;
+                port.Open();
+                Console.ReadKey();
+                port.Close();
+                port.Dispose();
+            }
+            else
+            {
+                Console.WriteLine("Configuration key is missing: [Port]");
+                Console.ReadKey();
+            }
         }
 
         private static void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
