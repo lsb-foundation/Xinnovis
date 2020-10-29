@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MFCSoftware.Views"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              xmlns:geared="clr-namespace:LiveCharts.Geared;assembly=LiveCharts.Geared"
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d" BorderThickness="1.5"
@@ -81,7 +80,7 @@
                                  Text="{Binding InsertInterval}"
                                  Name="saveIntervalTextBox"
                                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                        <!--此按钮应客户要求添加,。-->
+                        <!--此按钮应客户要求添加,效果仅为让上面的输入框失去焦点。-->
                         <Button Margin="4" Click="SetSaveTimeButton_Clicked">确定</Button>
                     </StackPanel>
                 </Border>
@@ -115,17 +114,6 @@
                 <Button Click="ZeroPointCaliButton_Click" Margin="4">零点校准</Button>
                 <Button Click="FactoryRecoveryButton_Click" Margin="4">恢复出厂</Button>
                 
-                <!--<lvc:AngularGauge Grid.Row="1" Width="100" Height="100" Panel.ZIndex="1"
-                                  Value="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}"
-                                  FromValue="50" ToValue="250"
-                                  LabelsStep="50" TicksStep="25" Wedge="300"
-                                  TicksForeground="White" Foreground="White" FontSize="16"
-                                  SectionsInnerRadius=".5">
-                    <lvc:AngularGauge.Sections>
-                        <lvc:AngularSection FromValue="50" ToValue="200" Fill="{StaticResource PrimaryHueLightBrush}"/>
-                        <lvc:AngularSection FromValue="200" ToValue="250" Fill="{StaticResource PrimaryHueMidBrush}"/>
-                    </lvc:AngularGauge.Sections>
-                </lvc:AngularGauge>-->
             </StackPanel>
 
             <Grid Grid.Row="1" Grid.Column="1" Margin="4">
@@ -165,31 +153,6 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!--<lvc:CartesianChart Grid.Row="1" Margin="4"
-                                    Series="{Binding FlowSeries}" 
-                                    DataTooltip="{x:Null}" Focusable="False">
-                    <lvc:CartesianChart.Resources>
-                        <Style TargetType="lvc:Axis">
-                            <Setter Property="FontSize" Value="16"/>
-                            <Setter Property="Foreground" Value="Black"/>
-                        </Style>
-                        <Style TargetType="geared:GLineSeries">
-                            <Setter Property="PointGeometrySize" Value="0"/>
-                            <Setter Property="LineSmoothness" Value="0"/>
-                            <Setter Property="Stroke" Value="{DynamicResource PrimaryHueMidBrush}"/>
-                            <Setter Property="Fill" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                        </Style>
-                    </lvc:CartesianChart.Resources>
-                    <lvc:CartesianChart.AxisX>
-                        <lvc:Axis/>
-                    </lvc:CartesianChart.AxisX>
-                    <lvc:CartesianChart.AxisY>
-                        <lvc:Axis Title="瞬时流量" MinValue="0" 
-                                  MaxValue="{Binding MaxYValue, Mode=OneWay}" 
-                                  LabelFormatter="{Binding FlowLabelsFomatter}"/>
-                    </lvc:CartesianChart.AxisY>
-                </lvc:CartesianChart>-->
-                
                 <oxy:PlotView Grid.Row="1" Margin="4" Model="{Binding SeriesPlotModel}">
                     <oxy:PlotView.Resources>
                         <Style TargetType="oxy:DateTimeAxis">

@@ -93,11 +93,14 @@ namespace VirtualSerialPortClient
             ret[0] = addr;
             ret[1] = 0x03;
             ret[2] = 0x16;
+            Random random = new Random();
+            float flow = (float)random.NextDouble() * 200 * 100;
+            byte[] flowBytes = BitConverter.GetBytes((int)flow);
             //52.32 * 100 = 5232 = 0x1600
-            ret[3] = 0x00;
-            ret[4] = 0x00;
-            ret[5] = 0x16;
-            ret[6] = 0x00;
+            ret[3] = flowBytes[3];
+            ret[4] = flowBytes[2];
+            ret[5] = flowBytes[1];
+            ret[6] = flowBytes[0];
             //52.32 * 1000 = 52320 = 0xDC00
             for (int i = 7; i <= 12; i++)
                 ret[i] = 0x00;

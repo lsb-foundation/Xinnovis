@@ -25,5 +25,18 @@ namespace MFCSoftware.Views
             IsAddressSetted = true;
             this.Close();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            addressTextBox.SelectAll();
+        }
+
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key == System.Windows.Input.Key.Enter)
+            {
+                Button_Click(null, null);
+            }
+        }
     }
 }
