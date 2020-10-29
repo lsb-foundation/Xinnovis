@@ -105,17 +105,10 @@ namespace MFCSoftware.Views
 
         private void ResolveBaseInfoData(byte[] data)
         {
-            byte[] gasTypeBytes = data.SubArray(3, 2);
-            int gas = gasTypeBytes.ToInt32(0, 2);
-
-            byte[] rangeBytes = data.SubArray(5, 2);
-            int range = rangeBytes.ToInt32(0, 2);
-
-            byte[] unitBytes = data.SubArray(7, 2);
-            int unit = unitBytes.ToInt32(0, 2);
-
-            byte[] snBytes = data.SubArray(23, 12);
-            string sn = snBytes.ToHexString();
+            int gas = data.SubArray(3, 2).ToInt32(0, 2);
+            int range = data.SubArray(5, 2).ToInt32(0, 2);
+            int unit = data.SubArray(7, 2).ToInt32(0, 2);
+            string sn = data.SubArray(23, 12).ToHexString();
 
             BaseInformation info = new BaseInformation()
             {
@@ -131,31 +124,19 @@ namespace MFCSoftware.Views
         {
             //addr 0x03 0x16 FLOW1 FLOW2 FLOW3 FLOW4
             //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
-            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2
-            //CRCL CRCH
-            byte[] flowBytes = data.SubArray(3, 4);
-            float flow = flowBytes.ToInt32(0, 4) / 100.0f;
+            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2 CRCL CRCH
+            float flow = data.SubArray(3, 4).ToInt32(0, 4) / 100.0f;
+            float accuFlow = BitConverter.ToInt64(data.SubArray(7, 8).Reverse().ToArray(),0) / 1000.0f;
+            int unitCode = data.SubArray(15, 2).ToInt32(0, 2);
 
-            byte[] accuFlowBytes = data.SubArray(7, 8);
-            float accuFlow = BitConverter.ToInt64(accuFlowBytes.Reverse().ToArray(),0) / 1000.0f;
-
-            byte[] unitBytes = data.SubArray(15, 2);
-            int unitCode = unitBytes.ToInt32(0, 2);
             string unit = string.Empty;
             if (unitCode == 0) unit = "L";
             else if (unitCode == 1) unit = "m³";
 
-            byte[] daysBytes = data.SubArray(17, 2);
-            int days = daysBytes.ToInt32(0, 2);
-
-            byte[] hoursBytes = data.SubArray(19, 2);
-            int hours = hoursBytes.ToInt32(0, 2);
-
-            byte[] minsBytes = data.SubArray(21, 2);
-            int mins = minsBytes.ToInt32(0, 2);
-
-            byte[] secsBytes = data.SubArray(23, 2);
-            int secs = secsBytes.ToInt32(0, 2);
+            int days = data.SubArray(17, 2).ToInt32(0, 2);
+            int hours = data.SubArray(19, 2).ToInt32(0, 2);
+            int mins = data.SubArray(21, 2).ToInt32(0, 2);
+            int secs = data.SubArray(23, 2).ToInt32(0, 2);
 
             FlowData flowData = new FlowData()
             {
