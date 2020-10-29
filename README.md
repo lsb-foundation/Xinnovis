@@ -2,7 +2,7 @@
 
 ## CommonLib
 
-项目公用库
+项目公用库，包括各类实用的扩展方法、Mvvm基类以及数据及通信相关的辅助工具类。
 
 ## CalibrationTool
 
@@ -14,7 +14,7 @@ MFC上位机软件
 
 ## SerialDataDisplay
 
-采集数据曲线显示软件
+采集数据并用曲线呈现
 
 ## MultipleDevicesMonitor
 
