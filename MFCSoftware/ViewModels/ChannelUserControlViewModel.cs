@@ -194,6 +194,7 @@ namespace MFCSoftware.ViewModels
             var valueAxis = new LinearAxis
             {
                 Title = "瞬时流量",
+                Minimum = 0,
                 LabelFormatter = num => $"{num:N2}",
                 IsZoomEnabled = false,
                 IsPanEnabled = false,
