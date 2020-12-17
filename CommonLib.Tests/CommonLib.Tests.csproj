@@ -56,9 +56,13 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Extensions\EnumExtensionTests.cs" />
+    <Compile Include="Models\GasTypeCodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\CommonLib\App.config">
+      <Link>App.config</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

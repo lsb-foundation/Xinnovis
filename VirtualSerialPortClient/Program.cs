@@ -68,7 +68,7 @@ namespace VirtualSerialPortClient
             ret[1] = 0x03;
             ret[2] = 0x03;
             ret[3] = 0x00;
-            ret[4] = 0x04;
+            ret[4] = 0x07;
             ret[5] = 0x01;
             ret[6] = 0xF4;
             ret[7] = 0x00;

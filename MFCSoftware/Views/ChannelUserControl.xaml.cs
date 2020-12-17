@@ -110,14 +110,22 @@ namespace MFCSoftware.Views
             int unit = data.SubArray(7, 2).ToInt32(0, 2);
             string sn = data.SubArray(23, 12).ToHexString();
 
-            BaseInformation info = new BaseInformation()
+            List<GasTypeCode> gasTypeCodes = null;
+            try
             {
-                SN = sn,
-                Range = range,
-                GasType = GasTypeCode.GetGasTypeCodes().FirstOrDefault(c => c.Code == gas),
-                Unit = UnitCode.GetUnitCodes().FirstOrDefault(u => u.Code == unit)
-            };
-            viewModel.SetBaseInfomation(info);
+                gasTypeCodes = GasTypeCode.GetGasTypeCodesFromConfiguration();
+            }
+            finally
+            {
+                BaseInformation info = new BaseInformation()
+                {
+                    SN = sn,
+                    Range = range,
+                    GasType = gasTypeCodes?.FirstOrDefault(c => c.Code == gas),
+                    Unit = UnitCode.GetUnitCodes().FirstOrDefault(u => u.Code == unit)
+                };
+                viewModel.SetBaseInfomation(info);
+            }
         }
 
         private void ResolveFlowData(byte[] data)
