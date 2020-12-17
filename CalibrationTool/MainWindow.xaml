@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CalibrationTool"
         xmlns:models="clr-namespace:CalibrationTool.Models"
+        xmlns:commModels="clr-namespace:CommonLib.Models;assembly=CommonLib"
         xmlns:utils="clr-namespace:CalibrationTool.Utils"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
@@ -367,7 +368,7 @@
                                               SelectedItem="{Binding SelectedGasTypeCode}"
                                               ItemsSource="{Binding GasTypeCodeCollection, Mode=OneWay}">
                                         <ComboBox.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:GasTypeCode}">
+                                            <DataTemplate DataType="{x:Type commModels:GasTypeCode}">
                                                 <TextBlock Text="{Binding GasName}"/>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
@@ -381,7 +382,7 @@
                                               SelectedItem="{Binding SelectedUnitCode}"
                                               ItemsSource="{Binding UnitCodeCollection, Mode=OneWay}">
                                         <ComboBox.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:UnitCode}">
+                                            <DataTemplate DataType="{x:Type commModels:UnitCode}">
                                                 <TextBlock Text="{Binding Unit}"/>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>

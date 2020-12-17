@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using CalibrationTool.Models;
 using Microsoft.Win32;
 using CalibrationTool.Utils;
+using CommonLib.Models;
 
 namespace CalibrationTool.ViewModels
 {
@@ -124,8 +125,8 @@ namespace CalibrationTool.ViewModels
         {
             GasTypeCodeCollection = new ObservableCollection<GasTypeCode>();
             UnitCodeCollection = new ObservableCollection<UnitCode>();
-            GasTypeCode.GetGasTypeCodes().ForEach(gtc => GasTypeCodeCollection.Add(gtc));
-            UnitCode.GetUnitCodes().ForEach(uc => UnitCodeCollection.Add(uc));
+            GasTypeCode.GetGasTypeCodesFromConfiguration()?.ForEach(gtc => GasTypeCodeCollection.Add(gtc));
+            UnitCode.GetUnitCodesFromConfiguration()?.ForEach(uc => UnitCodeCollection.Add(uc));
             SelectedGasTypeCode = GasTypeCodeCollection[0];
             SelectedUnitCode = UnitCodeCollection[0];
         }

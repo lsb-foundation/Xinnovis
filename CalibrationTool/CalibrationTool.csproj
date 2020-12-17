@@ -106,10 +106,8 @@
     <Compile Include="ResolveUtils\StringDataResolve.cs" />
     <Compile Include="ResolveUtils\DebugDataResolve.cs" />
     <Compile Include="ResolveUtils\FlowDataResolve.cs" />
-    <Compile Include="Models\GasTypeCode.cs" />
     <Compile Include="Models\CommunicationDataType.cs" />
     <Compile Include="ResolveUtils\IResolve.cs" />
-    <Compile Include="Models\UnitCode.cs" />
     <Compile Include="Utils\ConfigManager.cs" />
     <Compile Include="Utils\EnumToBoolConverter.cs" />
     <Compile Include="ViewModels\IMessageHandler.cs" />

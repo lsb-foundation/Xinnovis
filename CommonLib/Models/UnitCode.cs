@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using CommonLib.Config;
 
 namespace CommonLib.Models
 {
@@ -14,15 +11,23 @@ namespace CommonLib.Models
         public string Unit { get; set; }
         public int Code { get; set; }
 
-        public static List<UnitCode> GetUnitCodes()
+        public static List<UnitCode> GetUnitCodesFromConfiguration()
         {
-            return new List<UnitCode>()
+            try
             {
-                new UnitCode(){ Unit = "SCCM", Code = 10 },
-                new UnitCode(){ Unit = "UCCM", Code = 11 },
-                new UnitCode(){ Unit = "CCM", Code = 12 },
-                new UnitCode(){ Unit = "SLM", Code = 100 }
-            };
+                var unitConfiguration = NameCodeConfigurationSection.GetConfig("UnitConfiguration");
+                var unitCodes = new List<UnitCode>();
+                foreach (NameCodeConfigurationElement element in unitConfiguration.Collection)
+                {
+                    unitCodes.Add(new UnitCode
+                    {
+                        Unit = element.Name,
+                        Code = element.Code
+                    });
+                }
+                return unitCodes;
+            }
+            catch { return null; }
         }
     }
 }

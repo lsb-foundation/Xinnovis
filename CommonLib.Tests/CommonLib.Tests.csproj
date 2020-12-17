@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Extensions\EnumExtensionTests.cs" />
     <Compile Include="Models\GasTypeCodeTests.cs" />
+    <Compile Include="Models\UnitCodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
