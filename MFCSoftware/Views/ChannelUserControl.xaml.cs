@@ -74,6 +74,8 @@ namespace MFCSoftware.Views
             {
                 try
                 {
+                    LogHelper.WriteRecievedHexData(data, type);
+
                     if (!data.CheckCRC16ByDefault())
                         throw new Exception("CRC校验失败。");
 

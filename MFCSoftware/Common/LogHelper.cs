@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Reflection;
+using CommonLib.Extensions;
 using log4net;
+using MFCSoftware.Models;
 
 namespace MFCSoftware.Common
 {
@@ -18,6 +21,16 @@ namespace MFCSoftware.Common
         {
             if (logError.IsErrorEnabled)
                 logError.Error(info, ex);
+        }
+
+        public static void WriteRecievedHexData(byte[] data, SerialCommandType type)
+        {
+            if (!logInfo.IsInfoEnabled) return;
+            var resolveActionAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
+            if (resolveActionAttr == null)
+                throw new NullReferenceException("Can't find " + nameof(ResolveActionAttribute));
+            var actionName = resolveActionAttr.ActionName;
+            logInfo.Info("[Recieved] " + actionName + Environment.NewLine + data.ToHexString());
         }
     }
 }
