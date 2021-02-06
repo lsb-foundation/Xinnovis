@@ -136,16 +136,35 @@ namespace CalibrationTool.Utils
         public static string AVStopCommand { get => Read(); }
 
         /// <summary>
+        /// 开始输出4-20mA电流的指令头部
+        /// </summary>
+
+        [DefaultValue("AI_START")]
+        public static string AIStartCommandHeader { get => Read(); }
+
+        /// <summary>
+        /// 停止输出4-20mA电流的指令
+        /// </summary>
+        [DefaultValue("AI_STOP!")]
+        public static string AIStopCommand { get => Read(); }
+
+        /// <summary>
         /// 检查实际输出电压的指令的头部。
         /// </summary>
         [DefaultValue("CHECK_1-5")]
-        public static string CheckCommandHeader { get => Read(); }
+        public static string CheckAVStartCommandHeader { get => Read(); }
 
         /// <summary>
-        /// 停止检查实际输出电压的指令。
+        /// 停止检查的指令。
         /// </summary>
         [DefaultValue("CHECK_STOP!")]
         public static string CheckStopCommand { get => Read(); }
+
+        /// <summary>
+        /// 检查实际输出的电流的指令的头部。
+        /// </summary>
+        [DefaultValue("CHECK_4-20")]
+        public static string CheckAIStartCommandHeader { get => Read(); }
 
         /// <summary>
         /// 写入标定1-5V的斜率K和截距D的指令的头部。
@@ -154,10 +173,47 @@ namespace CalibrationTool.Utils
         public static string AVCommandHeader { get => Read(); } 
 
         /// <summary>
+        /// 写入标定4-20mA的斜率K和截距D的指令的头部。
+        /// </summary>
+
+        [DefaultValue("AI_4-20")]
+        public static string AICommandHeader { get => Read(); }
+
+        /// <summary>
+        /// 清除寄存器指令。
+        /// </summary>
+        [DefaultValue("CLEAR_EEPROM!")]
+        public static string ClearEEPRomCommand { get => Read(); }
+
+        /// <summary>
+        /// PWM测试开始指令。
+        /// </summary>
+        [DefaultValue("PWM_TEST_START!")]
+        public static string PWMTestStartCommand { get => Read(); }
+
+        /// <summary>
+        /// PWM测试停止指令。
+        /// </summary>
+        [DefaultValue("PWM_TEST_STOP!")]
+        public static string PWMTestStopCommand { get => Read(); }
+
+        /// <summary>
+        /// PID数值设定指令的头部。
+        /// </summary>
+        [DefaultValue("PWM_VALUE")]
+        public static string PWMCommandHeader { get => Read(); }
+
+        /// <summary>
         /// 写入气体信息的指令的头部。
         /// </summary>
         [DefaultValue("GAS")]
         public static string GasCommandHeader { get => Read(); }
+
+        /// <summary>
+        /// 气体系数设定指令的头部。
+        /// </summary>
+        [DefaultValue("GAS_FACTOR")]
+        public static string GasFactorCommandHeader { get => Read(); }
 
         /// <summary>
         /// 读流量指令

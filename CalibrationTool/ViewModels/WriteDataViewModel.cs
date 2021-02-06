@@ -29,6 +29,10 @@ namespace CalibrationTool.ViewModels
         public ICommand SetGasCommand { get; set; }
         public ICommand SetTemperatureCommand { get; set; }
         public ICommand SetAvCommand { get; set; }
+        public ICommand SetAiCommand { get; set; }
+        public ICommand SetPWMCommand { get; set; }
+        public ICommand SendClearEEPRomCommand { get; set; }
+        public ICommand SetGasFactorCommand { get; set; }
         public Action<string> MessageHandler { get; set; }
         #endregion
 
@@ -46,6 +50,8 @@ namespace CalibrationTool.ViewModels
             get => _kCommand;
             set => SetProperty(ref _kCommand, value);
         }
+
+        public string ClearEEPRomCommand { get => ConfigManager.ClearEEPRomCommand; }
 
         public ObservableCollection<GasTypeCode> GasTypeCodeCollection { get; private set; }
         public ObservableCollection<UnitCode> UnitCodeCollection { get; private set; }
@@ -71,6 +77,13 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _temperature, value);
         }
 
+        private float _gasFactor;
+        public float GasFactor
+        {
+            get => _gasFactor;
+            set => SetProperty(ref _gasFactor, value);
+        }
+
         private float _range;
         public float Range
         {
@@ -90,6 +103,48 @@ namespace CalibrationTool.ViewModels
         {
             get => _avDValue;
             set => SetProperty(ref _avDValue, value);
+        }
+
+        private float _aiKValue;
+        public float AiKValue
+        {
+            get => _aiKValue;
+            set => SetProperty(ref _aiKValue, value);
+        }
+
+        private float _aiDValue;
+        public float AiDValue
+        {
+            get => _aiDValue;
+            set => SetProperty(ref _aiDValue, value);
+        }
+
+        private float _pid_P;
+        public float Pid_P
+        {
+            get => _pid_P;
+            set => SetProperty(ref _pid_P, value);
+        }
+
+        private float _pid_i;
+        public float Pid_I
+        {
+            get => _pid_i;
+            set => SetProperty(ref _pid_i, value);
+        }
+
+        private float _pid_d;
+        public float Pid_D
+        {
+            get => _pid_d;
+            set => SetProperty(ref _pid_d, value);
+        }
+
+        private int _pid_zero;
+        public int Pid_Zero
+        {
+            get => _pid_zero;
+            set => SetProperty(ref _pid_zero, value);
         }
         #endregion
 
@@ -118,6 +173,15 @@ namespace CalibrationTool.ViewModels
 
         public string GetAvCommand() =>
             string.Format("{0}:{1};{2}!", ConfigManager.AVCommandHeader, _avKValue, _avDValue);
+
+        public string GetAiCommand() =>
+            string.Format("{0}:{1};{2}!", ConfigManager.AICommandHeader, _aiKValue, _aiDValue);
+
+        public string GetPWMCommand() =>
+            string.Format("{0}:{1};{2};{3};{4}!", ConfigManager.PWMCommandHeader, _pid_P, _pid_i, _pid_d, _pid_zero);
+
+        public string GetGasFactorCommand() =>
+            string.Format("{0}:{1}!", ConfigManager.GasFactorCommandHeader, _gasFactor);
         #endregion
 
         #region Private methods

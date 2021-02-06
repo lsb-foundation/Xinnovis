@@ -106,26 +106,52 @@ namespace CalibrationTool
                 Send(CommunicationDataType.Hex, reader.FlowCommand);
                 currentAction = ActionType.READ_FLOW;
             });
-            reader.SendRefStartCommand = new RelayCommand(o =>
+            reader.SendAVStartCommand = new RelayCommand(o =>
             {
-                Send(CommunicationDataType.ASCII, reader.GetRefStartCommand());
-                currentAction = ActionType.REF;
+                Send(CommunicationDataType.ASCII, reader.GetAVStartCommand());
+                currentAction = ActionType.AV;
             });
-            reader.SendRefStopCommand = new RelayCommand(o =>
+            reader.SendAVStopCommand = new RelayCommand(o =>
             {
-                Send(CommunicationDataType.ASCII, reader.RefStopCommand);
-                currentAction = ActionType.REF;
+                Send(CommunicationDataType.ASCII, reader.AVStopCommand);
+                currentAction = ActionType.AV;
             });
-            reader.SendCheckCommand = new RelayCommand(o =>
+            reader.SendCheckAVStartCommand = new RelayCommand(o =>
             {
-                Send(CommunicationDataType.ASCII, reader.GetCheckCommand());
+                Send(CommunicationDataType.ASCII, reader.GetCheckAVStartCommand());
                 currentAction = ActionType.Default;
             });
             reader.SendCheckStopCommand = new RelayCommand(o =>
             {
-                Send(CommunicationDataType.ASCII, ConfigManager.CheckStopCommand);
+                Send(CommunicationDataType.ASCII, reader.CheckStopCommand);
                 currentAction = ActionType.Default;
             });
+            reader.SendAIStartCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.GetAIStartCommand());
+                currentAction = ActionType.AI;
+            });
+            reader.SendAIStopCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.AIStopCommand);
+                currentAction = ActionType.AI;
+            });
+            reader.SendCheckAIStartCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.GetCheckAIStartCommand());
+                currentAction = ActionType.Default;
+            });
+            reader.SendPWMTestStartCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.PWMTestStartCommand);
+                currentAction = ActionType.Default;
+            });
+            reader.SendPWMTestStopCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, reader.PWMTestStopCommand);
+                currentAction = ActionType.Default;
+            });
+            DebugTabItem.DataContext = reader;
             ReadDataTabItem.DataContext = reader;
         }
 
@@ -156,11 +182,32 @@ namespace CalibrationTool
                 currentAction = ActionType.GAS;
             });
             writer.SetAvCommand = new RelayCommand(o =>
-              {
-                  Send(CommunicationDataType.ASCII, writer.GetAvCommand());
-                  currentAction = ActionType.Default;
-              });
+            {
+                Send(CommunicationDataType.ASCII, writer.GetAvCommand());
+                currentAction = ActionType.Default;
+            });
+            writer.SetAiCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, writer.GetAiCommand());
+                currentAction = ActionType.Default;
+            });
+            writer.SetPWMCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, writer.GetPWMCommand());
+                currentAction = ActionType.Default;
+            });
+            writer.SendClearEEPRomCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, writer.ClearEEPRomCommand);
+                currentAction = ActionType.Default;
+            });
+            writer.SetGasFactorCommand = new RelayCommand(o =>
+            {
+                Send(CommunicationDataType.ASCII, writer.GetGasFactorCommand());
+                currentAction = ActionType.Default;
+            });
             writer.MessageHandler = message => statusVm.ShowStatus(message);
+            KVoltDataItem.DataContext = writer;
             WriteDataTabItem.DataContext = writer;
         }
         #endregion
@@ -226,7 +273,8 @@ namespace CalibrationTool
                 case ActionType.VOLT:
                 case ActionType.K:
                 case ActionType.GAS:
-                case ActionType.REF:
+                case ActionType.AV:
+                case ActionType.AI:
                     ResolveStringData(data.ToArray());
                     break;
                 case ActionType.DEBUG:

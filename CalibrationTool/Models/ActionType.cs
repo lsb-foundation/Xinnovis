@@ -9,7 +9,8 @@ namespace CalibrationTool.Models
         VOLT,
         K,
         GAS,
-        REF,
+        AV,
+        AI,
         READ_FLOW,           //读流量
         Custom               //自定义发送数据
     }

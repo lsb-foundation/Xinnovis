@@ -66,30 +66,30 @@
         </Style>
         <utils:EnumToBoolConverter x:Key="EnumToBoolConverter"/>
     </Window.Resources>
-    
+
     <DockPanel Background="#E4E8EB">
-        
+
         <!--菜单栏-->
         <!--<Menu DockPanel.Dock="Top">
             <MenuItem Header="文件"></MenuItem>
         </Menu>-->
-        
+
         <!--状态栏-->
         <StatusBar DockPanel.Dock="Bottom"
                    Background="LightGray"
                    Height="24" Name="AppStatusBar">
             <StatusBarItem Content="{Binding Status}"></StatusBarItem>
         </StatusBar>
-        
+
         <!--内容区域-->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <!--左侧Tab-->
-            <TabControl Margin="8,8,4,8"
+            <TabControl Margin="8,4,4,4"
                         pu:TabControlHelper.TabControlStyle="Standard">
                 <TabItem Header="端口" Name="SerialPortTabItem">
                     <StackPanel Orientation="Vertical">
@@ -174,12 +174,17 @@
                     </StackPanel>
                 </TabItem>
 
-                <TabItem Header="读取" Name="ReadDataTabItem">
+                <TabItem Header="DEBUG" Name="DebugTabItem">
                     <ScrollViewer>
                         <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                            <Button Grid.ColumnSpan="2" Command="{Binding SendDebugCommand}">发送DEBUG!</Button>
                             <GroupBox Header="DEBUG">
                                 <Grid>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
@@ -195,8 +200,6 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.ColumnSpan="2"
-                                            Command="{Binding SendDebugCommand}">发送DEBUG!</Button>
                                     <Label Grid.Row="1">SN</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
                                              Text="{Binding DebugData.SN, Mode=OneWay}"
@@ -221,20 +224,73 @@
                                     <TextBox Grid.Row="6" Grid.Column="1" 
                                              Text="{Binding DebugData.ModbusBaud, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label Grid.Row="7">1-5V斜率</Label>
+                                    <Label Grid.Row="7">4-20mA斜率</Label>
                                     <TextBox Grid.Row="7" Grid.Column="1"
-                                             Text="{Binding DebugData.KOf1_5, Mode=OneWay}"
+                                             Text="{Binding DebugData.KOf4_20mA, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label Grid.Row="8">1-5V截距</Label>
+                                    <Label Grid.Row="8">4-20mA截距</Label>
                                     <TextBox Grid.Row="8" Grid.Column="1" 
-                                             Text="{Binding DebugData.DOf1_5, Mode=OneWay}"
+                                             Text="{Binding DebugData.DOf4_20mA, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
-                                    <Label Grid.Row="9">标定温度</Label>
-                                    <TextBox Grid.Row="9" Grid.Column="1" 
+                                    <Label Grid.Row="9">1-5V斜率</Label>
+                                    <TextBox Grid.Row="9" Grid.Column="1"
+                                             Text="{Binding DebugData.KOf1_5V, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="10">1-5V截距</Label>
+                                    <TextBox Grid.Row="10" Grid.Column="1" 
+                                             Text="{Binding DebugData.DOf1_5V, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="11">标定温度</Label>
+                                    <TextBox Grid.Row="11" Grid.Column="1" 
                                              Text="{Binding DebugData.TOfCaliFlow, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="12">当前温度</Label>
+                                    <TextBox Grid.Row="12" Grid.Column="1" 
+                                             Text="{Binding DebugData.TOfNow, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="13">气体系数</Label>
+                                    <TextBox Grid.Row="13" Grid.Column="1" 
+                                             Text="{Binding DebugData.GasFactor, Mode=OneWay}"
                                              Style="{StaticResource NormalTextBoxStyle}"></TextBox>
                                 </Grid>
                             </GroupBox>
+                            <GroupBox Header="PID参数">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>P</Label>
+                                    <TextBox Grid.Column="1" 
+                                             Text="{Binding DebugData.P, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="1">I</Label>
+                                    <TextBox Grid.Column="1" Grid.Row="1"
+                                             Text="{Binding DebugData.I, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="2">D</Label>
+                                    <TextBox Grid.Column="1" Grid.Row="2"
+                                             Text="{Binding DebugData.D, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <Label Grid.Row="3">Zero</Label>
+                                    <TextBox Grid.Column="1" Grid.Row="3"
+                                             Text="{Binding DebugData.Zero, Mode=OneWay}"
+                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                </Grid>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="测量" Name="ReadDataTabItem">
+                    <ScrollViewer>
+                        <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
                             <GroupBox Header="标定">
                                 <Button Command="{Binding SendCaliCommand}">发送CALI!</Button>
                             </GroupBox>
@@ -259,7 +315,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label>电压(mv)</Label>
-                                        <TextBox Grid.Column="1" Text="{Binding RefStartValue}"
+                                        <TextBox Grid.Column="1" Text="{Binding AVStartValue}"
                                                  Style="{StaticResource NormalTextBoxStyle}"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
@@ -267,12 +323,12 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendRefStartCommand}">AV__START</Button>
-                                        <Button Grid.Column="1" Command="{Binding SendRefStopCommand}">AV__STOP</Button>
+                                        <Button Command="{Binding SendAVStartCommand}">AV__START</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendAVStopCommand}">AV__STOP</Button>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Header="CHECK">
+                            <GroupBox Header="CHECK 1~5V电压">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -289,15 +345,15 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label>电压(mv)</Label>
-                                        <TextBox Grid.Column="1" Text="{Binding CheckVoltValue}"
+                                        <TextBox Grid.Column="1" Text="{Binding CheckAVValue}"
                                              Style="{StaticResource NormalTextBoxStyle}"/>
                                         <Label Grid.Row="1">斜率</Label>
                                         <TextBox Grid.Row="1" Grid.Column="1"
-                                             Text="{Binding CheckKValue}"
+                                             Text="{Binding CheckAVKValue}"
                                              Style="{StaticResource NormalTextBoxStyle}"/>
                                         <Label Grid.Row="2">截距</Label>
                                         <TextBox Grid.Row="2" Grid.Column="1"
-                                             Text="{Binding CheckDValue}"
+                                             Text="{Binding CheckAVDValue}"
                                              Style="{StaticResource NormalTextBoxStyle}"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
@@ -305,16 +361,89 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Command="{Binding SendCheckCommand}">CHECK</Button>
+                                        <Button Command="{Binding SendCheckAVStartCommand}">CHECK</Button>
                                         <Button Grid.Column="1" Command="{Binding SendCheckStopCommand}">CHECK_STOP</Button>
                                     </Grid>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="测量4~20mA电流">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label>电流(mA)</Label>
+                                        <TextBox Grid.Column="1" Text="{Binding AIStartValue}"
+                                                 Style="{StaticResource NormalTextBoxStyle}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Command="{Binding SendAIStartCommand}">AI__START</Button>
+                                        <Button Grid.Column="2" Command="{Binding SendAIStopCommand}">AI__STOP</Button>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="CHECK 4~20mA电流">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label>电流(mA)</Label>
+                                        <TextBox Grid.Column="1" Text="{Binding CheckAIValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <Label Grid.Row="1">斜率</Label>
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                             Text="{Binding CheckAIKValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <Label Grid.Row="2">截距</Label>
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                             Text="{Binding CheckAIDValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Command="{Binding SendCheckAIStartCommand}">CHECK</Button>
+                                        <Button Grid.Column="1" Command="{Binding SendCheckStopCommand}">CHECK_STOP</Button>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="PWM测试">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Command="{Binding SendPWMTestStartCommand}">PWM测试开始</Button>
+                                    <Button Grid.Column="1" Command="{Binding SendPWMTestStopCommand}">PWM测试停止</Button>
                                 </Grid>
                             </GroupBox>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="写入" Name="WriteDataTabItem">
+                <TabItem Header="K/VOLT" Name="KVoltDataItem">
                     <ScrollViewer>
                         <StackPanel Orientation="Vertical">
                             <Button Margin="8,8,8,0" Command="{Binding ReadExcelCommand}">读取Excel文件</Button>
@@ -334,6 +463,13 @@
                                     <Button Command="{Binding SendKCommand}">写入K</Button>
                                 </StackPanel>
                             </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="设定" Name="WriteDataTabItem">
+                    <ScrollViewer>
+                        <StackPanel Orientation="Vertical">
                             <GroupBox Header="写入温度">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -413,11 +549,85 @@
                                             Command="{Binding SetAvCommand}">写入</Button>
                                 </Grid>
                             </GroupBox>
+                            <GroupBox Header="标定4-20mA的斜率和截距">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>斜率</Label>
+                                    <TextBox Grid.Column="1" Text="{Binding AiKValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Label Grid.Row="1">截距</Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding AiDValue}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Button Grid.Row="2" Grid.ColumnSpan="2"
+                                            Command="{Binding SetAiCommand}">写入</Button>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="清除存储器">
+                                <Button Command="{Binding SendClearEEPRomCommand}">清除</Button>
+                            </GroupBox>
+                            <GroupBox Header="PID数值设定">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>P</Label>
+                                    <TextBox Grid.Column="1" Text="{Binding Pid_P}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Label Grid.Row="1">I</Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding Pid_I}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Label Grid.Row="2">D</Label>
+                                    <TextBox Grid.Row="2" Grid.Column="1" 
+                                             Text="{Binding Pid_D}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Label Grid.Row="3">Zero</Label>
+                                    <TextBox Grid.Row="3" Grid.Column="1" 
+                                             Text="{Binding Pid_Zero}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Button Grid.Row="4" Grid.ColumnSpan="2"
+                                            Command="{Binding SetPWMCommand}">设定</Button>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="气体系数设定">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label>系数</Label>
+                                    <TextBox Grid.Column="1" Text="{Binding GasFactor}"
+                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <Button Grid.Row="1" Grid.ColumnSpan="2"
+                                            Command="{Binding SetGasFactorCommand}">设定</Button>
+                                </Grid>
+                            </GroupBox>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
-            
+
             <Grid Grid.Column="1" Name="ContentGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

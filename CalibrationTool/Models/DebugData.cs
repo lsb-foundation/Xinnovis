@@ -39,14 +39,37 @@ namespace CalibrationTool.Models
             }
         }
 
+        [DebugDataMapper("K of 4-20mA")]
+        public string KOf4_20mA { get; set; }
+
+        [DebugDataMapper("D of 4-20mA")]
+        public string DOf4_20mA { get; set; }
+
         [DebugDataMapper("K of 1-5V")]
-        public string KOf1_5 { get; set; }
+        public string KOf1_5V { get; set; }
 
         [DebugDataMapper("D of 1-5V")]
-        public string DOf1_5 { get; set; }
+        public string DOf1_5V { get; set; }
 
         [DebugDataMapper("T of cali flow")]
         public string TOfCaliFlow { get; set; }
+
+        [DebugDataMapper("T of now")]
+        public string TOfNow { get; set; }
+
+        [DebugDataMapper("GAS FACTOR")]
+        public string GasFactor { get; set; }
+
+        #region PID参数
+        [DebugDataMapper("P")]
+        public string P { get; set; }
+        [DebugDataMapper("I")]
+        public string I { get; set; }
+        [DebugDataMapper("D")]
+        public string D { get; set; }
+        [DebugDataMapper("Zero")]
+        public string Zero { get; set; }
+        #endregion
 
         public bool TryToSetPropertyValue(PropertyInfo pInfo, string value)
         {

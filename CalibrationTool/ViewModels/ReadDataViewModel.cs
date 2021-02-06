@@ -17,16 +17,25 @@ namespace CalibrationTool.ViewModels
         public ICommand SendDebugCommand { get; set; }
         public ICommand SendCaliCommand { get; set; }
         public ICommand SendReadFlowCommand { get; private set; }
-        public ICommand SendRefStartCommand { get; set; }
-        public ICommand SendRefStopCommand { get; set; }
-        public ICommand SendCheckCommand { get; set; }
+        public ICommand SendAVStartCommand { get; set; }
+        public ICommand SendAVStopCommand { get; set; }
+        public ICommand SendCheckAVStartCommand { get; set; }
         public ICommand SendCheckStopCommand { get; set; }
+        public ICommand SendAIStartCommand { get; set; }
+        public ICommand SendAIStopCommand { get; set; }
+        public ICommand SendCheckAIStartCommand { get; set; }
+        public ICommand SendPWMTestStartCommand { get; set; }
+        public ICommand SendPWMTestStopCommand { get; set; }
         #endregion
 
         #region Properties
         public string DebugCommand { get => ConfigManager.DebugCommand; }
         public string CaliCommand { get => ConfigManager.CaliFlowVCommand; }
-        public string RefStopCommand { get => ConfigManager.AVStopCommand; }
+        public string AVStopCommand { get => ConfigManager.AVStopCommand; }
+        public string AIStopCommand { get => ConfigManager.AIStopCommand; }
+        public string CheckStopCommand { get => ConfigManager.CheckStopCommand; }
+        public string PWMTestStartCommand { get => ConfigManager.PWMTestStartCommand; }
+        public string PWMTestStopCommand { get => ConfigManager.PWMTestStopCommand; }
         public byte[] FlowCommand { get => ConfigManager.ReadFlowCommand; }
 
         public DebugData DebugData { get; private set; } = new DebugData();
@@ -45,32 +54,60 @@ namespace CalibrationTool.ViewModels
             set => SetProperty(ref _interval, value);
         }
 
-        private float _refStartValue;
-        public float RefStartValue
+        private float _avStartValue;
+        public float AVStartValue
         {
-            get => _refStartValue;
-            set => SetProperty(ref _refStartValue, value);
+            get => _avStartValue;
+            set => SetProperty(ref _avStartValue, value);
         }
 
-        private float _checkVoltValue;
-        public float CheckVoltValue
+        private float _aiStartValue;
+        public float AIStartValue
         {
-            get => _checkVoltValue;
-            set => SetProperty(ref _checkVoltValue, value);
+            get => _aiStartValue;
+            set => SetProperty(ref _aiStartValue, value);
         }
 
-        private float _checkKValue;
-        public float CheckKValue
+        private float _checkAVValue;
+        public float CheckAVValue
         {
-            get => _checkKValue;
-            set => SetProperty(ref _checkKValue, value);
+            get => _checkAVValue;
+            set => SetProperty(ref _checkAVValue, value);
         }
 
-        private float _checkDValue;
-        public float CheckDValue
+        private float _checkAVKValue;
+        public float CheckAVKValue
         {
-            get => _checkDValue;
-            set => SetProperty(ref _checkDValue, value);
+            get => _checkAVKValue;
+            set => SetProperty(ref _checkAVKValue, value);
+        }
+
+        private float _checkAVDValue;
+        public float CheckAVDValue
+        {
+            get => _checkAVDValue;
+            set => SetProperty(ref _checkAVDValue, value);
+        }
+
+        private float _checkAIValue;
+        public float CheckAIValue
+        {
+            get => _checkAIValue;
+            set => SetProperty(ref _checkAIValue, value);
+        }
+
+        private float _checkAIKValue;
+        public float CheckAIKValue 
+        { 
+            get => _checkAIKValue;
+            set => SetProperty(ref _checkAIKValue, value);
+        }
+
+        private float _checkAIDValue;
+        public float CheckAIDValue
+        {
+            get => _checkAIDValue;
+            set => SetProperty(ref _checkAIDValue, value);
         }
         #endregion
 
@@ -98,12 +135,19 @@ namespace CalibrationTool.ViewModels
             );
         }
 
-        public string GetRefStartCommand() => 
-            string.Format("{0}:{1}!", ConfigManager.AVStartCommandHeader, _refStartValue);
+        public string GetAVStartCommand() => 
+            string.Format("{0}:{1}!", ConfigManager.AVStartCommandHeader, _avStartValue);
 
-        public string GetCheckCommand() =>
-            string.Format("{0}:{1};{2};{3}!", ConfigManager.CheckCommandHeader,
-                _checkVoltValue, _checkKValue, _checkDValue);
+        public string GetAIStartCommand() =>
+            string.Format("{0}:{1}!", ConfigManager.AIStartCommandHeader, _aiStartValue);
+
+        public string GetCheckAVStartCommand() =>
+            string.Format("{0}:{1};{2};{3}!", ConfigManager.CheckAVStartCommandHeader,
+                _checkAVValue, _checkAVKValue, _checkAVDValue);
+
+        public string GetCheckAIStartCommand() =>
+            string.Format("{0}:{1};{2};{3}!", ConfigManager.CheckAIStartCommandHeader,
+                _checkAIValue, _checkAIKValue, _checkAIDValue);
         #endregion
 
         #region Private Methods
