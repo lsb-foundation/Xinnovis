@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using CalibrationTool.ViewModels;
 using CalibrationTool.Models;
 using CommonLib.Communication.Serial;
 using CommonLib.Mvvm;
 using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;
-using System.Collections.Specialized;
 using CommonLib.Extensions;
-using CalibrationTool.Utils;
 
 namespace CalibrationTool
 {
@@ -91,66 +79,18 @@ namespace CalibrationTool
         private void InitializeReadDataViewModel()
         {
             reader = new ReadDataViewModel();
-            reader.SendDebugCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.DebugCommand);
-                currentAction = ActionType.DEBUG;
-            });
-            reader.SendCaliCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.CaliCommand);
-                currentAction = ActionType.CALI;
-            });
-            reader.SetReadFlowCommand(() =>
-            {
-                Send(CommunicationDataType.Hex, reader.FlowCommand);
-                currentAction = ActionType.READ_FLOW;
-            });
-            reader.SendAVStartCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.GetAVStartCommand());
-                currentAction = ActionType.AV;
-            });
-            reader.SendAVStopCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.AVStopCommand);
-                currentAction = ActionType.AV;
-            });
-            reader.SendCheckAVStartCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.GetCheckAVStartCommand());
-                currentAction = ActionType.Default;
-            });
-            reader.SendCheckStopCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.CheckStopCommand);
-                currentAction = ActionType.Default;
-            });
-            reader.SendAIStartCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.GetAIStartCommand());
-                currentAction = ActionType.AI;
-            });
-            reader.SendAIStopCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.AIStopCommand);
-                currentAction = ActionType.AI;
-            });
-            reader.SendCheckAIStartCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.GetCheckAIStartCommand());
-                currentAction = ActionType.Default;
-            });
-            reader.SendPWMTestStartCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.PWMTestStartCommand);
-                currentAction = ActionType.Default;
-            });
-            reader.SendPWMTestStopCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, reader.PWMTestStopCommand);
-                currentAction = ActionType.Default;
-            });
+            reader.SendDebugCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.DebugCommand, ActionType.DEBUG));
+            reader.SetReadFlowCommand(() => Send(CommunicationDataType.Hex, reader.FlowCommand, ActionType.READ_FLOW));
+            reader.SendCaliCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.CaliCommand));
+            reader.SendAVStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.GetAVStartCommand()));
+            reader.SendAVStopCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.AVStopCommand));
+            reader.SendCheckAVStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.GetCheckAVStartCommand()));
+            reader.SendCheckStopCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.CheckStopCommand));
+            reader.SendAIStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.GetAIStartCommand()));
+            reader.SendAIStopCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.AIStopCommand));
+            reader.SendCheckAIStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.GetCheckAIStartCommand()));
+            reader.SendPWMTestStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.PWMTestStartCommand));
+            reader.SendPWMTestStopCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.PWMTestStopCommand));
             DebugTabItem.DataContext = reader;
             ReadDataTabItem.DataContext = reader;
         }
@@ -162,50 +102,23 @@ namespace CalibrationTool
             {
                 if (string.IsNullOrWhiteSpace(writer.VoltCommand)) return;
                 Send(CommunicationDataType.ASCII, writer.VoltCommand);
-                currentAction = ActionType.VOLT;
             });
             writer.SendKCommand = new RelayCommand(o =>
             {
                 if (string.IsNullOrWhiteSpace(writer.KCommand)) return;
                 Send(CommunicationDataType.ASCII, writer.KCommand);
-                currentAction = ActionType.K;
-            });
-            writer.SetTemperatureCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.GetTemperatureCommand());
-                currentAction = ActionType.Default;
             });
             writer.SetGasCommand = new RelayCommand(o =>
             {
                 if (writer.Range <= 0) return;
                 Send(CommunicationDataType.ASCII, writer.GetGasCommand());
-                currentAction = ActionType.GAS;
             });
-            writer.SetAvCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.GetAvCommand());
-                currentAction = ActionType.Default;
-            });
-            writer.SetAiCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.GetAiCommand());
-                currentAction = ActionType.Default;
-            });
-            writer.SetPWMCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.GetPWMCommand());
-                currentAction = ActionType.Default;
-            });
-            writer.SendClearEEPRomCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.ClearEEPRomCommand);
-                currentAction = ActionType.Default;
-            });
-            writer.SetGasFactorCommand = new RelayCommand(o =>
-            {
-                Send(CommunicationDataType.ASCII, writer.GetGasFactorCommand());
-                currentAction = ActionType.Default;
-            });
+            writer.SetTemperatureCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.GetTemperatureCommand()));
+            writer.SetAvCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.GetAvCommand()));
+            writer.SetAiCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.GetAiCommand()));
+            writer.SetPWMCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.GetPWMCommand()));
+            writer.SendClearEEPRomCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.ClearEEPRomCommand));
+            writer.SetGasFactorCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, writer.GetGasFactorCommand()));
             writer.MessageHandler = message => statusVm.ShowStatus(message);
             KVoltDataItem.DataContext = writer;
             WriteDataTabItem.DataContext = writer;
@@ -218,7 +131,7 @@ namespace CalibrationTool
         }
 
         #region 串口数据发送
-        private void Send(CommunicationDataType type, object data)
+        private void Send(CommunicationDataType type, object data, ActionType currentActionType = ActionType.Default)
         {
             try
             {
@@ -235,6 +148,7 @@ namespace CalibrationTool
                     default:
                         return;
                 }
+                currentAction = currentActionType;
             }
             catch(Exception e)
             {
@@ -269,12 +183,6 @@ namespace CalibrationTool
             switch (currentAction)
             {
                 case ActionType.Default:
-                case ActionType.CALI:
-                case ActionType.VOLT:
-                case ActionType.K:
-                case ActionType.GAS:
-                case ActionType.AV:
-                case ActionType.AI:
                     ResolveStringData(data.ToArray());
                     break;
                 case ActionType.DEBUG:
