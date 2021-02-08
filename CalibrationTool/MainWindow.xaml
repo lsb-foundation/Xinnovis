@@ -9,7 +9,7 @@
         xmlns:utils="clr-namespace:CalibrationTool.Utils"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
-        pu:WindowXCaption.Background="#E4E8EB"
+        pu:WindowXCaption.Background="#E4E8EB" Loaded="WindowX_Loaded"
         Title="{Binding AppTitle, Mode=OneWay}" Height="720" Width="1080" MinHeight="360" MinWidth="720">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -32,7 +32,7 @@
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
             <Setter Property="pu:TextBoxHelper.FocusedShadowColor" Value="#009BFF"/>
         </Style>
-        <Style x:Key="NormalTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Margin" Value="4,4,4,0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
@@ -89,7 +89,7 @@
             </Grid.ColumnDefinitions>
 
             <!--左侧Tab-->
-            <TabControl Margin="8,4,4,4"
+            <TabControl Margin="8,4,4,4" Name="MainTab"
                         pu:TabControlHelper.TabControlStyle="Standard">
                 <TabItem Header="端口" Name="SerialPortTabItem">
                     <StackPanel Orientation="Vertical">
@@ -203,55 +203,43 @@
                                     <Label Grid.Row="1">SN</Label>
                                     <TextBox Grid.Row="1" Grid.Column="1" 
                                              Text="{Binding DebugData.SN, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             ></TextBox>
                                     <Label Grid.Row="2">气体类型</Label>
                                     <TextBox Grid.Row="2" Grid.Column="1" 
-                                             Text="{Binding DebugData.GasType, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.GasType, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="3">量程范围</Label>
                                     <TextBox Grid.Row="3" Grid.Column="1" 
-                                             Text="{Binding DebugData.Range, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.Range, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="4">单位</Label>
                                     <TextBox Grid.Row="4" Grid.Column="1" 
-                                             Text="{Binding DebugData.Unit, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.Unit, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="5">Modbus地址</Label>
                                     <TextBox Grid.Row="5" Grid.Column="1" 
-                                             Text="{Binding DebugData.ModbusAddr, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.ModbusAddr, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="6">Modbus波特率</Label>
                                     <TextBox Grid.Row="6" Grid.Column="1" 
-                                             Text="{Binding DebugData.ModbusBaud, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.ModbusBaud, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="7">4-20mA斜率</Label>
                                     <TextBox Grid.Row="7" Grid.Column="1"
-                                             Text="{Binding DebugData.KOf4_20mA, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.KOf4_20mA, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="8">4-20mA截距</Label>
                                     <TextBox Grid.Row="8" Grid.Column="1" 
-                                             Text="{Binding DebugData.DOf4_20mA, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.DOf4_20mA, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="9">1-5V斜率</Label>
                                     <TextBox Grid.Row="9" Grid.Column="1"
-                                             Text="{Binding DebugData.KOf1_5V, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.KOf1_5V, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="10">1-5V截距</Label>
                                     <TextBox Grid.Row="10" Grid.Column="1" 
-                                             Text="{Binding DebugData.DOf1_5V, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.DOf1_5V, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="11">标定温度</Label>
                                     <TextBox Grid.Row="11" Grid.Column="1" 
-                                             Text="{Binding DebugData.TOfCaliFlow, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.TOfCaliFlow, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="12">当前温度</Label>
                                     <TextBox Grid.Row="12" Grid.Column="1" 
-                                             Text="{Binding DebugData.TOfNow, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.TOfNow, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="13">气体系数</Label>
                                     <TextBox Grid.Row="13" Grid.Column="1" 
-                                             Text="{Binding DebugData.GasFactor, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.GasFactor, Mode=OneWay}"></TextBox>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="PID参数">
@@ -268,20 +256,16 @@
                                     </Grid.ColumnDefinitions>
                                     <Label>P</Label>
                                     <TextBox Grid.Column="1" 
-                                             Text="{Binding DebugData.P, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.P, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="1">I</Label>
                                     <TextBox Grid.Column="1" Grid.Row="1"
-                                             Text="{Binding DebugData.I, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.I, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="2">D</Label>
                                     <TextBox Grid.Column="1" Grid.Row="2"
-                                             Text="{Binding DebugData.D, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.D, Mode=OneWay}"></TextBox>
                                     <Label Grid.Row="3">Zero</Label>
                                     <TextBox Grid.Column="1" Grid.Row="3"
-                                             Text="{Binding DebugData.Zero, Mode=OneWay}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             Text="{Binding DebugData.Zero, Mode=OneWay}"></TextBox>
                                 </Grid>
                             </GroupBox>
                         </StackPanel>
@@ -299,7 +283,7 @@
                                     <CheckBox Margin="4" IsChecked="{Binding Repeat}">重复</CheckBox>
                                     <Label>时间间隔(ms):</Label>
                                     <TextBox Text="{Binding Interval}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                             ></TextBox>
                                     <Button Command="{Binding SendReadFlowCommand}">发送</Button>
                                 </StackPanel>
                             </GroupBox>-->
@@ -316,7 +300,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Label>电压(mv)</Label>
                                         <TextBox Grid.Column="1" Text="{Binding AVStartValue}"
-                                                 Style="{StaticResource NormalTextBoxStyle}"/>
+                                                 />
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -345,16 +329,11 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label>电压(mv)</Label>
-                                        <TextBox Grid.Column="1" Text="{Binding CheckAVValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Column="1" Text="{Binding CheckAVValue}"/>
                                         <Label Grid.Row="1">斜率</Label>
-                                        <TextBox Grid.Row="1" Grid.Column="1"
-                                             Text="{Binding CheckAVKValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CheckAVKValue}"/>
                                         <Label Grid.Row="2">截距</Label>
-                                        <TextBox Grid.Row="2" Grid.Column="1"
-                                             Text="{Binding CheckAVDValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CheckAVDValue}"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -378,8 +357,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label>电流(mA)</Label>
-                                        <TextBox Grid.Column="1" Text="{Binding AIStartValue}"
-                                                 Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Column="1" Text="{Binding AIStartValue}"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -408,16 +386,11 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label>电流(mA)</Label>
-                                        <TextBox Grid.Column="1" Text="{Binding CheckAIValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Column="1" Text="{Binding CheckAIValue}"/>
                                         <Label Grid.Row="1">斜率</Label>
-                                        <TextBox Grid.Row="1" Grid.Column="1"
-                                             Text="{Binding CheckAIKValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CheckAIKValue}"/>
                                         <Label Grid.Row="2">截距</Label>
-                                        <TextBox Grid.Row="2" Grid.Column="1"
-                                             Text="{Binding CheckAIDValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CheckAIDValue}"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -481,8 +454,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label>温度(℃)</Label>
-                                    <TextBox Grid.Column="1" Text="{Binding Temperature}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Temperature}"/>
                                     <Button Grid.Row="1" Grid.ColumnSpan="2"
                                             Command="{Binding SetTemperatureCommand}">写入温度</Button>
                                 </Grid>
@@ -510,9 +482,7 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                     <Label Grid.Row="1">量程</Label>
-                                    <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding Range}"
-                                             Style="{StaticResource NormalTextBoxStyle}"></TextBox>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Range}"></TextBox>
                                     <Label Grid.Row="2">单位</Label>
                                     <ComboBox Grid.Row="2" Grid.Column="1" 
                                               SelectedItem="{Binding SelectedUnitCode}"
@@ -539,12 +509,9 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label>斜率</Label>
-                                    <TextBox Grid.Column="1" Text="{Binding AvKValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding AvKValue}"/>
                                     <Label Grid.Row="1">截距</Label>
-                                    <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding AvDValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AvDValue}"/>
                                     <Button Grid.Row="2" Grid.ColumnSpan="2"
                                             Command="{Binding SetAvCommand}">写入</Button>
                                 </Grid>
@@ -561,12 +528,9 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label>斜率</Label>
-                                    <TextBox Grid.Column="1" Text="{Binding AiKValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding AiKValue}"/>
                                     <Label Grid.Row="1">截距</Label>
-                                    <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding AiDValue}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AiDValue}"/>
                                     <Button Grid.Row="2" Grid.ColumnSpan="2"
                                             Command="{Binding SetAiCommand}">写入</Button>
                                 </Grid>
@@ -588,20 +552,13 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label>P</Label>
-                                    <TextBox Grid.Column="1" Text="{Binding Pid_P}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Pid_P}"/>
                                     <Label Grid.Row="1">I</Label>
-                                    <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding Pid_I}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Pid_I}"/>
                                     <Label Grid.Row="2">D</Label>
-                                    <TextBox Grid.Row="2" Grid.Column="1" 
-                                             Text="{Binding Pid_D}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Pid_D}"/>
                                     <Label Grid.Row="3">Zero</Label>
-                                    <TextBox Grid.Row="3" Grid.Column="1" 
-                                             Text="{Binding Pid_Zero}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Pid_Zero}"/>
                                     <Button Grid.Row="4" Grid.ColumnSpan="2"
                                             Command="{Binding SetPWMCommand}">设定</Button>
                                 </Grid>
@@ -617,8 +574,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label>系数</Label>
-                                    <TextBox Grid.Column="1" Text="{Binding GasFactor}"
-                                             Style="{StaticResource NormalTextBoxStyle}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding GasFactor}"/>
                                     <Button Grid.Row="1" Grid.ColumnSpan="2"
                                             Command="{Binding SetGasFactorCommand}">设定</Button>
                                 </Grid>

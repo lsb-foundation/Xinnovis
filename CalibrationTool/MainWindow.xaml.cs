@@ -10,6 +10,8 @@ using CommonLib.Mvvm;
 using CalibrationTool.ResolveUtils;
 using Panuon.UI.Silver;
 using CommonLib.Extensions;
+using CalibrationTool.UIAuto;
+using System.Configuration;
 
 namespace CalibrationTool
 {
@@ -42,7 +44,7 @@ namespace CalibrationTool
         #region 初始化ViewModel
         private void InitializeSerialPortViewModel()
         {
-            serialVm = new SerialPortViewModel();
+            serialVm =ViewModelBase.GetViewModelInstance<SerialPortViewModel>();
             serialPort = serialVm.GetSerialPortInstance();
             serialPort.ReceivedDataHandler = data => ResolveData(data);
             serialVm.MessageHandler = message => statusVm.ShowStatus(message);
@@ -51,7 +53,7 @@ namespace CalibrationTool
 
         private void InitializeMainViewModel()
         {
-            main = new MainWindowViewModel();
+            main = ViewModelBase.GetViewModelInstance<MainWindowViewModel>();
             main.AppendTextToDisplayAction = text => this.Dispatcher.Invoke(() => DisplayTextBox.AppendText(text));
             main.ClearDisplayCommand = new RelayCommand(
                 o => this.Dispatcher.Invoke(() => DisplayTextBox.Clear()));
@@ -72,13 +74,13 @@ namespace CalibrationTool
 
         private void InitializeStatusBarViewModel()
         {
-            statusVm = new StatusBarViewModel();
+            statusVm = ViewModelBase.GetViewModelInstance<StatusBarViewModel>();
             AppStatusBar.DataContext = statusVm;
         }
 
         private void InitializeReadDataViewModel()
         {
-            reader = new ReadDataViewModel();
+            reader = ViewModelBase.GetViewModelInstance<ReadDataViewModel>();
             reader.SendDebugCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.DebugCommand, ActionType.DEBUG));
             reader.SetReadFlowCommand(() => Send(CommunicationDataType.Hex, reader.FlowCommand, ActionType.READ_FLOW));
             reader.SendCaliCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.CaliCommand));
@@ -97,7 +99,7 @@ namespace CalibrationTool
 
         private void InitializeWriteDataViewModel()
         {
-            writer = new WriteDataViewModel();
+            writer = ViewModelBase.GetViewModelInstance<WriteDataViewModel>();
             writer.SendVoltCommand = new RelayCommand(o =>
             {
                 if (string.IsNullOrWhiteSpace(writer.VoltCommand)) return;
@@ -243,5 +245,44 @@ namespace CalibrationTool
             }
         }
         #endregion
+
+        private void WindowX_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ConfigurationManager.GetSection("UIAuto") is UIAutoSection section)
+            {
+                foreach (TabElement tabElement in section.Tabs)
+                {
+                    TabItem tab = tabElement.Build() as TabItem;
+                    StackPanel stack = new StackPanel { CanVerticallyScroll = true };
+                    tab.Content = stack;
+                    foreach (GroupElement groupElement in tabElement.Groups)
+                    {
+                        GroupBox group = groupElement.Build() as GroupBox;
+                        foreach (CommandElement commandElement in groupElement.Commands)
+                        {
+                            commandElement.CommandButtonClicked += CommandElement_CommandButtonClicked;
+                            Grid grid = commandElement.Build() as Grid;
+                            (group.Content as StackPanel).Children.Add(grid);
+                        }
+                        (tab.Content as StackPanel).Children.Add(group);
+                    }
+                    MainTab.Items.Add(tab);
+                }
+            }
+        }
+
+        private void CommandElement_CommandButtonClicked(CommunicationDataType type, object obj)
+        {
+            switch (type)
+            {
+                case CommunicationDataType.ASCII:
+                    Send(type, obj as string);
+                    break;
+                case CommunicationDataType.Hex:
+                    byte[] data = (obj as string).HexStringToBytes();
+                    Send(type, data);
+                    break;
+            }
+        }
     }
 }

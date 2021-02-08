@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommonLib.Mvvm;
@@ -11,7 +9,7 @@ using System.Reflection;
 
 namespace CalibrationTool.ViewModels
 {
-    public class ReadDataViewModel : BindableBase
+    public class ReadDataViewModel : ViewModelBase
     {
         #region Command
         public ICommand SendDebugCommand { get; set; }

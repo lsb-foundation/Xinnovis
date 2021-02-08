@@ -1,14 +1,9 @@
 ﻿using CommonLib.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CalibrationTool.ViewModels
 {
-    public class StatusBarViewModel : BindableBase
+    public class StatusBarViewModel : ViewModelBase
     {
         private string _status;
         public string Status

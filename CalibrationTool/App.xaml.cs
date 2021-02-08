@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace CalibrationTool
@@ -13,5 +8,11 @@ namespace CalibrationTool
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            DispatcherUnhandledException += (s, e1) =>
+                MessageBox.Show("程序异常：" + e1.Exception.Message + Environment.NewLine + e1.Exception.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            base.OnStartup(e);
+        }
     }
 }

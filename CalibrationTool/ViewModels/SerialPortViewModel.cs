@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.IO.Ports;
-using System.Linq;
 using System.Management;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
@@ -12,7 +10,7 @@ using CommonLib.Communication.Serial;
 
 namespace CalibrationTool.ViewModels
 {
-    public class SerialPortViewModel : BindableBase, IMessageHandler<string>
+    public class SerialPortViewModel : ViewModelBase, IMessageHandler<string>
     {
         #region Private field
         private AdvancedSerialPort serialPort;
