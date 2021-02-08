@@ -185,6 +185,7 @@ namespace CalibrationTool
             switch (currentAction)
             {
                 case ActionType.Default:
+                case ActionType.AutoGen:
                     ResolveStringData(data.ToArray());
                     break;
                 case ActionType.DEBUG:
@@ -276,11 +277,11 @@ namespace CalibrationTool
             switch (type)
             {
                 case CommunicationDataType.ASCII:
-                    Send(type, obj as string);
+                    Send(type, obj as string, ActionType.AutoGen);
                     break;
                 case CommunicationDataType.Hex:
                     byte[] data = (obj as string).HexStringToBytes();
-                    Send(type, data);
+                    Send(type, data, ActionType.AutoGen);
                     break;
             }
         }

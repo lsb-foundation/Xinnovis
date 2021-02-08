@@ -6,20 +6,12 @@ namespace CalibrationTool.UIAuto
 {
     public class GroupElement : ConfigurationElement, IBuildControl
     {
-        [ConfigurationProperty("Name", IsRequired = true)]
-        public string Name
+        [ConfigurationProperty("Header", IsRequired = true)]
+        public string Header
         {
-            get => base["Name"] as string;
-            set => base["Name"] = value;
+            get => base["Header"] as string;
+            set => base["Header"] = value;
         }
-
-        [ConfigurationProperty("Description")]
-        public string Description
-        {
-            get => base["Description"] as string;
-            set => base["Description"] = value;
-        }
-
 
         [ConfigurationProperty("Commands")]
         [ConfigurationCollection(typeof(CommandCollection), AddItemName = "Command")]
@@ -33,7 +25,7 @@ namespace CalibrationTool.UIAuto
             StackPanel groupStackPanel = new StackPanel { Orientation = Orientation.Vertical };
             GroupBox groupBox = new GroupBox
             {
-                Header = string.IsNullOrWhiteSpace(Description) ? Name : Description,
+                Header = this.Header,
                 Content = groupStackPanel
             };
             return groupBox;

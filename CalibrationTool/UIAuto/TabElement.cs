@@ -6,18 +6,11 @@ namespace CalibrationTool.UIAuto
 {
     public class TabElement : ConfigurationElement, IBuildControl
     {
-        [ConfigurationProperty("Name", IsRequired = true)]
-        public string Name
+        [ConfigurationProperty("Header", IsRequired = true)]
+        public string Header
         {
-            get => base["Name"] as string;
-            set => base["Name"] = value;
-        }
-
-        [ConfigurationProperty("Description")]
-        public string Description
-        {
-            get => base["Description"] as string;
-            set => base["Description"] = value;
+            get => base["Header"] as string;
+            set => base["Header"] = value;
         }
 
         [ConfigurationProperty("Groups", IsRequired = true)]
@@ -31,7 +24,7 @@ namespace CalibrationTool.UIAuto
         {
             TabItem tabItem = new TabItem
             {
-                Header = string.IsNullOrWhiteSpace(Description) ? Name : Description,
+                Header = this.Header,
                 Content = new StackPanel()
             };
             return tabItem;

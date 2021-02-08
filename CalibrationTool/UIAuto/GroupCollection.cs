@@ -11,7 +11,7 @@ namespace CalibrationTool.UIAuto
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return (element as GroupElement).Name;
+            return (element as GroupElement).Header;
         }
     }
 }

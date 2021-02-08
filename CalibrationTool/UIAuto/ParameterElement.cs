@@ -11,7 +11,7 @@ namespace CalibrationTool.UIAuto
             set => base["Name"] = value;
         }
 
-        [ConfigurationProperty("Description")]
+        [ConfigurationProperty("Description", IsRequired = true)]
         public string Description
         {
             get => base["Description"] as string;

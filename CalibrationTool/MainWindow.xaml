@@ -4,19 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CalibrationTool"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:models="clr-namespace:CalibrationTool.Models"
         xmlns:commModels="clr-namespace:CommonLib.Models;assembly=CommonLib"
         xmlns:utils="clr-namespace:CalibrationTool.Utils"
-        xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
+        xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver" 
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
         pu:WindowXCaption.Background="#E4E8EB" Loaded="WindowX_Loaded"
         Title="{Binding AppTitle, Mode=OneWay}" Height="720" Width="1080" MinHeight="360" MinWidth="720">
+    
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <!--<Setter Property="Background" Value="#C8009BFF"/>-->
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Margin" Value="4,4,4,0"/>
-            <Setter Property="Height" Value="30"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="pu:ButtonHelper.ButtonStyle" Value="Standard"/>
             <Setter Property="pu:ButtonHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:ButtonHelper.HoverBrush" Value="#009BFF"/>
@@ -34,7 +36,7 @@
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Margin" Value="4,4,4,0"/>
-            <Setter Property="Height" Value="30"/>
+            <!--<Setter Property="Height" Value="30"/>-->
             <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
             <Setter Property="pu:TextBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:TextBoxHelper.FocusedBorderBrush" Value="#009BFF"/>
@@ -45,18 +47,18 @@
         </Style>
         <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
             <Setter Property="Margin" Value="4,4,4,0"/>
-            <Setter Property="Height" Value="30"/>
+            <!--<Setter Property="Height" Value="30"/>-->
             <Setter Property="SelectedIndex" Value="1"/>
             <Setter Property="pu:ComboBoxHelper.CornerRadius" Value="5"/>
         </Style>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="8,8,8,0"/>
-            <Setter Property="Width" Value="360"/>
+            <!--<Setter Property="Width" Value="360"/>-->
             <Setter Property="pu:GroupBoxHelper.CornerRadius" Value="5"/>
             <Setter Property="pu:GroupBoxHelper.HeaderPadding" Value="5,6,0,6"/>
             <Setter Property="pu:GroupBoxHelper.IsSplitLineVisible" Value="True"/>
-            <!--<Setter Property="pu:GroupBoxHelper.ShadowColor" Value="LightGray"/>-->
+            <Setter Property="pu:GroupBoxHelper.ShadowColor" Value="LightGray"/>
         </Style>
         <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
             <Setter Property="Margin" Value="4"/>
@@ -67,7 +69,7 @@
         <utils:EnumToBoolConverter x:Key="EnumToBoolConverter"/>
     </Window.Resources>
 
-    <DockPanel Background="#E4E8EB">
+    <DockPanel><!--Background="#E4E8EB">-->
 
         <!--菜单栏-->
         <!--<Menu DockPanel.Dock="Top">
@@ -89,8 +91,7 @@
             </Grid.ColumnDefinitions>
 
             <!--左侧Tab-->
-            <TabControl Margin="8,4,4,4" Name="MainTab"
-                        pu:TabControlHelper.TabControlStyle="Standard">
+            <TabControl Margin="8,4,4,4" Name="MainTab" pu:TabControlHelper.DisableScrollButton="True" MinWidth="360">
                 <TabItem Header="端口" Name="SerialPortTabItem">
                     <StackPanel Orientation="Vertical">
                         <GroupBox Header="端口设置">
@@ -583,8 +584,10 @@
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
-
-            <Grid Grid.Column="1" Name="ContentGrid">
+            
+            <GridSplitter Width="2"></GridSplitter>
+            
+            <Grid Grid.Column="2" Name="ContentGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
