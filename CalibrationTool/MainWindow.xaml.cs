@@ -270,51 +270,47 @@ namespace CalibrationTool
         {
             try
             {
-                string format = e.Action.Format;
-                string convertedFormat = format;
-                MatchCollection matches = Regex.Matches(format, @"{\w+}");
-
+                string convertedFormat = e.Action.Format;
+                MatchCollection matches = Regex.Matches(e.Action.Format, @"{\w+}");
                 foreach (Match match in matches)
                 {
-                    string parameter = match.Value.Trim('{', '}');
+                    string parameterName = match.Value.Trim('{', '}');
 
-                    if (!(e.Parameters.FirstOrDefault(p => p.Name == parameter) is ParameterElement parameterElement))
+                    if (!(e.Parameters.FirstOrDefault(p => p.Name == parameterName) is ParameterElement parameter))
                     {
-                        throw new Exception($"参数{parameter}未找到。");
+                        throw new Exception($"参数{parameterName}未找到。");
                     }
 
-                    string input = parameterElement.Value?.Trim();
-                    if (string.IsNullOrEmpty(input))
+                    if (string.IsNullOrWhiteSpace(parameter.Value))
                     {
-                        throw new Exception($"参数{parameterElement.Description}为空。");
+                        throw new Exception($"参数{parameter.Description}为空。");
                     }
 
                     bool canParse = false;
                     object parsedValue = null;
-                    switch (parameterElement.Type.Trim().ToLower())
+                    switch (parameter.Type.Trim().ToLower())
                     {
                         case "int":
-                            canParse = int.TryParse(input, out int intNumber);
+                            canParse = int.TryParse(parameter.Value, out int intNumber);
                             parsedValue = intNumber;
                             break;
                         case "float":
-                            canParse = float.TryParse(input, out float floatNumber);
+                            canParse = float.TryParse(parameter.Value, out float floatNumber);
                             parsedValue = floatNumber;
                             break;
                         case "string":
-                            parsedValue = input;
+                            parsedValue = parameter.Value;
                             canParse = true;
                             break;
                         default:
-                            throw new Exception($"输入参数[{parameterElement.Description}]配置的类型{parameterElement.Type}暂不支持。");
+                            throw new Exception($"输入参数[{parameter.Description}]的类型{parameter.Type}暂不支持。");
                     }
 
                     if (!canParse)
                     {
-                        throw new Exception($"输入参数[{parameterElement.Description}]的类型不正确。");
+                        throw new Exception($"输入参数[{parameter.Description}]的类型不正确。");
                     }
-
-                    convertedFormat = convertedFormat.Replace(match.Value, match.Value.Replace("{" + parameter + "}", parsedValue.ToString()));
+                    convertedFormat = convertedFormat.Replace(match.Value, parsedValue.ToString());
                 }
 
                 if (e.Command.Type?.Trim().ToUpper() == "HEX")
