@@ -25,7 +25,7 @@ namespace CalibrationTool.UIAuto
             TabItem tabItem = new TabItem
             {
                 Header = this.Header,
-                Content = new StackPanel()
+                Content = new StackPanel { CanVerticallyScroll = true }
             };
             return tabItem;
         }

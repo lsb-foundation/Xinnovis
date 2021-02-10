@@ -254,8 +254,6 @@ namespace CalibrationTool
                 foreach (TabElement tabElement in section.Tabs)
                 {
                     TabItem tab = tabElement.Build() as TabItem;
-                    StackPanel stack = new StackPanel { CanVerticallyScroll = true };
-                    tab.Content = stack;
                     foreach (GroupElement groupElement in tabElement.Groups)
                     {
                         GroupBox group = groupElement.Build() as GroupBox;
