@@ -24,5 +24,14 @@ namespace CalibrationTool.UIAuto
             get => base["Type"] as string;
             set => base["Type"] = value;
         }
+
+        [ConfigurationProperty("DefaultValue")]
+        public string DefaultValue
+        {
+            get => base["DefaultValue"] as string;
+            set => base["DefaultValue"] = value;
+        }
+
+        public string Value { get; set; }
     }
 }

@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using CalibrationTool.Models;
-using CalibrationTool.ViewModels;
-using CommonLib.Mvvm;
 
 namespace CalibrationTool.UIAuto
 {
@@ -48,9 +44,9 @@ namespace CalibrationTool.UIAuto
             get => this["Actions"] as ActionCollection;
         }
 
-        public event Action<CommunicationDataType, object> CommandButtonClicked;
+        internal event Action<CommandElement, ActionElement, List<ParameterElement>> CommandButtonClicked;
         private readonly List<TextBox> _textBoxList = new List<TextBox>();
-        private readonly List<Parameter> _parameterDescriptions = new List<Parameter>();
+        private readonly List<ParameterElement> _parameters = new List<ParameterElement>();
 
         public DependencyObject Build()
         {
@@ -63,7 +59,11 @@ namespace CalibrationTool.UIAuto
                 ParameterElement parameter = Parameters[index];
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 Label label = new Label { Content = parameter.Description };
-                TextBox textBox = new TextBox() { Name = parameter.Name + "TextBox" };
+                TextBox textBox = new TextBox 
+                { 
+                    Name = parameter.Name + "TextBox",
+                    Text = parameter.DefaultValue
+                };
                 grid.Children.Add(label);
                 grid.Children.Add(textBox);
                 Grid.SetRow(label, index);
@@ -71,12 +71,7 @@ namespace CalibrationTool.UIAuto
                 Grid.SetColumn(label, 0);
                 Grid.SetColumn(textBox, 1);
                 _textBoxList.Add(textBox);
-                _parameterDescriptions.Add(new Parameter
-                {
-                    Name = parameter.Name,
-                    Description = parameter.Description,
-                    Type = parameter.Type
-                });
+                _parameters.Add(parameter);
             }
 
             for (int index = 0; index < Actions.Count; index++)
@@ -86,7 +81,7 @@ namespace CalibrationTool.UIAuto
                 Button button = new Button
                 {
                     Content = action.Description,
-                    Tag = action.Format
+                    Tag = action
                 };
                 button.Click += Button_Click;
                 grid.Children.Add(button);
@@ -100,73 +95,17 @@ namespace CalibrationTool.UIAuto
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if ((sender as Button)?.Tag is ActionElement action)
             {
-                string format = (sender as Button).Tag as string;
-                string convertedFormat = format;
-                MatchCollection matches = Regex.Matches(format, @"{\w+}");
-
-                foreach (Match match in matches)
+                foreach (ParameterElement parameter in _parameters)
                 {
-                    string parameter = match.Value.Trim('{', '}');
-
-                    if (!(_textBoxList.FirstOrDefault(box => box.Name == parameter + "TextBox") is TextBox textBox))
+                    if (_textBoxList.FirstOrDefault(box=>box.Name == parameter.Name + "TextBox") is TextBox textBox)
                     {
-                        throw new Exception($"参数{parameter}未找到。");
+                        parameter.Value = textBox.Text;
                     }
-
-                    var parameterInstance = _parameterDescriptions.FirstOrDefault(p => p.Name == parameter);
-                    string input = textBox.Text.Trim();
-                    if (string.IsNullOrEmpty(input))
-                    {
-                        throw new Exception($"参数{parameterInstance.Description}为空。");
-                    }
-
-                    bool canParse = false;
-                    object parsedValue = null;
-                    switch (parameterInstance.Type.Trim().ToLower())
-                    {
-                        case "int":
-                            canParse = int.TryParse(input, out int intNumber);
-                            parsedValue = intNumber;
-                            break;
-                        case "float":
-                            canParse = float.TryParse(input, out float floatNumber);
-                            parsedValue = floatNumber;
-                            break;
-                        case "string":
-                            parsedValue = input;
-                            canParse = true;
-                            break;
-                        default:
-                            throw new Exception($"输入参数[{parameterInstance.Description}]配置的类型{parameterInstance.Type}暂不支持。");
-                    }
-
-                    if (!canParse)
-                    {
-                        throw new Exception($"输入参数[{parameterInstance.Description}]的类型不正确。");
-                    }
-
-                    convertedFormat = convertedFormat.Replace(match.Value, match.Value.Replace(parameter, parsedValue.ToString()));
                 }
-                CommunicationDataType dataType = CommunicationDataType.ASCII;
-                if (Type?.Trim().ToUpper() == "HEX")
-                {
-                    dataType = CommunicationDataType.Hex;
-                }
-                CommandButtonClicked?.Invoke(dataType, convertedFormat);
+                CommandButtonClicked?.Invoke(this, action, _parameters);
             }
-            catch(Exception ex)
-            {
-                ViewModelBase.GetViewModelInstance<StatusBarViewModel>().ShowStatus(ex.Message);
-            }
-        }
-
-        class Parameter
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public string Type { get; set; }
         }
     }
 }

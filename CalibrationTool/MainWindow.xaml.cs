@@ -12,6 +12,7 @@ using Panuon.UI.Silver;
 using CommonLib.Extensions;
 using CalibrationTool.UIAuto;
 using System.Configuration;
+using System.Text.RegularExpressions;
 
 namespace CalibrationTool
 {
@@ -251,36 +252,84 @@ namespace CalibrationTool
         {
             if (ConfigurationManager.GetSection("UIAuto") is UIAutoSection section)
             {
-                foreach (TabElement tabElement in section.Tabs)
+                section.CommandActionInvoked += Section_CommandActionInvoked;
+                if (section.Build() is TabControl tabControl)
                 {
-                    TabItem tab = tabElement.Build() as TabItem;
-                    foreach (GroupElement groupElement in tabElement.Groups)
+                    List<TabItem> tabs = new List<TabItem>();
+                    foreach (TabItem tab in tabControl.Items)
                     {
-                        GroupBox group = groupElement.Build() as GroupBox;
-                        foreach (CommandElement commandElement in groupElement.Commands)
-                        {
-                            commandElement.CommandButtonClicked += CommandElement_CommandButtonClicked;
-                            Grid grid = commandElement.Build() as Grid;
-                            (group.Content as StackPanel).Children.Add(grid);
-                        }
-                        (tab.Content as StackPanel).Children.Add(group);
+                        tabs.Add(tab);
                     }
-                    MainTab.Items.Add(tab);
+                    tabControl.Items.Clear();
+                    tabs.ForEach(tab => MainTab.Items.Add(tab));
                 }
             }
         }
 
-        private void CommandElement_CommandButtonClicked(CommunicationDataType type, object obj)
+        private void Section_CommandActionInvoked(CommandEventArgs e)
         {
-            switch (type)
+            try
             {
-                case CommunicationDataType.ASCII:
-                    Send(type, obj as string, ActionType.AutoGen);
-                    break;
-                case CommunicationDataType.Hex:
-                    byte[] data = (obj as string).HexStringToBytes();
-                    Send(type, data, ActionType.AutoGen);
-                    break;
+                string format = e.Action.Format;
+                string convertedFormat = format;
+                MatchCollection matches = Regex.Matches(format, @"{\w+}");
+
+                foreach (Match match in matches)
+                {
+                    string parameter = match.Value.Trim('{', '}');
+
+                    if (!(e.Parameters.FirstOrDefault(p => p.Name == parameter) is ParameterElement parameterElement))
+                    {
+                        throw new Exception($"参数{parameter}未找到。");
+                    }
+
+                    string input = parameterElement.Value?.Trim();
+                    if (string.IsNullOrEmpty(input))
+                    {
+                        throw new Exception($"参数{parameterElement.Description}为空。");
+                    }
+
+                    bool canParse = false;
+                    object parsedValue = null;
+                    switch (parameterElement.Type.Trim().ToLower())
+                    {
+                        case "int":
+                            canParse = int.TryParse(input, out int intNumber);
+                            parsedValue = intNumber;
+                            break;
+                        case "float":
+                            canParse = float.TryParse(input, out float floatNumber);
+                            parsedValue = floatNumber;
+                            break;
+                        case "string":
+                            parsedValue = input;
+                            canParse = true;
+                            break;
+                        default:
+                            throw new Exception($"输入参数[{parameterElement.Description}]配置的类型{parameterElement.Type}暂不支持。");
+                    }
+
+                    if (!canParse)
+                    {
+                        throw new Exception($"输入参数[{parameterElement.Description}]的类型不正确。");
+                    }
+
+                    convertedFormat = convertedFormat.Replace(match.Value, match.Value.Replace("{" + parameter + "}", parsedValue.ToString()));
+                }
+
+                if (e.Command.Type?.Trim().ToUpper() == "HEX")
+                {
+                    byte[] data = convertedFormat.HexStringToBytes();
+                    Send(CommunicationDataType.Hex, data, ActionType.AutoGen);
+                }
+                else
+                {
+                    Send(CommunicationDataType.ASCII, convertedFormat, ActionType.AutoGen);
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewModelBase.GetViewModelInstance<StatusBarViewModel>().ShowStatus(ex.Message);
             }
         }
     }
