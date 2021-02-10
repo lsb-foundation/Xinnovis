@@ -14,7 +14,7 @@ namespace CalibrationTool.UIAuto
             get => base["Tabs"] as TabCollection;
         }
 
-        public event Action<CommandEventArgs> CommandActionInvoked;
+        public event Action<UIAutoActionEventArgs> UIAutoActionInvoked;
 
         public DependencyObject Build()
         {
@@ -27,7 +27,7 @@ namespace CalibrationTool.UIAuto
                     GroupBox group = groupElement.Build() as GroupBox;
                     foreach (CommandElement commandElement in groupElement.Commands)
                     {
-                        commandElement.CommandButtonClicked += (c, a, ps) => CommandActionInvoked?.Invoke(new CommandEventArgs(c, a, ps));
+                        commandElement.CommandButtonClicked += (c, a, ps) => UIAutoActionInvoked?.Invoke(new UIAutoActionEventArgs(c, a, ps));
                         Grid grid = commandElement.Build() as Grid;
                         (group.Content as StackPanel).Children.Add(grid);
                     }

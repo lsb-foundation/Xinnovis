@@ -252,7 +252,7 @@ namespace CalibrationTool
         {
             if (ConfigurationManager.GetSection("UIAuto") is UIAutoSection section)
             {
-                section.CommandActionInvoked += Section_CommandActionInvoked;
+                section.UIAutoActionInvoked += Section_UIAutoActionInvoked;
                 if (section.Build() is TabControl tabControl)
                 {
                     List<TabItem> tabs = new List<TabItem>();
@@ -266,7 +266,7 @@ namespace CalibrationTool
             }
         }
 
-        private void Section_CommandActionInvoked(CommandEventArgs e)
+        private void Section_UIAutoActionInvoked(UIAutoActionEventArgs e)
         {
             try
             {

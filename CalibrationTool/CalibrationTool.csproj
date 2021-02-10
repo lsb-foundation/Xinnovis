@@ -112,7 +112,7 @@
     <Compile Include="UIAuto\ActionElement.cs" />
     <Compile Include="UIAuto\CommandCollection.cs" />
     <Compile Include="UIAuto\CommandElement.cs" />
-    <Compile Include="UIAuto\CommandEventArgs.cs" />
+    <Compile Include="UIAuto\UIAutoActionEventArgs.cs" />
     <Compile Include="UIAuto\GroupCollection.cs" />
     <Compile Include="UIAuto\GroupElement.cs" />
     <Compile Include="UIAuto\IBuildControl.cs" />
