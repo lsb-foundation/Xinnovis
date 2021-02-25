@@ -7,6 +7,7 @@ using CalibrationTool.Models;
 using CalibrationTool.Utils;
 using CommonLib.Mvvm;
 using CommonLib.Communication.Serial;
+using System.Linq;
 
 namespace CalibrationTool.ViewModels
 {
@@ -20,7 +21,6 @@ namespace CalibrationTool.ViewModels
         public SerialPortViewModel()
         {
             InitializeSerialPort();
-            AdvancedSerialPort.GetPortNames().ForEach(n => PortNameCollection.Add(n));
             OpenOrCloseCommand = new RelayCommand(o =>
             {
                 if (serialPort.IsOpen) TryToClosePort();
@@ -160,10 +160,25 @@ namespace CalibrationTool.ViewModels
         #region Private methods
         private void InitializeSerialPort()
         {
-            serialPort = new AdvancedSerialPort();
-            serialPort.BaudRate = ConfigManager.Serial_BaudRate;
-            if (!string.IsNullOrEmpty(ConfigManager.Serial_PortName))
-                serialPort.PortName = ConfigManager.Serial_PortName;
+            AdvancedSerialPort.GetPortNames().ForEach(n => PortNameCollection.Add(n));
+            if (PortNameCollection.Count == 0)
+            {
+                throw new Exception("串口初始化失败：在设备上未找到端口。");
+            }
+
+            serialPort = new AdvancedSerialPort { BaudRate = ConfigManager.Serial_BaudRate };
+            string configPortName = ConfigManager.Serial_PortName;
+            if (!string.IsNullOrEmpty(configPortName))
+            {
+                if (PortNameCollection.Contains(configPortName))
+                {
+                    serialPort.PortName = ConfigManager.Serial_PortName;
+                }
+                else
+                {
+                    PortName = PortNameCollection.FirstOrDefault();
+                }
+            }
         }
 
         private void TryToClosePort()

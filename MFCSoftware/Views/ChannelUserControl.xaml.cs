@@ -14,7 +14,6 @@ using OfficeOpenXml.Style;
 using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
-using System.Timers;
 using System.Windows.Media;
 using System.Threading.Tasks;
 
@@ -25,43 +24,23 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class ChannelUserControl : UserControl
     {
-        private readonly ChannelUserControlViewModel viewModel = new ChannelUserControlViewModel();
-        private readonly Timer timer;
-        private bool canInsert = true;
-        private readonly object timerSync = new object();   //防止canInsert被同时修改。
+        private readonly ChannelUserControlViewModel _viewModel = new ChannelUserControlViewModel();
+        private readonly FlowDataSaver _flowDataSaver;
 
         public ChannelUserControl()
         {
             InitializeComponent();
-            timer = new Timer 
-            { 
-                AutoReset = false, 
-                Interval = TimeSpan.FromMinutes(viewModel.InsertInterval).TotalMilliseconds 
-            };
-            timer.Elapsed += (s, e) =>
-            {
-                lock (timerSync)
-                {
-                    canInsert = true;
-                }
-            };
-            viewModel.InsertIntervalChanged += minutes =>
-            {
-                if (viewModel.InsertInterval > 0)
-                {
-                    timer.Interval = TimeSpan.FromMinutes(minutes).TotalMilliseconds;
-                }
-            };
-            this.DataContext = viewModel;
-            timer.Start();
+            _flowDataSaver = new FlowDataSaver(Address, (int)_viewModel.InsertInterval);
+            _viewModel.InsertIntervalChanged += minutes => _flowDataSaver.SetInterval((int)minutes);
+            this.DataContext = _viewModel;
         }
 
         public event Action<ChannelUserControl> ChannelClosed; //控件被移除
         public event Action<ChannelUserControl, SerialCommand<byte[]>> SingleCommandSended;    //单指令发送
 
-        public int Address { get => viewModel.Address; }
-        public SerialCommand<byte[]> ReadFlowBytes { get => viewModel.ReadFlowBytes; }
-        public SerialCommand<byte[]> ReadBaseInfoBytes { get => viewModel.ReadBaseInfoBytes; }
+        public int Address { get => _viewModel.Address; }
+        public SerialCommand<byte[]> ReadFlowBytes { get => _viewModel.ReadFlowBytes; }
+        public SerialCommand<byte[]> ReadBaseInfoBytes { get => _viewModel.ReadBaseInfoBytes; }
 
         private void Closed(object sender, RoutedEventArgs e)
         {
@@ -98,7 +77,7 @@ namespace MFCSoftware.Views
                 }
                 catch(Exception e)
                 {
-                    viewModel.WhenResolveFailed();
+                    _viewModel.WhenResolveFailed();
                     MainWindowViewModel.ShowAppMessage(e.Message);
                     LogHelper.WriteLog(e.Message, e);
                 }
@@ -119,7 +98,7 @@ namespace MFCSoftware.Views
                 GasType = GasTypeCode.GetGasTypeCodesFromConfiguration()?.FirstOrDefault(c => c.Code == gas),
                 Unit = UnitCode.GetUnitCodesFromConfiguration()?.FirstOrDefault(u => u.Code == unit)
             };
-            viewModel.SetBaseInfomation(info);
+            _viewModel.SetBaseInfomation(info);
         }
 
         private void ResolveFlowData(byte[] data)
@@ -143,7 +122,7 @@ namespace MFCSoftware.Views
             FlowData flowData = new FlowData()
             {
                 CurrentFlow = flow,
-                Unit = viewModel.BaseInfo.Unit?.Unit,
+                Unit = _viewModel.BaseInfo.Unit?.Unit,
                 AccuFlow = accuFlow,
                 AccuFlowUnit = unit,
                 Days = days,
@@ -151,32 +130,23 @@ namespace MFCSoftware.Views
                 Minutes = mins,
                 Seconds = secs
             };
-            viewModel.SetFlow(flowData);
-            viewModel.UpdateSeries();
-
-            lock (timerSync)
-            {
-                if (canInsert)
-                {
-                    DbStorage.InsertFlowData(Address, flowData);
-                    canInsert = false;
-                    timer.Start();
-                }
-            }
+            _viewModel.SetFlow(flowData);
+            _viewModel.UpdateSeries();
+            _flowDataSaver.Flow = flowData;
         }
 
         public void WhenTimeOut()
         {
             this.Dispatcher.Invoke(() =>
             {
-                viewModel.WhenTimeOut();
+                _viewModel.WhenTimeOut();
 #if DEBUG
                 Console.WriteLine($"Channel {Address}: TimeoutException");
 #endif
             });
         }
 
-        public void SetAddress(int addr) => viewModel.SetAddress(addr);
+        public void SetAddress(int addr) => _viewModel.SetAddress(addr);
 
         //递归查找当前控件的根节点Window对象
         private DependencyObject GetCurrentWindow(DependencyObject obj)
@@ -292,17 +262,17 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.ClearAccuFlowBytes);
+                SingleCommandSended?.Invoke(this, _viewModel.ClearAccuFlowBytes);
             }
         }
 
         private void ControlButton_Clicked(object sender, RoutedEventArgs e)
         {
-            if(viewModel.Selector == ControlSelector.FlowValue)
+            if(_viewModel.Selector == ControlSelector.FlowValue)
             {
                 CheckFlowValueAndSendCommand();
             }
-            else if(viewModel.Selector == ControlSelector.ValveOpenValue)
+            else if(_viewModel.Selector == ControlSelector.ValveOpenValue)
             {
                 CheckValveOpenValueAndSendCommand();
             }
@@ -310,29 +280,29 @@ namespace MFCSoftware.Views
 
         private void CheckFlowValueAndSendCommand()
         {
-            if (viewModel.BaseInfo == null)
+            if (_viewModel.BaseInfo == null)
             {
                 MainWindowViewModel.ShowAppMessage("未获取到基础数据，量程未知。");
                 return;
             }
-            if (viewModel.FlowValue < 0 || viewModel.FlowValue > viewModel.BaseInfo.Range)
+            if (_viewModel.FlowValue < 0 || _viewModel.FlowValue > _viewModel.BaseInfo.Range)
             {
                 MainWindowViewModel.ShowAppMessage("流量数据必须大于等于0，小于等于量程。");
                 return;
             }
-            viewModel.SetWriteFlowBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteFlowBytes);
+            _viewModel.SetWriteFlowBytes();
+            SingleCommandSended?.Invoke(this, _viewModel.WriteFlowBytes);
         }
 
         private void CheckValveOpenValueAndSendCommand()
         {
-            if(viewModel.ValveOpenValue < 0 || viewModel.ValveOpenValue > 100)
+            if(_viewModel.ValveOpenValue < 0 || _viewModel.ValveOpenValue > 100)
             {
                 MainWindowViewModel.ShowAppMessage("阀门开度必须大于等于0，小于等于100。");
                 return;
             }
-            viewModel.SetWriteValveBytes();
-            SingleCommandSended?.Invoke(this, viewModel.WriteValveBytes);
+            _viewModel.SetWriteValveBytes();
+            SingleCommandSended?.Invoke(this, _viewModel.WriteValveBytes);
         }
 
         private void SetSaveTimeButton_Clicked(object sender, RoutedEventArgs e)
@@ -346,7 +316,7 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.ZeroPointCalibrationBytes);
+                SingleCommandSended?.Invoke(this, _viewModel.ZeroPointCalibrationBytes);
             }
         }
 
@@ -354,7 +324,7 @@ namespace MFCSoftware.Views
         {
             if (SendSingleCommandConfirm(sender))
             {
-                SingleCommandSended?.Invoke(this, viewModel.FactoryRecoveryBytes);
+                SingleCommandSended?.Invoke(this, _viewModel.FactoryRecoveryBytes);
             }
         }
 

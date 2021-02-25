@@ -147,6 +147,39 @@ namespace MFCSoftware.Common
         }
     }
 
+    /// <summary>
+    /// 按照一定间隔时间保存数据
+    /// </summary>
+    public class FlowDataSaver
+    {
+        private readonly int _address;
+        private readonly System.Timers.Timer _timer;
+        public FlowData Flow { get; set; }
+
+        public FlowDataSaver(int address, int intervalMinutes)
+        {
+            _address = address;
+            _timer = new System.Timers.Timer(TimeSpan.FromMinutes(intervalMinutes).TotalMilliseconds) { AutoReset = false };
+            _timer.Elapsed += Timer_Elapsed;
+        }
+
+        public void SetInterval(int minutes)
+        {
+            if (minutes > 0)
+            {
+                _timer.Interval = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
+            }
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (Flow != null)
+            {
+                DbStorage.InsertFlowData(_address, Flow);
+            }
+            _timer.Start();
+        }
+    }
 
     /// <summary>
     /// 仅用于测试定时任务数据删除，不在正式运行的代码中起作用
