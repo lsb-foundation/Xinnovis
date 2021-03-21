@@ -150,8 +150,7 @@ namespace MFCSoftware.Views
             bool addrExists = controlList.Any(c => c.Address == window.Address);
             if (!addrExists)
             {
-                ChannelUserControl channelControl = new ChannelUserControl();
-                channelControl.SetAddress(window.Address);
+                ChannelUserControl channelControl = new ChannelUserControl(window.Address);
                 channelControl.ChannelClosed += ChannelControl_ControlWasRemoved;
                 channelControl.SingleCommandSended += (channel, command) => SendSingleCommand(channel, command);
 

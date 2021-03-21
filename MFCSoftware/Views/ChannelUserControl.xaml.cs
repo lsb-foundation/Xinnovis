@@ -27,10 +27,11 @@ namespace MFCSoftware.Views
         private readonly ChannelUserControlViewModel _viewModel = new ChannelUserControlViewModel();
         private readonly FlowDataSaver _flowDataSaver;
 
-        public ChannelUserControl()
+        public ChannelUserControl(int address)
         {
             InitializeComponent();
-            _flowDataSaver = new FlowDataSaver(Address, (int)_viewModel.InsertInterval);
+            _flowDataSaver = new FlowDataSaver(address, (int)_viewModel.InsertInterval);
+            _viewModel.Address = address;
             _viewModel.InsertIntervalChanged += minutes => _flowDataSaver.SetInterval((int)minutes);
             this.DataContext = _viewModel;
         }
@@ -145,8 +146,6 @@ namespace MFCSoftware.Views
 #endif
             });
         }
-
-        public void SetAddress(int addr) => _viewModel.SetAddress(addr);
 
         //递归查找当前控件的根节点Window对象
         private DependencyObject GetCurrentWindow(DependencyObject obj)

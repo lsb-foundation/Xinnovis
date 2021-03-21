@@ -21,7 +21,16 @@ namespace MFCSoftware.ViewModels
 
         public PlotModel SeriesPlotModel { get; set; }
 
-        public int Address { get; private set; }
+        private int _address;
+        public int Address
+        {
+            get => _address;
+            set
+            {
+                SetProperty(ref _address, value);
+                SetCommands();
+            }
+        }
 
         public string[] DisplayUnits { get; } = new string[] { "SCCM", "SLM", "%F.S" };
 
@@ -90,13 +99,6 @@ namespace MFCSoftware.ViewModels
         public SerialCommand<byte[]> WriteValveBytes { get; private set; }
         public SerialCommand<byte[]> ZeroPointCalibrationBytes { get; private set; }
         public SerialCommand<byte[]> FactoryRecoveryBytes { get; private set; }
-
-        public void SetAddress(int addr)
-        {
-            Address = addr;
-            RaiseProperty(nameof(Address));
-            SetCommands();
-        }
 
         private void SetCommands()
         {

@@ -15,9 +15,9 @@ namespace MFCSoftware.Common
         private const string dbFile = "db.sqlite";
         private const string flowTableName = "tb_flow";
         private static readonly SqliteUtils utils;
-        private static readonly System.Timers.Timer timer;
-        private const int recordsMaxNumber = 100_0000;
-        private const int deleteCheckTime = 30;         //定时删除检查时间，单位：分钟
+        //private static readonly System.Timers.Timer timer;
+        //private const int recordsMaxNumber = 100_0000;
+        //private const int deleteCheckTime = 30;         //定时删除检查时间，单位：分钟
 
         static DbStorage()
         {
@@ -37,34 +37,34 @@ namespace MFCSoftware.Common
 
             utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
 
-            timer = new System.Timers.Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
-            timer.Elapsed += Timer_Elapsed;
-            timer.Start();
+            //timer = new System.Timers.Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
+            //timer.Elapsed += Timer_Elapsed;
+            //timer.Start();
         }
 
-        private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            //定时任务检查并删除数据库中超出的最早数据
-            Task.Run(() =>
-            {
-                using (var transaction = utils.Connection.BeginTransaction())
-                {
-                    string sql = $"SELECT COUNT(1) FROM {flowTableName};";
-                    var reader = utils.ExecuteQuery(sql);
-                    if (reader.Read())
-                    {
-                        int count = reader.GetInt32(0) - recordsMaxNumber;
-                        if (count > 0)
-                        {
-                            sql = $"DELETE FROM {flowTableName} WHERE collect_time <= (SELECT MAX(collect_time) FROM " +
-                                  $"(SELECT collect_time FROM {flowTableName} ORDER BY collect_time LIMIT {count}));";
-                            utils.ExecuteNonQuery(sql);
-                            transaction.Commit();
-                        }
-                    }
-                }
-            });
-        }
+        //private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        //{
+        //    //定时任务检查并删除数据库中超出的最早数据
+        //    Task.Run(() =>
+        //    {
+        //        using (var transaction = utils.Connection.BeginTransaction())
+        //        {
+        //            string sql = $"SELECT COUNT(1) FROM {flowTableName};";
+        //            var reader = utils.ExecuteQuery(sql);
+        //            if (reader.Read())
+        //            {
+        //                int count = reader.GetInt32(0) - recordsMaxNumber;
+        //                if (count > 0)
+        //                {
+        //                    sql = $"DELETE FROM {flowTableName} WHERE collect_time <= (SELECT MAX(collect_time) FROM " +
+        //                          $"(SELECT collect_time FROM {flowTableName} ORDER BY collect_time LIMIT {count}));";
+        //                    utils.ExecuteNonQuery(sql);
+        //                    transaction.Commit();
+        //                }
+        //            }
+        //        }
+        //    });
+        //}
 
         public static void InsertFlowDatasByTransaction(int address, List<FlowData> flows)
         {
@@ -161,6 +161,7 @@ namespace MFCSoftware.Common
             _address = address;
             _timer = new System.Timers.Timer(TimeSpan.FromMinutes(intervalMinutes).TotalMilliseconds) { AutoReset = false };
             _timer.Elapsed += Timer_Elapsed;
+            _timer.Start();
         }
 
         public void SetInterval(int minutes)
