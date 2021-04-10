@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace CalibrationTool.ResolveUtils
 {
-    public class DebugDataResolve : IResolve<byte[], List<KeyValuePair<string,string>>>
+    public class DebugDataResolve : IResolve<string, List<KeyValuePair<string,string>>>
     {
-        public List<KeyValuePair<string,string>> Resolve(byte[] data)
+        public List<KeyValuePair<string,string>> Resolve(string content)
         {
             List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
-            string dataStr = Encoding.Default.GetString(data);
-            string[] lines = dataStr.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string line in lines)
+            string[] lines = content.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in lines)
             {
                 string[] splitData = line.Trim().Split(':');
                 if (splitData.Length == 2)

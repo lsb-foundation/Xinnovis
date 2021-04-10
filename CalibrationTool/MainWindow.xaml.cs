@@ -13,6 +13,7 @@ using CommonLib.Extensions;
 using CalibrationTool.UIAuto;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace CalibrationTool
 {
@@ -31,6 +32,7 @@ namespace CalibrationTool
 
         private AdvancedSerialPort serialPort;
         private ActionType currentAction;
+        private readonly StringBuilder _debugContentBuilder = new StringBuilder();
 
         public MainWindow()
         {
@@ -82,7 +84,11 @@ namespace CalibrationTool
         private void InitializeReadDataViewModel()
         {
             reader = ViewModelBase.GetViewModelInstance<ReadDataViewModel>();
-            reader.SendDebugCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.DebugCommand, ActionType.DEBUG));
+            reader.SendDebugCommand = new RelayCommand(o => 
+            {
+                _debugContentBuilder.Clear();
+                Send(CommunicationDataType.ASCII, reader.DebugCommand, ActionType.DEBUG);
+            });
             reader.SetReadFlowCommand(() => Send(CommunicationDataType.Hex, reader.FlowCommand, ActionType.READ_FLOW));
             reader.SendCaliCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.CaliCommand));
             reader.SendAVStartCommand = new RelayCommand(o => Send(CommunicationDataType.ASCII, reader.GetAVStartCommand()));
@@ -212,11 +218,13 @@ namespace CalibrationTool
 
         private void ResolveDebugData(byte[] data)
         {
-            IResolve<byte[], List<KeyValuePair<string, string>>> debugResolve = new DebugDataResolve();
-            List<KeyValuePair<string, string>> resolvedDatas = debugResolve.Resolve(data);
-            foreach(KeyValuePair<string,string> pair in resolvedDatas)
+            IResolve<string, List<KeyValuePair<string, string>>> debugResolve = new DebugDataResolve();
+            string content = new StringDataResolve().Resolve(data);
+            _debugContentBuilder.Append(content);
+            main.AppendTextToDisplay(content);
+            List<KeyValuePair<string, string>> resolvedDatas = debugResolve.Resolve(_debugContentBuilder.ToString());
+            foreach (KeyValuePair<string, string> pair in resolvedDatas)
             {
-                main.AppendTextToDisplay(string.Format("{0}: {1}{2}", pair.Key, pair.Value, Environment.NewLine));
                 reader.SetDebugData(pair);
             }
         }
