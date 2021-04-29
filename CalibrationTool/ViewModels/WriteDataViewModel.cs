@@ -193,11 +193,13 @@ namespace CalibrationTool.ViewModels
 
         private void OpenExcelFile()
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Excel文件|*.xls;*.xlsx";
-            dialog.Title = "打开Excel文件";
-            dialog.Multiselect = false;
-            if((bool)dialog.ShowDialog())
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Excel文件|*.xls;*.xlsx",
+                Title = "打开Excel文件",
+                Multiselect = false
+            };
+            if ((bool)dialog.ShowDialog())
             {
                 ReadExcelFile(dialog.FileName);
             }

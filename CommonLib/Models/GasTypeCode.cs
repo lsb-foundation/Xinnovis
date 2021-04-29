@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CommonLib.Config;
 
 namespace CommonLib.Models
@@ -15,17 +16,13 @@ namespace CommonLib.Models
         {
             try
             {
-                var gasTypeConfiguration = NameCodeConfigurationSection.GetConfig("GasTypeConfiguration");
-                var gasTypeCodes = new List<GasTypeCode>();
-                foreach (NameCodeConfigurationElement element in gasTypeConfiguration.Collection)
-                {
-                    gasTypeCodes.Add(new GasTypeCode
-                    {
-                        GasName = element.Name,
-                        Code = element.Code
-                    });
-                }
-                return gasTypeCodes;
+                return NameCodeConfigurationSection
+                    .GetConfig("GasTypeConfiguration")
+                    .Collection
+                    .OfType<NameCodeConfigurationElement>()
+                    .Select(e => new GasTypeCode { GasName = e.Name, Code = e.Code })
+                    .ToList();
+
             }
             catch { return null; }
         }

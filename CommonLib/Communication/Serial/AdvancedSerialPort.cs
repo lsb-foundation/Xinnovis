@@ -2,13 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CommonLib.Communication.Serial
 {
@@ -84,9 +80,7 @@ namespace CommonLib.Communication.Serial
 
         public new static List<string> GetPortNames()
         {
-            List<string> names = new List<string>();
-            names.AddRange(SerialPort.GetPortNames());
-            return names;
+            return SerialPort.GetPortNames().ToList();
         }
 
         public static List<Parity> GetParities()

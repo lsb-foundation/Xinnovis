@@ -11,12 +11,12 @@ namespace CommonLib.Mvvm
         /// <summary>
         /// The can execute.
         /// </summary>
-        private readonly Func<bool> canExecute;
+        private readonly Func<bool> _canExecute;
 
         /// <summary>
         /// The execute.
         /// </summary>
-        private readonly Action<object> execute;
+        private readonly Action<object> _executor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RelayCommand" /> class.
@@ -39,8 +39,8 @@ namespace CommonLib.Mvvm
                 throw new ArgumentNullException("execute");
             }
 
-            this.execute = execute;
-            this.canExecute = canExecute;
+            this._executor = execute;
+            this._canExecute = canExecute;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace CommonLib.Mvvm
         {
             add
             {
-                if (this.canExecute != null)
+                if (this._canExecute != null)
                 {
                     CommandManager.RequerySuggested += value;
                 }
@@ -58,7 +58,7 @@ namespace CommonLib.Mvvm
 
             remove
             {
-                if (this.canExecute != null)
+                if (this._canExecute != null)
                 {
                     CommandManager.RequerySuggested -= value;
                 }
@@ -72,7 +72,7 @@ namespace CommonLib.Mvvm
         /// <returns><c>true</c> if this command can be executed; otherwise, <c>false</c>.</returns>
         public bool CanExecute(object parameter)
         {
-            return this.canExecute == null ? true : this.canExecute();
+            return this._canExecute == null ? true : this._canExecute();
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace CommonLib.Mvvm
         /// <param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to <c>null</c>.</param>
         public void Execute(object parameter)
         {
-            this.execute(parameter);
+            this._executor(parameter);
         }
 
         /// <summary>

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CalibrationTool.ResolveUtils
+﻿namespace CalibrationTool.ResolveUtils
 {
     /// <summary>
     /// 用于约定解析类的接口

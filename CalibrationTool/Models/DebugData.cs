@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -33,9 +32,10 @@ namespace CalibrationTool.Models
             get => _modbusBaud;
             set
             {
-                var code = BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code.ToString() == value);
-                if (code != default)
+                if (BaudRateCode.GetBaudRateCodes().FirstOrDefault(v => v.Code.ToString() == value) is BaudRateCode code)
+                {
                     _modbusBaud = code.BaudRate.ToString();
+                }
             }
         }
 
@@ -75,8 +75,7 @@ namespace CalibrationTool.Models
         {
             try
             {
-                var customSetAttr = pInfo.GetCustomAttribute<InvokeCustomSetMethodAttribute>();
-                if (customSetAttr == null)
+                if (pInfo.GetCustomAttribute<InvokeCustomSetMethodAttribute>() is null)
                     pInfo.SetValue(this, value);
                 else
                     pInfo.SetMethod?.Invoke(this, new object[] { value });
@@ -122,8 +121,5 @@ namespace CalibrationTool.Models
     /// <summary>
     /// 表示该属性需要调用自定义的set方法来设置其值。
     /// </summary>
-    public class InvokeCustomSetMethodAttribute : Attribute
-    {
-
-    }
+    public sealed class InvokeCustomSetMethodAttribute : Attribute { }
 }

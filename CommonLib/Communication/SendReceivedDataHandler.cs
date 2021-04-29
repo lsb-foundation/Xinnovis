@@ -10,11 +10,11 @@ namespace CommonLib.Communication
 
         private SendReceivedDataHandlerPair currentPair;
 
-        private System.Timers.Timer timer;
+        private readonly System.Timers.Timer _timer;
 
-        private Queue<SendReceivedDataHandlerPair> PairQueue = new Queue<SendReceivedDataHandlerPair>();
+        private readonly Queue<SendReceivedDataHandlerPair> _pairQueue = new Queue<SendReceivedDataHandlerPair>();
 
-        private Action<object> Send;
+        private readonly Action<object> _send;
 
         /// <summary>
         /// Received Handler
@@ -30,27 +30,27 @@ namespace CommonLib.Communication
         /// <param name="retry">Retry time if failed or time is out</param>
         public SendReceivedDataHandler(Action<object> send, int interval = 500)
         {
-            Send = send ?? throw new ArgumentNullException(nameof(send));
+            _send = send ?? throw new ArgumentNullException(nameof(send));
 
-            timer = new System.Timers.Timer
+            _timer = new System.Timers.Timer
             {
                 AutoReset = true,
                 Interval = interval
             };
-            timer.Elapsed += Timer_Elapsed;
+            _timer.Elapsed += Timer_Elapsed;
 
             ReceivedHandler = o => HandleReceivedData(o);
         }
 
         private void HandleReceivedData(object data)
         {
-            if (!timer.Enabled)         //Time is out, application can't handle data.
+            if (!_timer.Enabled)         //Time is out, application can't handle data.
             {
                 WaitTimeout?.Invoke();
                 return;
             }
 
-            timer.Stop();
+            _timer.Stop();
 
             if (!currentPair.ReceivedHandler(data))     //Handle failed.
             {
@@ -69,7 +69,7 @@ namespace CommonLib.Communication
         {
             foreach (var pair in pairList)
             {
-                PairQueue.Enqueue(pair);
+                _pairQueue.Enqueue(pair);
             }
         }
 
@@ -78,8 +78,8 @@ namespace CommonLib.Communication
         /// </summary>
         public void RemoveAllPair()
         {
-            while (PairQueue?.Count > 0)
-                PairQueue.Dequeue();
+            while (_pairQueue?.Count > 0)
+                _pairQueue.Dequeue();
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace CommonLib.Communication
         /// </summary>
         public void Start()
         {
-            if (PairQueue?.Count > 0)
+            if (_pairQueue?.Count > 0)
             {
-                currentPair = PairQueue.Dequeue();
+                currentPair = _pairQueue.Dequeue();
                 SendCurrentCode();
                 remainingRetryTime = currentPair.RetryTime;
             }
@@ -97,8 +97,8 @@ namespace CommonLib.Communication
 
         private void SendCurrentCode()
         {
-            Send(currentPair.Data);
-            timer.Start();
+            _send(currentPair.Data);
+            _timer.Start();
         }
 
         private void Retry()
@@ -115,7 +115,7 @@ namespace CommonLib.Communication
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             //Time is out.
-            timer.Stop();
+            _timer.Stop();
             Retry();
         }
     }

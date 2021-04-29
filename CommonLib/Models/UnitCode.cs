@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CommonLib.Config;
 
 namespace CommonLib.Models
@@ -15,17 +16,12 @@ namespace CommonLib.Models
         {
             try
             {
-                var unitConfiguration = NameCodeConfigurationSection.GetConfig("UnitConfiguration");
-                var unitCodes = new List<UnitCode>();
-                foreach (NameCodeConfigurationElement element in unitConfiguration.Collection)
-                {
-                    unitCodes.Add(new UnitCode
-                    {
-                        Unit = element.Name,
-                        Code = element.Code
-                    });
-                }
-                return unitCodes;
+                return NameCodeConfigurationSection
+                    .GetConfig("UnitConfiguration")
+                    .Collection
+                    .OfType<NameCodeConfigurationElement>()
+                    .Select(e => new UnitCode { Unit = e.Name, Code = e.Code })
+                    .ToList();
             }
             catch { return null; }
         }
