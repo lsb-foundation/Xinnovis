@@ -13,15 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "配置文件", "配置文件", "{00C1EEE2-2EEB-4D64-94E0-C87D2CEA15EC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MFD配置", "MFD配置", "{E43673E7-C2BE-4302-8B1C-4233E3685252}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MFM配置", "MFM配置", "{E432CA78-F582-4783-A3F2-FACBCEA2E5B5}"
-	ProjectSection(SolutionItems) = preProject
-		MFMCalibrationTool\Configs\commands.xml = MFMCalibrationTool\Configs\commands.xml
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware", "MFCSoftware\MFCSoftware.csproj", "{4F5F881D-4663-406D-BF63-8690793C25E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialDataDisplay", "SerialDataDisplay\SerialDataDisplay.csproj", "{A4F4EF35-23E1-452E-A434-83BE9FF5B832}"
@@ -75,10 +66,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{E43673E7-C2BE-4302-8B1C-4233E3685252} = {00C1EEE2-2EEB-4D64-94E0-C87D2CEA15EC}
-		{E432CA78-F582-4783-A3F2-FACBCEA2E5B5} = {00C1EEE2-2EEB-4D64-94E0-C87D2CEA15EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EDEE4E81-2F79-464A-9ADC-74F97EFB140D}
