@@ -9,7 +9,7 @@ namespace MFCSoftware.ViewModels
 {
     public class SetSerialPortWindowViewModel : BindableBase
     {
-        private SerialPort _serialPort;
+        private readonly SerialPort _serialPort;
         public SetSerialPortWindowViewModel()
         {
             _serialPort = SerialPortInstance.GetSerialPortInstance();

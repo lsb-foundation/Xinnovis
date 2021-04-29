@@ -1,36 +1,39 @@
 ﻿using System;
 using System.Reflection;
 using CommonLib.Extensions;
-using log4net;
+using Serilog.Core;
 using MFCSoftware.Models;
+using Serilog;
 
 namespace MFCSoftware.Common
 {
-    public class LogHelper
+    public static class LogHelper
     {
-        private static readonly ILog logInfo = LogManager.GetLogger("loginfo");
-        private static readonly ILog logError = LogManager.GetLogger("logerror");
+        private static readonly Logger _logger;
+
+        static LogHelper()
+        {
+            _logger = new LoggerConfiguration().WriteTo.File(@"Logs\.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+        }
 
         public static void WriteLog(string info)
         {
-            if (logInfo.IsInfoEnabled)
-                logInfo.Info(info);
+            _logger.Information(info);
         }
 
         public static void WriteLog(string info, Exception ex)
         {
-            if (logError.IsErrorEnabled)
-                logError.Error(info, ex);
+            _logger.Error(ex, info);
         }
 
         public static void WriteRecievedHexData(byte[] data, SerialCommandType type)
         {
-            if (!logInfo.IsInfoEnabled) return;
             var resolveActionAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
             if (resolveActionAttr == null)
                 throw new NullReferenceException("Can't find " + nameof(ResolveActionAttribute));
             var actionName = resolveActionAttr.ActionName;
-            logInfo.Info("[Recieved] " + actionName + Environment.NewLine + data.ToHexString());
+            _logger.Information($"[Recieved] {actionName}");
+            _logger.Information($"[Data] {data.ToHexString()}");
         }
     }
 }
