@@ -53,8 +53,6 @@
     <Compile Include="Communication\Serial\AdvancedSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Communication\SendReceivedDataHandler.cs" />
-    <Compile Include="Communication\SendReceivedDataHandlerPair.cs" />
     <Compile Include="Communication\Serial\BaudRateCode.cs" />
     <Compile Include="Config\NameCodeConfigurationElementCollection.cs" />
     <Compile Include="Config\NameCodeConfigurationElement.cs" />
