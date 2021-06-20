@@ -161,13 +161,9 @@ namespace CalibrationTool.ViewModels
         private void InitializeSerialPort()
         {
             AdvancedSerialPort.GetPortNames().ForEach(n => PortNameCollection.Add(n));
-            if (PortNameCollection.Count == 0)
-            {
-                throw new Exception("串口初始化失败：在设备上未找到端口。");
-            }
-
             serialPort = new AdvancedSerialPort { BaudRate = ConfigManager.Serial_BaudRate };
             string configPortName = ConfigManager.Serial_PortName;
+            if (PortNameCollection.Count == 0) return;
             if (!string.IsNullOrEmpty(configPortName))
             {
                 if (PortNameCollection.Contains(configPortName))
