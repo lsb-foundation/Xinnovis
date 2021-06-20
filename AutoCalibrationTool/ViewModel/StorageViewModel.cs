@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using System.Windows;
 
 namespace AutoCalibrationTool.ViewModel
 {
@@ -19,12 +20,19 @@ namespace AutoCalibrationTool.ViewModel
             }
         }
         public bool ExportButtonEnabled => ViewModelLocator.Main.Mode == Models.CalibrationMode.Stop;
+        public Visibility TestButtonVisible { get; private set; } = Visibility.Collapsed;
         #endregion
 
         #region Methods
         public void UpdateButtonStatus()
         {
             RaisePropertyChanged(nameof(ExportButtonEnabled));
+        }
+
+        public void SetTestButtonToVisible()
+        {
+            TestButtonVisible = Visibility.Visible;
+            RaisePropertyChanged(nameof(TestButtonVisible));
         }
         #endregion
     }

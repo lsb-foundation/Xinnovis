@@ -107,13 +107,23 @@ namespace AutoCalibrationTool
 #if DEBUG
                     if (line.Contains("标定结束"))
                     {
-                        var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_result_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".json");
-                        using (var stream = File.Create(file))
+                        string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_incube_result-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
+                        using (FileStream stream = File.Create(file))
                         {
-                            var writer = new StreamWriter(stream);
-                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(_deviceDatas);
-                            writer.Write(json);
-                            writer.Close();
+                            using (var writer = new StreamWriter(stream))
+                            {
+                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(_incubeDeviceDatas);
+                                writer.Write(json);
+                            }
+                        }
+                        file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_room_result-{DateTime.Now: yyyyMMddHHmmss}.json");
+                        using (FileStream stream = File.Create(file))
+                        {
+                            using (var writer = new StreamWriter(stream))
+                            {
+                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(_roomDeviceDatas);
+                                writer.Write(json);
+                            } 
                         }
                     }
 #endif
@@ -350,6 +360,22 @@ namespace AutoCalibrationTool
 
             _incubeDeviceDatas.Clear();
             _roomDeviceDatas.Clear();
+        }
+
+        private void OnStatsusTextBoxKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (sender is System.Windows.Controls.TextBox box)
+                {
+                    string godModeStr = box.GetLineText(box.LineCount - 1);
+                    if (godModeStr.Trim().ToLower() == "test()")
+                    {
+                        ViewModelLocator.Storage.SetTestButtonToVisible();
+                        e.Handled = true;
+                    }
+                }
+            }
         }
     }
 }

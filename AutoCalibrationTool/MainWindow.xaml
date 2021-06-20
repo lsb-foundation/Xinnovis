@@ -63,8 +63,8 @@
                 </TextBox>
                 <Button Width="30" Click="OnDirectoryPickerClick">...</Button>
                 <Button Width="80" Click="OnExport" IsEnabled="{Binding ExportButtonEnabled}">导出数据</Button>
-                <Button Width="80" Click="OnReadTestFile" Visibility="Collapsed">读取测试文件</Button>
-                <Button Width="80" Click="OnTestExport" Visibility="Collapsed">测试导出</Button>
+                <Button Width="80" Click="OnReadTestFile" Visibility="{Binding TestButtonVisible}">读取测试文件</Button>
+                <Button Width="80" Click="OnTestExport" Visibility="{Binding TestButtonVisible}">测试导出</Button>
             </StackPanel>
         </StackPanel>
 
@@ -83,6 +83,8 @@
             <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
         </StackPanel>
 
-        <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Name="StatusTextBox" TextWrapping="Wrap"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Name="StatusTextBox" 
+                 TextWrapping="Wrap" InputMethod.IsInputMethodEnabled="False" 
+                 KeyDown="OnStatsusTextBoxKeyDown"/>
     </Grid>
 </Window>
