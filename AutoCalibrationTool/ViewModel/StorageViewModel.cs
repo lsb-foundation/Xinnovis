@@ -29,9 +29,9 @@ namespace AutoCalibrationTool.ViewModel
             RaisePropertyChanged(nameof(ExportButtonEnabled));
         }
 
-        public void SetTestButtonToVisible()
+        public void SetTestButtonVisiblity (Visibility visibility)
         {
-            TestButtonVisible = Visibility.Visible;
+            TestButtonVisible = visibility;
             RaisePropertyChanged(nameof(TestButtonVisible));
         }
         #endregion

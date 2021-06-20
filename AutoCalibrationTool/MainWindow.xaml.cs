@@ -368,10 +368,17 @@ namespace AutoCalibrationTool
             {
                 if (sender is System.Windows.Controls.TextBox box)
                 {
-                    string godModeStr = box.GetLineText(box.LineCount - 1);
-                    if (godModeStr.Trim().ToLower() == "test()")
+                    if (box.LineCount > 0)
                     {
-                        ViewModelLocator.Storage.SetTestButtonToVisible();
+                        string godModeStr = box.GetLineText(box.LineCount - 1).Trim().ToLower();
+                        if (godModeStr == "test()")
+                        {
+                            ViewModelLocator.Storage.SetTestButtonVisiblity(Visibility.Visible);
+                        }
+                        else if (godModeStr == "leave()")
+                        {
+                            ViewModelLocator.Storage.SetTestButtonVisiblity(Visibility.Collapsed);
+                        }
                         e.Handled = true;
                     }
                 }
