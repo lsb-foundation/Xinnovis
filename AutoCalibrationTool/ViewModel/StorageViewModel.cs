@@ -17,9 +17,11 @@ namespace AutoCalibrationTool.ViewModel
             {
                 storageLocation = value;
                 RaisePropertyChanged();
+                UpdateButtonStatus();
             }
         }
-        public bool ExportButtonEnabled => ViewModelLocator.Main.Mode == Models.CalibrationMode.Stop;
+        public bool ExportButtonEnabled => ViewModelLocator.Main.Mode == Models.CalibrationMode.Stop && !string.IsNullOrEmpty(storageLocation);
+        public bool ResetButtonEnabled => ViewModelLocator.Main.Mode == Models.CalibrationMode.Stop;
         public Visibility TestButtonVisible { get; private set; } = Visibility.Collapsed;
         #endregion
 
@@ -27,9 +29,10 @@ namespace AutoCalibrationTool.ViewModel
         public void UpdateButtonStatus()
         {
             RaisePropertyChanged(nameof(ExportButtonEnabled));
+            RaisePropertyChanged(nameof(ResetButtonEnabled));
         }
 
-        public void SetTestButtonVisiblity (Visibility visibility)
+        public void SetTestButtonVisibility(Visibility visibility)
         {
             TestButtonVisible = visibility;
             RaisePropertyChanged(nameof(TestButtonVisible));

@@ -7,7 +7,7 @@ namespace AutoCalibrationTool.Models
         /// <summary>
         /// 流量
         /// </summary>
-        public int Flow { get; set; }
+        public float Flow { get; set; }
         /// <summary>
         /// 温度
         /// </summary>

@@ -14,6 +14,9 @@ namespace AutoCalibrationTool.ViewModel
         public PortViewModel()
         {
             _serial.BaudRate = 115200;
+            _serial.Parity = Parity.None;
+            _serial.DataBits = 8;
+            _serial.StopBits = StopBits.One;
             _serial.DataReceived += SerialDataReceived;
             OpenOrClosePortCommand = new RelayCommand(() => OpenOrClosePort());
         }

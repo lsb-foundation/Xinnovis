@@ -24,29 +24,14 @@ namespace AutoCalibrationTool.Extensions
             return style;
         }
 
-        public static ICellStyle BasicNumericStyle(this IWorkbook workbook, string formatter = "0.000")
+        public static ICellStyle BasicNumericStyle(this IWorkbook workbook, string formatter = "0.000", bool isBold = false, double fontSize = 11.0)
         {
             ICellStyle style = workbook.BasicStyle();
             IDataFormat format = workbook.CreateDataFormat();
             style.DataFormat = format.GetFormat(formatter);
-            return style;
-        }
-
-        public static ICellStyle TemperatureCellStyle(this IWorkbook workbook)
-        {
-            ICellStyle style = workbook.BasicNumericStyle("0.0");
             IFont font = style.GetFont(workbook);
-            font.IsBold = true;
-            font.FontHeightInPoints = 14.0;
-            return style;
-        }
-
-        public static ICellStyle AverageCellStyle(this IWorkbook workbook)
-        {
-            ICellStyle style = workbook.BasicNumericStyle();
-            IFont font = style.GetFont(workbook);
-            font.IsBold = true;
-            font.FontHeightInPoints = 11.0;
+            font.IsBold = isBold;
+            font.FontHeightInPoints = fontSize;
             return style;
         }
     }

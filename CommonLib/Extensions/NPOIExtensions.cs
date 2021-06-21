@@ -81,6 +81,11 @@ namespace CommonLib.Extensions
 
         public static void MergeRegion(this ISheet sheet, int firstRow, int lastRow, int firstColumn, int lastColumn, object value, ICellStyle style = null)
         {
+            if (firstRow == lastRow && firstColumn == lastColumn)
+            {
+                sheet.GetCell(firstRow, firstColumn).SetCellValueEx(value, style);
+                return;
+            }
             sheet.AddMergedRegion(new CellRangeAddress(firstRow, lastRow, firstColumn, lastColumn));
             sheet.GetCell(firstRow, firstColumn).SetCellValueEx(value, style);
             if (style == null)

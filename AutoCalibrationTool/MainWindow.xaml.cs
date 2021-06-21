@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 
 namespace AutoCalibrationTool
 {
@@ -68,7 +67,7 @@ namespace AutoCalibrationTool
                     tail = lines[lines.Length - 1];
                 }
             }
-            _dataLines.CompleteAdding();
+            //_dataLines.CompleteAdding();
         }
 
         private void ResolveData()
@@ -82,7 +81,7 @@ namespace AutoCalibrationTool
                     if (datas.Length == 5)
                     {
                         int address = int.Parse(datas[1]);
-                        int flow = int.Parse(datas[2]);
+                        float flow = float.Parse(datas[2]);
                         string flag = datas[3];
                         float value = float.Parse(datas[4]);
 
@@ -123,7 +122,7 @@ namespace AutoCalibrationTool
                             {
                                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(_roomDeviceDatas);
                                 writer.Write(json);
-                            } 
+                            }
                         }
                     }
 #endif
@@ -131,40 +130,10 @@ namespace AutoCalibrationTool
             }
         }
 
-        private void AddDeviceDataTo(List<DeviceData> deviceDatas, int address, int flow, float value, string flag)
+        private void AddDeviceDataTo(List<DeviceData> deviceDatas, int address, float flow, float value, string flag)
         {
-            if (deviceDatas.Any(dd => dd.DeviceCode == address))
+            void setTempOrVoltValue(FlowTemperatureData ft)
             {
-                DeviceData deviceData = deviceDatas.FirstOrDefault(dd => dd.DeviceCode == address);
-                if (deviceData.Datas.Any(d => d.Flow == flow))
-                {
-                    FlowTemperatureData tf = deviceData.Datas.FirstOrDefault(d => d.Flow == flow);
-                    if (flag == "T")
-                    {
-                        tf.Temperature = value;
-                    }
-                    else if (flag == "V")
-                    {
-                        tf.Volts.Add(value);
-                    }
-                }
-                else
-                {
-                    var tf = new FlowTemperatureData { Flow = flow, Volts = new List<float>() };
-                    if (flag == "T")
-                    {
-                        tf.Temperature = value;
-                    }
-                    else if (flag == "V")
-                    {
-                        tf.Volts.Add(value);
-                    }
-                    deviceData.Datas.Add(tf);
-                }
-            }
-            else
-            {
-                var ft = new FlowTemperatureData { Flow = flow, Volts = new List<float>() };
                 if (flag == "T")
                 {
                     ft.Temperature = value;
@@ -173,15 +142,35 @@ namespace AutoCalibrationTool
                 {
                     ft.Volts.Add(value);
                 }
+            }
+            if (deviceDatas.Any(dd => dd.DeviceCode == address))
+            {
+                DeviceData deviceData = deviceDatas.FirstOrDefault(dd => dd.DeviceCode == address);
+                if (deviceData.Datas.Any(d => d.Flow == flow))
+                {
+                    FlowTemperatureData ftd = deviceData.Datas.FirstOrDefault(d => d.Flow == flow);
+                    setTempOrVoltValue(ftd);
+                }
+                else
+                {
+                    var ftd = new FlowTemperatureData { Flow = flow, Volts = new List<float>() };
+                    setTempOrVoltValue(ftd);
+                    deviceData.Datas.Add(ftd);
+                }
+            }
+            else
+            {
+                var ftd = new FlowTemperatureData { Flow = flow, Volts = new List<float>() };
+                setTempOrVoltValue(ftd);
                 DeviceData deviceData = new DeviceData { DeviceCode = address, Datas = new List<FlowTemperatureData>() };
-                deviceData.Datas.Add(ft);
+                deviceData.Datas.Add(ftd);
                 deviceDatas.Add(deviceData);
             }
         }
 
         private void OnDirectoryPickerClick(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new FolderBrowserDialog())
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
@@ -205,7 +194,7 @@ namespace AutoCalibrationTool
                         Thread.Sleep(20);
                     }
                 }
-                _originDatas.CompleteAdding();
+                //_originDatas.CompleteAdding();
             });
         }
 
@@ -214,8 +203,7 @@ namespace AutoCalibrationTool
             var orderedDeviceDatas = deviceDatas.OrderBy(dd => dd.DeviceCode)
                     .Select((v, i) => (Index: i, Data: v))
                     .GroupBy(t => t.Index / 8)
-                    .Select(g => g.Select(t => t.Data).ToList())
-                    .ToList();
+                    .Select(g => g.Select(t => t.Data).ToList());
 
             using (var fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
             {
@@ -225,20 +213,20 @@ namespace AutoCalibrationTool
                 ICellStyle basicStyle = workbook.BasicStyle();
                 ICellStyle headerStyle = workbook.HeaderStyle();
                 ICellStyle basicNumericStyle = workbook.BasicNumericStyle();
-                ICellStyle temperatureStyle = workbook.TemperatureCellStyle();
-                ICellStyle averageStyle = workbook.AverageCellStyle();
+                ICellStyle temperatureStyle = workbook.BasicNumericStyle(formatter: "0.0", isBold: true, fontSize: 14.0);
+                ICellStyle averageStyle = workbook.BasicNumericStyle(isBold: true);
+                ICellStyle flowStyle = workbook.BasicNumericStyle(formatter: "0.0", isBold: true, fontSize: 11.0);
 
                 int row = 0;
-                for (int line = 0; line < orderedDeviceDatas.Count; ++line)
+                foreach (IEnumerable<DeviceData> datas in orderedDeviceDatas)
                 {
                     int column = 0;
-                    List<DeviceData> datas = orderedDeviceDatas[line];
                     int flowCount = datas.Sum(dd => dd.Datas.Count);
                     int voltsMaxCount = datas.Max(dd => dd.Datas.Max(d => d.Volts.Count));
 
 #region 左侧表头
                     sheet.SetCellValue(row, 0, "标定环境", headerStyle);
-                    sheet.MergeRegion(row, row, 1, flowCount + datas.Count - 1, string.Empty);
+                    sheet.MergeRegion(row, row, 1, flowCount + datas.Count() - 1, string.Empty);
                     sheet.SetCellValue(row + 1, 0, "设备号", headerStyle);
                     int deviceCodeRow = row + 1;
                     sheet.SetCellValue(row + 2, 0, "流量", headerStyle);
@@ -249,7 +237,7 @@ namespace AutoCalibrationTool
                     sheet.SetCellValue(row + 7, 0, "平均值", headerStyle);
 #endregion
 
-                    for (int deviceDataIndex = 0; deviceDataIndex < datas.Count; ++deviceDataIndex)
+                    for (int deviceDataIndex = 0; deviceDataIndex < datas.Count(); ++deviceDataIndex)
                     {
                         ++column;
                         var deviceData = datas.ElementAt(deviceDataIndex);
@@ -257,12 +245,11 @@ namespace AutoCalibrationTool
                         sheet.MergeRegion(deviceCodeRow, deviceCodeRow, column, column + deviceData.Datas.Count - 1, deviceData.DeviceCode, headerStyle);
 #endregion
 
-                        for (int dataIndex = 0; dataIndex < deviceData.Datas.Count; ++dataIndex)
+                        foreach (FlowTemperatureData data in deviceData.Datas.OrderBy(ftd => ftd.Flow))
                         {
-                            var data = deviceData.Datas[dataIndex];
                             row = deviceCodeRow;
 
-                            sheet.SetCellValue(++row, column, data.Flow, headerStyle);
+                            sheet.SetCellValue(++row, column, data.Flow, flowStyle);
                             sheet.SetCellValue(++row, column, data.Temperature, temperatureStyle);
 
                             string range = $"{sheet.GetCell(row + 5, column).Address}:{sheet.GetCell(row + 5 + data.Volts.Count - 1, column).Address}";
@@ -291,7 +278,7 @@ namespace AutoCalibrationTool
                         }
                     }
 
-                    row = deviceCodeRow + voltsMaxCount + 7;
+                    row = deviceCodeRow + voltsMaxCount + 8;
                 }
                 workbook.Write(fs);
                 workbook.Close();
@@ -324,14 +311,15 @@ namespace AutoCalibrationTool
 
             for (int index = 0; index < 15; ++index)
             {
-                DeviceData data = deviceDatas[0];
-                data.DeviceCode = index + 1;
+                var data = new DeviceData { DeviceCode = index + 2 };
+                data.Datas = deviceDatas.FirstOrDefault()?.Datas;
                 deviceDatas.Add(data);
             }
 
-            var fileName = $"Export_{DateTime.Now: yyyyMMddHHmmss}.xlsx";
+            var fileName = $"测试数据-{DateTime.Now: yyyyMMddHHmmssfff}.xlsx";
             var file = Path.Combine(path, fileName);
             Export(deviceDatas, file);
+            System.Diagnostics.Process.Start("Explorer.exe", $@"/select,{file}");
         }
 
         private void OnExport(object sender, RoutedEventArgs e)
@@ -339,6 +327,12 @@ namespace AutoCalibrationTool
             string path = ViewModelLocator.Storage.StorageLocation;
             if (string.IsNullOrEmpty(path))
             {
+                return;
+            }
+
+            if (_incubeDeviceDatas.Count == 0 && _roomDeviceDatas.Count == 0)
+            {
+                MessageBox.Show("没有可以导出的数据。", "提示", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -373,15 +367,25 @@ namespace AutoCalibrationTool
                         string godModeStr = box.GetLineText(box.LineCount - 1).Trim().ToLower();
                         if (godModeStr == "test()")
                         {
-                            ViewModelLocator.Storage.SetTestButtonVisiblity(Visibility.Visible);
+                            ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Visible);
                         }
                         else if (godModeStr == "leave()")
                         {
-                            ViewModelLocator.Storage.SetTestButtonVisiblity(Visibility.Collapsed);
+                            ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Collapsed);
                         }
                         e.Handled = true;
                     }
                 }
+            }
+        }
+
+        private void OnReset(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("该操作将清空所有已存储的数据，请确保标定流程已结束且数据已导出。", "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                _incubeDeviceDatas.Clear();
+                _roomDeviceDatas.Clear();
+                StatusTextBox.Clear();
             }
         }
     }
