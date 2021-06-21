@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d" Icon="/Assets/logo.png" WindowStartupLocation="CenterScreen"
-        Title="自动标定工具" Height="600" Width="800">
+        Title="自动标定工具" Height="600" Width="800" Closing="OnAppExiting">
     <Grid Background="#f0f0f0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -18,10 +18,10 @@
 
         <StackPanel Orientation="Horizontal" Margin="4" Grid.ColumnSpan="2" >
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource Locator}, Path=Port}">
-                <Label>串口：</Label>
+                <Label>串口:</Label>
                 <ComboBox Width="100" ItemsSource="{Binding SerialPortNames}"
                           SelectedItem="{Binding PortName}" IsEnabled="{Binding IsClosed}"/>
-                <Button Margin="4,0,0,0" Width="50" Command="{Binding OpenOrClosePortCommand}">
+                <Button Margin="4,0,0,0" Width="50" Command="{Binding OpenOrClosePortCommand}" IsEnabled="{Binding PortButtonEnabled}">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Style.Triggers>
@@ -42,7 +42,7 @@
                         <Setter Property="Margin" Value="4,0,0,0"/>
                     </Style>
                 </StackPanel.Resources>
-                <Label Margin="4,0,0,0">存储位置：</Label>
+                <Label Margin="4,0,0,0">存储位置:</Label>
                 <TextBox Width="150" Margin="4,0,0,0" VerticalContentAlignment="Center" ToolTipService.IsEnabled ="True" ToolTipService.ShowOnDisabled="True" IsEnabled="False" Text="{Binding StorageLocation}">
                     <TextBox.ToolTip>
                         <ToolTip Content="{Binding StorageLocation}">
@@ -69,20 +69,37 @@
             </StackPanel>
         </StackPanel>
 
-        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="4"
-                    DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
-            <StackPanel.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="Width" Value="100"/>
-                    <Setter Property="Height" Value="50"/>
-                    <Setter Property="Margin" Value="4"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding IncubeStartButtonEnabled}">恒温标定开始</Button>
-            <Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>
-            <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding RoomStartButtonEnabled}">室温标定开始</Button>
-            <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
-        </StackPanel>
+        <Grid Grid.Row="1" Margin="4" DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Vertical">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Width" Value="100"/>
+                        <Setter Property="Height" Value="50"/>
+                        <Setter Property="Margin" Value="4"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding IncubeStartButtonEnabled}">恒温标定开始</Button>
+                <Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>
+                <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding RoomStartButtonEnabled}">室温标定开始</Button>
+                <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Orientation="Vertical">
+                <StackPanel Margin="4,0,4,0" Orientation="Horizontal">
+                    <Label>设备数:</Label>
+                    <Label Content="{Binding DeviceDataCount}"/>
+                </StackPanel>
+                <StackPanel Margin="4,0,4,0" Orientation="Horizontal">
+                    <Label>流量数:</Label>
+                    <Label Content="{Binding FlowDataCount}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
 
         <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Name="StatusTextBox" 
                  TextWrapping="Wrap" InputMethod.IsInputMethodEnabled="False" 

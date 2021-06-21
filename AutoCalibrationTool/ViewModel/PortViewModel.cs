@@ -39,6 +39,7 @@ namespace AutoCalibrationTool.ViewModel
         public string[] SerialPortNames => SerialPort.GetPortNames();
         public bool IsOpen => _serial.IsOpen;
         public bool IsClosed => !_serial.IsOpen;
+        public bool PortButtonEnabled => ViewModelLocator.Main.Mode == Models.CalibrationMode.Stop;
         #endregion
 
         #region Commands
@@ -78,6 +79,11 @@ namespace AutoCalibrationTool.ViewModel
             RaisePropertyChanged(nameof(IsOpen));
             RaisePropertyChanged(nameof(IsClosed));
             ViewModelLocator.Main.UpdateButtonEnableStatus();
+        }
+
+        public void UpdatePortButtonStatus()
+        {
+            RaisePropertyChanged(nameof(PortButtonEnabled));
         }
         #endregion
     }

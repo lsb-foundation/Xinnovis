@@ -20,6 +20,8 @@ namespace AutoCalibrationTool.ViewModel
         public bool RoomStartButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Stop;
         public bool RoomStopButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Room;
         public CalibrationMode Mode { get; private set; } = CalibrationMode.Stop;
+        public int DeviceDataCount { get; private set; }
+        public int FlowDataCount { get; private set; }
         #endregion
 
         #region Commands
@@ -36,6 +38,14 @@ namespace AutoCalibrationTool.ViewModel
             RaisePropertyChanged(nameof(IncubeStopButtonEnabled));
             RaisePropertyChanged(nameof(RoomStartButtonEnabled));
             RaisePropertyChanged(nameof(RoomStopButtonEnabled));
+        }
+
+        public void SetDataCount(int deviceDataCount, int flowDataCount)
+        {
+            DeviceDataCount = deviceDataCount;
+            FlowDataCount = flowDataCount;
+            RaisePropertyChanged(nameof(DeviceDataCount));
+            RaisePropertyChanged(nameof(FlowDataCount));
         }
 
         private void Send(string content, CommandType type)
@@ -57,6 +67,7 @@ namespace AutoCalibrationTool.ViewModel
                     break;
             }
             UpdateButtonEnableStatus();
+            ViewModelLocator.Port.UpdatePortButtonStatus();
             ViewModelLocator.Storage.UpdateButtonStatus();
         }
         #endregion
