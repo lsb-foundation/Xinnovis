@@ -16,6 +16,7 @@ using System.IO;
 using System.Globalization;
 using System.Windows.Media;
 using System.Threading.Tasks;
+using CommonLib.Utils;
 
 namespace MFCSoftware.Views
 {
@@ -80,7 +81,7 @@ namespace MFCSoftware.Views
                 {
                     _viewModel.WhenResolveFailed();
                     MainWindowViewModel.ShowAppMessage(e.Message);
-                    LogHelper.WriteLog(e.Message, e);
+                    LoggerHelper.WriteLog(e.Message, e);
                 }
             });
         }
@@ -123,7 +124,7 @@ namespace MFCSoftware.Views
             FlowData flowData = new FlowData()
             {
                 CurrentFlow = flow,
-                Unit = _viewModel.BaseInfo.Unit?.Unit,
+                Unit = _viewModel.BaseInfo?.Unit?.Unit,
                 AccuFlow = accuFlow,
                 AccuFlowUnit = unit,
                 Days = days,
@@ -252,7 +253,7 @@ namespace MFCSoftware.Views
             }
             catch (Exception e)
             {
-                LogHelper.WriteLog(e.Message, e);
+                LoggerHelper.WriteLog(e.Message, e);
                 MainWindowViewModel.ShowAppMessage("导出Excel出错：\n" + e.Message);
             }
         }

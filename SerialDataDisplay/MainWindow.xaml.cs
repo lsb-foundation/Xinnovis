@@ -137,9 +137,9 @@ namespace SerialDataDisplay
             btnStop_Click(this, null);
         }
 
-        private void btnExport_Click(object sender, RoutedEventArgs e)
+        private async void btnExport_Click(object sender, RoutedEventArgs e)
         {
-            var values = vm.QueryValues();
+            var values = await vm.QueryValuesAsync();
             if(values.Count > 0)
             {
                 var dialog = new SaveFileDialog();

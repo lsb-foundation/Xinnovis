@@ -231,7 +231,7 @@ namespace MFCSoftware.ViewModels
         private void SetCurrentFlowByUnit(float flow)
         {
             //UCCM和CCM与SCCM等价，因此均按照SCCM进行处理
-            var meterUnit = BaseInfo.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
+            var meterUnit = BaseInfo?.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
             Func<float, float> converterFunc = v => v;       //默认不转换
 
             if (meterUnit == "SCCM")

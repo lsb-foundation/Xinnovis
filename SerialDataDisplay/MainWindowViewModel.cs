@@ -1,31 +1,29 @@
 ﻿using CommonLib.Communication.Serial;
 using CommonLib.Mvvm;
-using CommonLib.DbUtils;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using LiveCharts.Wpf;
 using LiveCharts;
 using LiveCharts.Defaults;
-using LiveCharts.Configurations;
 using System.IO;
+using System.Data;
+using System.Data.SQLite;
 
 namespace SerialDataDisplay
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        private readonly string _connectionString;
         private readonly string dbFile = "db.sqlite";
-        private readonly string tableName = "tb_values";
-        private readonly SqliteUtils utils;
 
         public MainWindowViewModel()
         {
             var dbFileName = Path.Combine(Environment.CurrentDirectory, dbFile);
-            var connectionString = $"data source = {dbFileName}";
-            utils = new SqliteUtils(connectionString);
+            _connectionString = $"data source = {dbFileName}";
             InitializeTables();
 
             Serial = new SerialPort()
@@ -147,43 +145,36 @@ namespace SerialDataDisplay
 
         public void InsertValue(float value)
         {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append($"INSERT INTO {tableName}(collect_time, value) VALUES (")
-                .Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'),")
-                .Append($"{value});");
-            string sql = sqlBuilder.ToString();
-            utils.ExecuteNonQuery(sql);
+            using (IDbConnection connection = new SQLiteConnection(_connectionString))
+            {
+                connection.ExecuteAsync(
+                    "insert into tb_values(collect_time, value) values(@Time, @Value)", 
+                    new TableValue 
+                    { 
+                        Time = DateTime.Now, 
+                        Value = value 
+                    });
+            }
         }
 
-        public List<TableValue> QueryValues()
+        public async Task<List<TableValue>> QueryValuesAsync()
         {
-            var lastestStartTimeStr = LastestStartTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string sql = $"SELECT * FROM {tableName} WHERE collect_time > '{lastestStartTimeStr}';";
-            List<TableValue> values = new List<TableValue>();
-            var reader = utils.ExecuteQuery(sql);
-            while (reader.Read())
+            using (IDbConnection connection = new SQLiteConnection(_connectionString))
             {
-                try
-                {
-                    var value = new TableValue();
-                    value.Time = reader.GetDateTime(0);
-                    value.Value = reader.GetFloat(1);
-                    values.Add(value);
-                }
-                catch { }
+                var values = await connection.QueryAsync<TableValue>(
+                    "select collect_time as Time, value as Value from tb_values where collect_time > @time", 
+                    new { time = LastestStartTime.ToString("yyyy-MM-dd HH:mm:ss.fff") });
+                return values.ToList();
             }
-            return values;
         }
 
         private void InitializeTables()
         {
-            var tableTypes = new Dictionary<string, string>()
+            using (IDbConnection connection = new SQLiteConnection(_connectionString))
             {
-                {"collect_time", "datetime" },
-                {"value", "float" }
-            };
-            utils.CreateTableIfNotExists(tableName, tableTypes);
-            utils.ClearTable(tableName);
+                connection.Execute("create table if not exists tb_values(collect_time datetime, value float);");
+                connection.Execute("delete from tb_values where 1=1;");
+            }
         }
     }
 

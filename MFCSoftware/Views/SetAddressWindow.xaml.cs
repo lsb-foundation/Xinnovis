@@ -7,6 +7,7 @@ using MFCSoftware.Common;
 using System.Timers;
 using MFCSoftware.Models;
 using System.Reflection;
+using CommonLib.Utils;
 
 namespace MFCSoftware.Views
 {
@@ -64,7 +65,7 @@ namespace MFCSoftware.Views
             }
             catch(Exception e)
             {
-                LogHelper.WriteLog(e.Message, e);
+                LoggerHelper.WriteLog(e.Message, e);
             }
         }
 

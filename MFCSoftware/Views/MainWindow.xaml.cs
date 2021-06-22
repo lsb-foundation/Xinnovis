@@ -1,4 +1,5 @@
 ﻿using CommonLib.Mvvm;
+using CommonLib.Utils;
 using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
@@ -96,7 +97,7 @@ namespace MFCSoftware.Views
                         }
                         catch (Exception ex)
                         {
-                            LogHelper.WriteLog(ex.Message, ex);
+                            LoggerHelper.WriteLog(ex.Message, ex);
                         }
                     }
                 }
@@ -129,7 +130,7 @@ namespace MFCSoftware.Views
             {
                 timer.Stop();
                 MainWindowViewModel.ShowAppMessage("串口可能被其他程序占用，请检查！");
-                LogHelper.WriteLog(e.Message, e);
+                LoggerHelper.WriteLog(e.Message, e);
                 return false;
             }
         }
@@ -188,7 +189,7 @@ namespace MFCSoftware.Views
                 }
                 catch(Exception ex)
                 {
-                    LogHelper.WriteLog(ex.Message, ex);
+                    LoggerHelper.WriteLog(ex.Message, ex);
                 }
                 finally
                 {
@@ -207,8 +208,10 @@ namespace MFCSoftware.Views
 
         private void InitializeTimer()
         {
-            timer = new Timer();
-            timer.Interval = totalInterval;
+            timer = new Timer
+            {
+                Interval = totalInterval
+            };
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }

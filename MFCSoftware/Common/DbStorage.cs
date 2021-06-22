@@ -1,20 +1,21 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using MFCSoftware.Models;
-using CommonLib.DbUtils;
 using System.Timers;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data.SQLite;
+using System.Data;
 
 namespace MFCSoftware.Common
 {
     public static class DbStorage
     {
         private const string dbFile = "db.sqlite";
-        private const string flowTableName = "tb_flow";
-        private static readonly SqliteUtils utils;
+        private static readonly string _connectionString;
         //private static readonly System.Timers.Timer timer;
         //private const int recordsMaxNumber = 100_0000;
         //private const int deleteCheckTime = 30;         //定时删除检查时间，单位：分钟
@@ -22,21 +23,8 @@ namespace MFCSoftware.Common
         static DbStorage()
         {
             var dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
-            var connectionString = string.Format("data source = {0}", dbFilePath);
-            utils = new SqliteUtils(connectionString);
-
-            var flowTableTypes = new Dictionary<string, string>()
-            {
-                {"address", "int" },
-                {"collect_time", "datetime" },
-                {"curr_flow", "float" },
-                {"unit", "varchar(8)" },
-                {"accu_flow", "float" },
-                {"accu_unit", "varchar(8)" }
-            };
-
-            utils.CreateTableIfNotExists(flowTableName, flowTableTypes);
-
+            _connectionString = string.Format("data source = {0}", dbFilePath);
+            CreateTable();
             //timer = new System.Timers.Timer { AutoReset = true, Interval = deleteCheckTime * 60 * 1000 };
             //timer.Elapsed += Timer_Elapsed;
             //timer.Start();
@@ -66,28 +54,31 @@ namespace MFCSoftware.Common
         //    });
         //}
 
-        public static void InsertFlowDatasByTransaction(int address, List<FlowData> flows)
+        private static void CreateTable()
         {
-            using(var transaction = utils.Connection.BeginTransaction())
+            using (var connection = new SQLiteConnection(_connectionString))
             {
-                foreach (var data in flows)
-                    InsertFlowData(address, data);
-                transaction.Commit();
+                connection.Execute("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
             }
         }
 
-        public static void InsertFlowData(int address, FlowData data)
+        public static async void InsertFlowData(int address, FlowData data)
         {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append($"INSERT INTO {flowTableName}(address, collect_time, curr_flow, unit, accu_flow, accu_unit) VALUES (")
-                .Append($"{address},")
-                .Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'),")
-                .Append($"{data.CurrentFlow},")
-                .Append($"'{data.Unit}',")
-                .Append($"{data.AccuFlow},")
-                .Append($"'{data.AccuFlowUnit}');");
-            string sql = sqlBuilder.ToString();
-            utils.ExecuteNonQuery(sql);
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.ExecuteAsync(
+                    @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit) 
+                      values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit);",
+                      new
+                      {
+                          Address = address,
+                          CollectTime = DateTime.Now,
+                          data.CurrentFlow,
+                          Unit = data.Unit ?? string.Empty,
+                          data.AccuFlow,
+                          data.AccuFlowUnit
+                      });
+            }
         }
 
         public static async Task<List<FlowData>> QueryLastest2HoursFlowDatasAsync(int address)
@@ -99,51 +90,31 @@ namespace MFCSoftware.Common
 
         public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)
         {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
-                .Append($" WHERE address={address}")
-                .Append($" AND collect_time BETWEEN '{fromTime:yyyy-MM-dd HH:mm:ss.fff}' AND '{toTime:yyyy-MM-dd HH:mm:ss.fff}'")
-                .Append(" ORDER BY collect_time;");
-
-            return await QueryFlowDatasBySqlAsync(sqlBuilder.ToString());
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                var flows = await connection.QueryAsync<FlowData>(
+                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit
+                      from tb_flow where address = @address and collect_time between @fromTime and @toTime order by collect_time;",
+                      new
+                      {
+                          address,
+                          fromTime,
+                          toTime
+                      });
+                return flows.AsList();
+            }
         }
 
         public static async Task<List<FlowData>> QueryAllFlowDatasAsync(int address)
         {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append($"SELECT collect_time, curr_flow, unit, accu_flow, accu_unit FROM {flowTableName}")
-                .Append($" WHERE address={address}")
-                .Append(" ORDER BY collect_time;");
-
-            return await QueryFlowDatasBySqlAsync(sqlBuilder.ToString());
-        }
-
-        private static async Task<List<FlowData>> QueryFlowDatasBySqlAsync(string sql)
-        {
-            var task = new Task<List<FlowData>>(() =>
+            using (var connection = new SQLiteConnection(_connectionString))
             {
-                List<FlowData> flows = new List<FlowData>();
-                var reader = utils.ExecuteQuery(sql);
-                while (reader.Read())
-                {
-                    try
-                    {
-                        var flow = new FlowData
-                        {
-                            CollectTime = reader.GetDateTime(0),
-                            CurrentFlow = reader.GetFloat(1),
-                            Unit = reader.GetString(2),
-                            AccuFlow = reader.GetFloat(3),
-                            AccuFlowUnit = reader.GetString(4)
-                        };
-                        flows.Add(flow);
-                    }
-                    catch { }
-                }
-                return flows;
-            });
-            task.Start();
-            return await task;
+                var flows = await connection.QueryAsync<FlowData>(
+                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit
+                      from tb_flow where address = @address",
+                    new { address });
+                return flows.AsList();
+            }
         }
     }
 
