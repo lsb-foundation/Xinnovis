@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace AutoCalibrationTool
 {
@@ -374,21 +375,18 @@ namespace AutoCalibrationTool
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                if (sender is System.Windows.Controls.TextBox box)
+                if (sender is TextBox box && box.LineCount > 0)
                 {
-                    if (box.LineCount > 0)
+                    string godModeStr = box.GetLineText(box.LineCount - 1).Trim().ToLower();
+                    if (godModeStr == "test()")
                     {
-                        string godModeStr = box.GetLineText(box.LineCount - 1).Trim().ToLower();
-                        if (godModeStr == "test()")
-                        {
-                            ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Visible);
-                        }
-                        else if (godModeStr == "leave()")
-                        {
-                            ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Collapsed);
-                        }
-                        e.Handled = true;
+                        ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Visible);
                     }
+                    else if (godModeStr == "leave()")
+                    {
+                        ViewModelLocator.Storage.SetTestButtonVisibility(Visibility.Collapsed);
+                    }
+                    e.Handled = true;
                 }
             }
         }
