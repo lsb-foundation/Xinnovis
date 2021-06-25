@@ -56,12 +56,10 @@ namespace AutoCalibrationTool.ViewModel
                 case CommandType.IncubeStart:
                     Mode = CalibrationMode.Incube;
                     break;
-                case CommandType.IncubeStop:
-                    Mode = CalibrationMode.Stop;
-                    break;
                 case CommandType.RoomStart:
                     Mode = CalibrationMode.Room;
                     break;
+                case CommandType.IncubeStop:
                 case CommandType.RoomStop:
                     Mode = CalibrationMode.Stop;
                     break;
