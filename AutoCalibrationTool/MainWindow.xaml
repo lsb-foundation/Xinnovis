@@ -83,9 +83,9 @@
                         <Setter Property="Margin" Value="4"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding IncubeStartButtonEnabled}">恒温标定开始</Button>
+                <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">恒温标定开始</Button>
                 <Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>
-                <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding RoomStartButtonEnabled}">室温标定开始</Button>
+                <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">室温标定开始</Button>
                 <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
             </StackPanel>
 
