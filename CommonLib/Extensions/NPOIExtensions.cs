@@ -76,7 +76,14 @@ namespace CommonLib.Extensions
             {
                 cell.CellStyle = style;
             }
-            //cell.Sheet.AutoSizeColumn(cell.ColumnIndex);
+        }
+
+        public static void AutoSizeColumns(this ISheet sheet, int startColumnIndex, int lastColumnIndex)
+        {
+            for (int idx = startColumnIndex; idx <= lastColumnIndex; ++idx)
+            {
+                sheet.AutoSizeColumn(idx);
+            }
         }
 
         public static void MergeRegion(this ISheet sheet, int firstRow, int lastRow, int firstColumn, int lastColumn, object value, ICellStyle style = null)
