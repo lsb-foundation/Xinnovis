@@ -15,8 +15,7 @@ namespace AutoCalibrationTool.ViewModel
             get => storageLocation;
             set
             {
-                storageLocation = value;
-                RaisePropertyChanged();
+                Set(ref storageLocation, value);
                 UpdateButtonStatus();
             }
         }
