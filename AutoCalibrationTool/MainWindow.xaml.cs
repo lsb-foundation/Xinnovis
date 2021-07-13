@@ -46,25 +46,24 @@ namespace AutoCalibrationTool
             _originDatas.Add(result);
         }
 
+        private readonly string[] _seperator = new string[] { "\r\n" };
         private void GetDataLinesFromOrigin()
         {
             var tail = string.Empty;
-            var separator = new string[] { "\r\n" };
             foreach (var data in _originDatas.GetConsumingEnumerable())
             {
-                var lines = data.Split(separator, StringSplitOptions.None);
+                tail += data;
+                var lines = tail.Split(_seperator, StringSplitOptions.None);
                 if (lines.Length == 1)
                 {
-                    tail += lines[0];
+                    tail = lines[0];
                 }
                 else if (lines.Length > 1)
                 {
-                    _dataLines.Add(tail + lines[0]);
-                    for (int idx = 1; idx < lines.Length - 1; ++idx)
+                    for (int idx = 0; idx < lines.Length - 1; ++idx)
                     {
                         _dataLines.Add(lines[idx]);
                     }
-
                     tail = lines[lines.Length - 1];
                 }
             }
@@ -196,14 +195,28 @@ namespace AutoCalibrationTool
         {
             await Task.Run(async () =>
             {
-                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test.txt");
-                using (FileStream stream = File.OpenRead(file))
+                //string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test.txt");
+                //using (FileStream stream = File.OpenRead(file))
+                //{
+                //    var reader = new StreamReader(stream);
+                //    string line = null;
+                //    while ((line = await reader.ReadLineAsync()) != null)
+                //    {
+                //        _originDatas.Add(line + "\r\n");
+                //        Thread.Sleep(20);
+                //    }
+                //}
+                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testlog.txt");
+                using (var stream = File.OpenRead(file))
                 {
                     var reader = new StreamReader(stream);
                     string line = null;
-                    while ((line = await reader.ReadLineAsync()) != null)
+                    while((line = await reader.ReadLineAsync()) != null)
                     {
-                        _originDatas.Add(line + "\r\n");
+                        int idx = line.IndexOf("Received:");
+                        if (idx == -1) continue;
+                        var bytes = line.Substring(idx + 10).HexStringToBytes();
+                        _originDatas.Add(Encoding.Default.GetString(bytes));
                         Thread.Sleep(20);
                     }
                 }
@@ -415,6 +428,11 @@ namespace AutoCalibrationTool
                     e.Cancel = true;
                 }
             }
+        }
+
+        private void ClearStatusTextBox(object sender, RoutedEventArgs e)
+        {
+            StatusTextBox.Clear();
         }
     }
 }

@@ -12,12 +12,15 @@ namespace AutoCalibrationTool.ViewModel
             IncubeStopCommand = new RelayCommand(() => Send("INCUBE_STOP!", CommandType.IncubeStop));
             RoomStartCommand = new RelayCommand(() => Send("ROOM_START!", CommandType.RoomStart));
             RoomStopCommand = new RelayCommand(() => Send("ROOM_STOP!", CommandType.RoomStop));
+            TestLeakageOnCommand = new RelayCommand(() => Send("TEST_LEAKAGE_ON!", CommandType.TestLeakageOn));
+            TestLeakageOffCommand = new RelayCommand(() => Send("TEST_LEAKAGE_OFF!", CommandType.TestLeakageOff));
         }
 
         #region Properties
         public bool CommandButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Stop;
         public bool IncubeStopButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Incube;
         public bool RoomStopButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Room;
+        public bool TestLeakageOffButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.TestLeakage;
         public CalibrationMode Mode { get; private set; } = CalibrationMode.Stop;
         public int DeviceDataCount { get; private set; }
         public int FlowDataCount { get; private set; }
@@ -28,6 +31,8 @@ namespace AutoCalibrationTool.ViewModel
         public RelayCommand IncubeStopCommand { get; }
         public RelayCommand RoomStartCommand { get; }
         public RelayCommand RoomStopCommand { get; }
+        public RelayCommand TestLeakageOnCommand { get; }
+        public RelayCommand TestLeakageOffCommand { get; }
         #endregion
 
         #region Methods
@@ -36,6 +41,7 @@ namespace AutoCalibrationTool.ViewModel
             RaisePropertyChanged(nameof(CommandButtonEnabled));
             RaisePropertyChanged(nameof(IncubeStopButtonEnabled));
             RaisePropertyChanged(nameof(RoomStopButtonEnabled));
+            RaisePropertyChanged(nameof(TestLeakageOffButtonEnabled));
         }
 
         public void SetDataCount(int deviceDataCount, int flowDataCount)
@@ -57,8 +63,10 @@ namespace AutoCalibrationTool.ViewModel
                 case CommandType.RoomStart:
                     Mode = CalibrationMode.Room;
                     break;
-                case CommandType.IncubeStop:
-                case CommandType.RoomStop:
+                case CommandType.TestLeakageOn:
+                    Mode = CalibrationMode.TestLeakage;
+                    break;
+                default:
                     Mode = CalibrationMode.Stop;
                     break;
             }
@@ -73,7 +81,9 @@ namespace AutoCalibrationTool.ViewModel
             IncubeStart,
             IncubeStop,
             RoomStart,
-            RoomStop
+            RoomStop,
+            TestLeakageOn,
+            TestLeakageOff
         }
     }
 }

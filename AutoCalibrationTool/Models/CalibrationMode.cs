@@ -5,6 +5,7 @@ namespace AutoCalibrationTool.Models
     {
         Incube,
         Room,
+        TestLeakage,
         Stop
     }
 }

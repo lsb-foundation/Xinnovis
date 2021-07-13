@@ -87,6 +87,8 @@
                 <Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>
                 <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">室温标定开始</Button>
                 <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
+                <Button Command="{Binding TestLeakageOnCommand}" IsEnabled="{Binding CommandButtonEnabled}">漏气检测开始</Button>
+                <Button Command="{Binding TestLeakageOffCommand}" IsEnabled="{Binding TestLeakageOffButtonEnabled}">漏气检测结束</Button>
             </StackPanel>
 
             <StackPanel Grid.Row="1" Orientation="Vertical">
@@ -103,6 +105,14 @@
 
         <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Name="StatusTextBox" 
                  TextWrapping="Wrap" InputMethod.IsInputMethodEnabled="False" 
-                 KeyDown="OnStatsusTextBoxKeyDown"/>
+                 KeyDown="OnStatsusTextBoxKeyDown" IsUndoEnabled="False" UndoLimit="0">
+            <TextBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="ApplicationCommands.Copy"/>
+                    <MenuItem Command="ApplicationCommands.Paste"/>
+                    <MenuItem Header="清空" Click="ClearStatusTextBox"/>
+                </ContextMenu>
+            </TextBox.ContextMenu>
+        </TextBox>
     </Grid>
 </Window>
