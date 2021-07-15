@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Data.SQLite;
 using System.Data;
+using System.Collections.Concurrent;
 
 namespace MFCSoftware.Common
 {
@@ -59,6 +60,8 @@ namespace MFCSoftware.Common
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 connection.Execute("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
+                connection.Execute("create index if not exists idx_tb_flow_addr on tb_flow(address);");
+                connection.Execute("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
             }
         }
 
@@ -125,21 +128,24 @@ namespace MFCSoftware.Common
     {
         private readonly int _address;
         private readonly System.Timers.Timer _timer;
+        private readonly BlockingCollection<FlowData> _flowDatas;
         public FlowData Flow { get; set; }
 
-        public FlowDataSaver(int address, int intervalMinutes)
+        public FlowDataSaver(int address, int intervalSeconds)
         {
             _address = address;
-            _timer = new System.Timers.Timer(TimeSpan.FromMinutes(intervalMinutes).TotalMilliseconds) { AutoReset = false };
+            _flowDatas = new BlockingCollection<FlowData>();
+            Task.Run(() => InsertFlowData());
+            _timer = new System.Timers.Timer(TimeSpan.FromSeconds(intervalSeconds).TotalMilliseconds) { AutoReset = false };
             _timer.Elapsed += Timer_Elapsed;
             _timer.Start();
         }
 
-        public void SetInterval(int minutes)
+        public void SetInterval(int seconds)
         {
-            if (minutes > 0)
+            if (seconds > 0)
             {
-                _timer.Interval = TimeSpan.FromMinutes((double)minutes).TotalMilliseconds;
+                _timer.Interval = TimeSpan.FromSeconds((double)seconds).TotalMilliseconds;
             }
         }
 
@@ -147,9 +153,17 @@ namespace MFCSoftware.Common
         {
             if (Flow != null)
             {
-                DbStorage.InsertFlowData(_address, Flow);
+                _flowDatas.Add(Flow);
             }
             _timer.Start();
+        }
+
+        private void InsertFlowData()
+        {
+            foreach (var flowData in _flowDatas.GetConsumingEnumerable())
+            {
+                DbStorage.InsertFlowData(_address, flowData);
+            }
         }
     }
 

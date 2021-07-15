@@ -33,7 +33,7 @@ namespace MFCSoftware.Views
             InitializeComponent();
             _flowDataSaver = new FlowDataSaver(address, (int)_viewModel.InsertInterval);
             _viewModel.Address = address;
-            _viewModel.InsertIntervalChanged += minutes => _flowDataSaver.SetInterval((int)minutes);
+            _viewModel.InsertIntervalChanged += seconds => _flowDataSaver.SetInterval((int)seconds);
             this.DataContext = _viewModel;
         }
 

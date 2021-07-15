@@ -80,7 +80,7 @@
                 <Border BorderThickness="1" Margin="4" CornerRadius="5"
                         BorderBrush="{StaticResource PrimaryHueDarkBrush}">
                     <StackPanel>
-                        <TextBox Margin="4" md:HintAssist.Hint="保存时间间隔(分钟)"
+                        <TextBox Margin="4" md:HintAssist.Hint="保存时间间隔(秒)"
                                  Text="{Binding InsertInterval}"
                                  Name="saveIntervalTextBox"
                                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>

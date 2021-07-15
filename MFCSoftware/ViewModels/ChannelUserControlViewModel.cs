@@ -46,7 +46,7 @@ namespace MFCSoftware.ViewModels
         public BaseInformation BaseInfo { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();
 
-        private uint _insertInterval = 1;
+        private uint _insertInterval = 30;
         public uint InsertInterval
         {
             get => _insertInterval;
