@@ -47,13 +47,15 @@ namespace AutoCalibrationTool.ViewModel
         #endregion
 
         #region Methods
-        public void Send(string content)
+        public bool Send(string content)
         {
             if (_serial.IsOpen)
             {
                 _serial.Write(content);
                 LoggerHelper.WriteLog($"Send: {content}");
+                return true;
             }
+            return false;
         }
 
         private void SerialDataReceived(object sender, SerialDataReceivedEventArgs e)

@@ -434,5 +434,16 @@ namespace AutoCalibrationTool
         {
             StatusTextBox.Clear();
         }
+
+        private void OnSendButtonKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if ((sender as TextBox).DataContext is MainViewModel mainVm)
+                {
+                    mainVm.SendCommand?.Execute(null);
+                }
+            }
+        }
     }
 }

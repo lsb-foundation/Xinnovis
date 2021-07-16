@@ -103,16 +103,36 @@
             </StackPanel>
         </Grid>
 
-        <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Name="StatusTextBox" 
-                 TextWrapping="Wrap" InputMethod.IsInputMethodEnabled="False" 
-                 KeyDown="OnStatsusTextBoxKeyDown" IsUndoEnabled="False" UndoLimit="0">
-            <TextBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="ApplicationCommands.Copy"/>
-                    <MenuItem Command="ApplicationCommands.Paste"/>
-                    <MenuItem Header="清空" Click="ClearStatusTextBox"/>
-                </ContextMenu>
-            </TextBox.ContextMenu>
-        </TextBox>
+        <Grid Grid.Row="1" Grid.Column="1" Margin="4"
+              DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBox Name="StatusTextBox" TextWrapping="Wrap" InputMethod.IsInputMethodEnabled="False" 
+                     KeyDown="OnStatsusTextBoxKeyDown" IsUndoEnabled="False" UndoLimit="0">
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="ApplicationCommands.Copy"/>
+                        <MenuItem Command="ApplicationCommands.Paste"/>
+                        <MenuItem Header="清空" Click="ClearStatusTextBox"/>
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
+            <ComboBox Grid.Row="1" Margin="0,4,0,4" ItemsSource="{Binding HistoryCommands}" SelectedItem="{Binding SelectedCommand}"/>
+            <Grid Grid.Row="2" Height="50">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="29*"/>
+                    <ColumnDefinition Width="279*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="0,4,0,-1" Text="{Binding Command}" Grid.ColumnSpan="2"/>
+                <Button Grid.Column="2" Margin="4,4,0.286,0" Width="50"
+                        IsEnabled="{Binding CommandButtonEnabled}"
+                        Command="{Binding SendCommand}"
+                        KeyDown="OnSendButtonKeyDown">发送</Button>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
