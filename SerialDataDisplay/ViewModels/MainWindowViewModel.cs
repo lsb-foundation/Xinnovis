@@ -1,5 +1,5 @@
 ﻿using CommonLib.Communication.Serial;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -72,7 +72,7 @@ namespace SerialDataDisplay
                     Serial.Close();
 
                 Serial.PortName = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -82,7 +82,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.BaudRate = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -92,7 +92,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.DataBits = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -102,7 +102,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.Parity = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -112,7 +112,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.StopBits = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -120,14 +120,14 @@ namespace SerialDataDisplay
         public bool ControlEnabled
         {
             get => _controlEnable;
-            set => SetProperty(ref _controlEnable, value);
+            set => Set(ref _controlEnable, value);
         }
 
         private SerialCommand _serialCommand;
         public SerialCommand CurrentCommand
         {
             get => _serialCommand;
-            set => SetProperty(ref _serialCommand, value);
+            set => Set(ref _serialCommand, value);
         }
 
         public SeriesCollection SeriesCollection { get; set; }
@@ -136,7 +136,7 @@ namespace SerialDataDisplay
         public float CurrentValue
         {
             get => _currentValue;
-            set => SetProperty(ref _currentValue, value);
+            set => Set(ref _currentValue, value);
         }
 
         public DateTime LastestStartTime { get; set; }

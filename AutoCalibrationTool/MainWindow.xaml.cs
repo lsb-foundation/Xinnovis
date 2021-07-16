@@ -106,7 +106,7 @@ namespace AutoCalibrationTool
 #if DEBUG
                     if (line.Contains("标定结束"))
                     {
-                        string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_incube_result-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
+                        string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"test_incube_result-{DateTime.Now:yyyyMMddHHmmss}.json");
                         using (FileStream stream = File.Create(file))
                         {
                             using (var writer = new StreamWriter(stream))

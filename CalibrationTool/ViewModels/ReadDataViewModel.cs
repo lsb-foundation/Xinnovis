@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using CommonLib.Mvvm;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
+using GalaSoft.MvvmLight;
 using System.Reflection;
+using GalaSoft.MvvmLight.Command;
 
 namespace CalibrationTool.ViewModels
 {
     public class ReadDataViewModel : ViewModelBase
     {
         #region Command
-        public ICommand SendDebugCommand { get; set; }
+        public RelayCommand SendDebugCommand { get; set; }
         public ICommand SendCaliCommand { get; set; }
         public ICommand SendReadFlowCommand { get; private set; }
         public ICommand SendAVStartCommand { get; set; }
@@ -42,70 +43,70 @@ namespace CalibrationTool.ViewModels
         public bool Repeat
         {
             get => _repeat;
-            set => SetProperty(ref _repeat, value);
+            set => Set(ref _repeat, value);
         }
 
         private int _interval = 100;
         public int Interval
         {
             get => _interval;
-            set => SetProperty(ref _interval, value);
+            set => Set(ref _interval, value);
         }
 
         private float _avStartValue;
         public float AVStartValue
         {
             get => _avStartValue;
-            set => SetProperty(ref _avStartValue, value);
+            set => Set(ref _avStartValue, value);
         }
 
         private float _aiStartValue;
         public float AIStartValue
         {
             get => _aiStartValue;
-            set => SetProperty(ref _aiStartValue, value);
+            set => Set(ref _aiStartValue, value);
         }
 
         private float _checkAVValue;
         public float CheckAVValue
         {
             get => _checkAVValue;
-            set => SetProperty(ref _checkAVValue, value);
+            set => Set(ref _checkAVValue, value);
         }
 
         private float _checkAVKValue;
         public float CheckAVKValue
         {
             get => _checkAVKValue;
-            set => SetProperty(ref _checkAVKValue, value);
+            set => Set(ref _checkAVKValue, value);
         }
 
         private float _checkAVDValue;
         public float CheckAVDValue
         {
             get => _checkAVDValue;
-            set => SetProperty(ref _checkAVDValue, value);
+            set => Set(ref _checkAVDValue, value);
         }
 
         private float _checkAIValue;
         public float CheckAIValue
         {
             get => _checkAIValue;
-            set => SetProperty(ref _checkAIValue, value);
+            set => Set(ref _checkAIValue, value);
         }
 
         private float _checkAIKValue;
         public float CheckAIKValue 
         { 
             get => _checkAIKValue;
-            set => SetProperty(ref _checkAIKValue, value);
+            set => Set(ref _checkAIKValue, value);
         }
 
         private float _checkAIDValue;
         public float CheckAIDValue
         {
             get => _checkAIDValue;
-            set => SetProperty(ref _checkAIDValue, value);
+            set => Set(ref _checkAIDValue, value);
         }
         #endregion
 
@@ -115,13 +116,13 @@ namespace CalibrationTool.ViewModels
             PropertyInfo property = DebugDataMapperAttribute.GetPropertyByKey(keyValue.Key);
             if (property == null || !property.CanWrite) return;
             if (DebugData.TryToSetPropertyValue(property, keyValue.Value))
-                RaiseProperty(nameof(DebugData));
+                RaisePropertyChanged(nameof(DebugData));
         }
 
         public void SetReadFlowCommand(Action act)
         {
             SendReadFlowCommand = new RelayCommand(
-                o => Task.Run(async () =>
+                () => Task.Run(async () =>
                 {
                     if (_repeat && _interval <= 0) return;
                     do

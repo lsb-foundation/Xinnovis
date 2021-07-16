@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ namespace MFCSoftware.Common
     public static class SerialPortInstance
     {
         private static SerialPort com;
-        private static readonly ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
+        //private static readonly ConcurrentQueue<byte> buffer = new ConcurrentQueue<byte>();
         private static SerialCommand<byte[]> currentCommand = null;
         //private static bool timeOut;
         private const int waitTime = 100;
@@ -20,8 +19,10 @@ namespace MFCSoftware.Common
 
         static SerialPortInstance()
         {
-            com = new SerialPort();
-            com.DtrEnable = true;
+            com = new SerialPort
+            {
+                DtrEnable = true
+            };
             //com.DataReceived += Com_DataReceived;
         }
 
@@ -45,8 +46,10 @@ namespace MFCSoftware.Common
         {
             if (com == null)
             {
-                com = new SerialPort();
-                com.DtrEnable = true;
+                com = new SerialPort
+                {
+                    DtrEnable = true
+                };
                 //com.DataReceived += Com_DataReceived;
             }
             return com;

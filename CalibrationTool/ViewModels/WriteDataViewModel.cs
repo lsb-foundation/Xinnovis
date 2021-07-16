@@ -1,4 +1,4 @@
-﻿using CommonLib.Mvvm;
+﻿using GalaSoft.MvvmLight;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using CalibrationTool.Utils;
 using CommonLib.Models;
+using GalaSoft.MvvmLight.Command;
 
 namespace CalibrationTool.ViewModels
 {
@@ -37,14 +38,14 @@ namespace CalibrationTool.ViewModels
         public string VoltCommand
         {
             get => _voltCommand;
-            set => SetProperty(ref _voltCommand, value);
+            set => Set(ref _voltCommand, value);
         }
 
         private string _kCommand;
         public string KCommand
         {
             get => _kCommand;
-            set => SetProperty(ref _kCommand, value);
+            set => Set(ref _kCommand, value);
         }
 
         public string ClearEEPRomCommand { get => ConfigManager.ClearEEPRomCommand; }
@@ -56,91 +57,91 @@ namespace CalibrationTool.ViewModels
         public GasTypeCode SelectedGasTypeCode
         {
             get => _selectedGasTypeCode;
-            set => SetProperty(ref _selectedGasTypeCode, value);
+            set => Set(ref _selectedGasTypeCode, value);
         }
 
         private UnitCode _selectedUnitCode;
         public UnitCode SelectedUnitCode
         {
             get => _selectedUnitCode;
-            set => SetProperty(ref _selectedUnitCode, value);
+            set => Set(ref _selectedUnitCode, value);
         }
 
         private float _temperature;
         public float Temperature
         {
             get => _temperature;
-            set => SetProperty(ref _temperature, value);
+            set => Set(ref _temperature, value);
         }
 
         private float _gasFactor;
         public float GasFactor
         {
             get => _gasFactor;
-            set => SetProperty(ref _gasFactor, value);
+            set => Set(ref _gasFactor, value);
         }
 
         private float _range;
         public float Range
         {
             get => _range;
-            set => SetProperty(ref _range, value);
+            set => Set(ref _range, value);
         }
 
         private float _avKValue;
         public float AvKValue
         {
             get => _avKValue;
-            set => SetProperty(ref _avKValue, value);
+            set => Set(ref _avKValue, value);
         }
 
         private float _avDValue;
         public float AvDValue
         {
             get => _avDValue;
-            set => SetProperty(ref _avDValue, value);
+            set => Set(ref _avDValue, value);
         }
 
         private float _aiKValue;
         public float AiKValue
         {
             get => _aiKValue;
-            set => SetProperty(ref _aiKValue, value);
+            set => Set(ref _aiKValue, value);
         }
 
         private float _aiDValue;
         public float AiDValue
         {
             get => _aiDValue;
-            set => SetProperty(ref _aiDValue, value);
+            set => Set(ref _aiDValue, value);
         }
 
         private float _pid_P;
         public float Pid_P
         {
             get => _pid_P;
-            set => SetProperty(ref _pid_P, value);
+            set => Set(ref _pid_P, value);
         }
 
         private float _pid_i;
         public float Pid_I
         {
             get => _pid_i;
-            set => SetProperty(ref _pid_i, value);
+            set => Set(ref _pid_i, value);
         }
 
         private float _pid_d;
         public float Pid_D
         {
             get => _pid_d;
-            set => SetProperty(ref _pid_d, value);
+            set => Set(ref _pid_d, value);
         }
 
         private int _pid_zero;
         public int Pid_Zero
         {
             get => _pid_zero;
-            set => SetProperty(ref _pid_zero, value);
+            set => Set(ref _pid_zero, value);
         }
         #endregion
 
@@ -154,7 +155,7 @@ namespace CalibrationTool.ViewModels
             voltValues = new List<float>(voltDataLength);
             kValues = new List<float>(kDataLength);
 
-            ReadExcelCommand = new RelayCommand(o => OpenExcelFile());
+            ReadExcelCommand = new RelayCommand(() => OpenExcelFile());
         }
         #endregion
 

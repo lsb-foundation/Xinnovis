@@ -9,17 +9,17 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class ExportSelectWindow : Window
     {
-        private ExportSelectWindowViewModel viewModel = new ExportSelectWindowViewModel();
+        private readonly ExportSelectWindowViewModel _vm;
         public ExportSelectWindow()
         {
             InitializeComponent();
-            DataContext = viewModel;
+            _vm = this.DataContext as ExportSelectWindowViewModel;
         }
 
         public bool IsReady { get; private set; }
         public ExportType ExportType { get; set; }
-        public DateTime FromTime => viewModel.FromDate.AddHours(viewModel.FromHour);
-        public DateTime ToTime => viewModel.ToDate.AddHours(viewModel.ToHour);
+        public DateTime FromTime => _vm.FromDate.AddHours(_vm.FromHour);
+        public DateTime ToTime => _vm.ToDate.AddHours(_vm.ToHour);
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
@@ -31,7 +31,7 @@ namespace MFCSoftware.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            IsReady = viewModel.FromHour >= 0 && viewModel.ToHour >= 0
+            IsReady = _vm.FromHour >= 0 && _vm.ToHour >= 0
                 && FromTime < ToTime;
             if (IsReady) this.Close();
             else MessageBox.Show("请检查日期是否正确！", "提示", MessageBoxButton.OK, MessageBoxImage.Error);

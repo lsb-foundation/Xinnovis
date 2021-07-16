@@ -8,12 +8,11 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class SetSerialPortWindow : Window
     {
-        private SetSerialPortWindowViewModel viewModel;
+        private readonly SetSerialPortWindowViewModel viewModel;
         public SetSerialPortWindow()
         {
             InitializeComponent();
-            viewModel = new SetSerialPortWindowViewModel();
-            this.DataContext = viewModel;
+            viewModel = this.DataContext as SetSerialPortWindowViewModel;
         }
 
         private void SetSerialPort(object sender, RoutedEventArgs e)

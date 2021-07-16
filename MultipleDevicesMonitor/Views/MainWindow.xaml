@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MultipleDevicesMonitor"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:p="clr-namespace:MultipleDevicesMonitor.Properties"
-        mc:Ignorable="d"
+        mc:Ignorable="d" DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
         Title="青岛芯笙微纳电子科技" Closing="Window_Closing" Background="#F0F0F0"
         Height="{Binding Source={x:Static p:Settings.Default}, Path=WindowHeight, Mode=TwoWay}" 
         Width="{Binding Source={x:Static p:Settings.Default}, Path=WindowWidth, Mode=TwoWay}"

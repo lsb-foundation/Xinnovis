@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using CommonLib.Mvvm;
+﻿using GalaSoft.MvvmLight;
+using System.Collections.Generic;
 using CommonLib.Communication.Serial;
 using MFCSoftware.Common;
 using System;
@@ -7,7 +7,7 @@ using System.IO.Ports;
 
 namespace MFCSoftware.ViewModels
 {
-    public class SetSerialPortWindowViewModel : BindableBase
+    public class SetSerialPortWindowViewModel : ViewModelBase
     {
         private readonly SerialPort _serialPort;
         public SetSerialPortWindowViewModel()
@@ -25,13 +25,13 @@ namespace MFCSoftware.ViewModels
         public string PortName
         {
             get => _portName;
-            set => SetProperty(ref _portName, value);
+            set => Set(ref _portName, value);
         }
         private int _baudRate = 9600;
         public int BaudRate
         {
             get => _baudRate;
-            set => SetProperty(ref _baudRate, value);
+            set => Set(ref _baudRate, value);
         }
 
         public void SetSerialPort()
@@ -43,7 +43,7 @@ namespace MFCSoftware.ViewModels
                 _serialPort.PortName = _portName;
                 _serialPort.BaudRate = _baudRate;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }

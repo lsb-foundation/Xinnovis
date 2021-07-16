@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MFCSoftware.Views"
         mc:Ignorable="d" ResizeMode="NoResize"
-        Title="选择要导出的数据" Height="200" Width="360">
+        Title="选择要导出的数据" Height="200" Width="360"
+        DataContext="{Binding Source={StaticResource Locator}, Path=ExportSelectViewModel}">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Margin="4">
             <RadioButton GroupName="ExportType" Name="byTimeRadio"

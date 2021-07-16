@@ -20,10 +20,12 @@ namespace VirtualSerialPortClient
             portName = ConfigurationManager.AppSettings["Port"];
             if(!string.IsNullOrWhiteSpace(portName))
             {
-                port = new SerialPort();
-                port.PortName = portName;
-                port.BaudRate = 9600;
-                port.DtrEnable = true;
+                port = new SerialPort
+                {
+                    PortName = portName,
+                    BaudRate = 9600,
+                    DtrEnable = true
+                };
                 port.DataReceived += Port_DataReceived;
                 port.Open();
                 Console.ReadKey();

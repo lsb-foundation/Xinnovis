@@ -16,21 +16,20 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class SetAddressWindow : Window
     {
-        private SetAddressWindowViewModel viewModel;
+        private readonly SetAddressWindowViewModel viewModel;
         private Timer timer;
 
         public SetAddressWindow()
         {
             InitializeComponent();
             InitializeWindow();
+            viewModel = this.DataContext as SetAddressWindowViewModel;
         }
 
         private void InitializeWindow()
         {
             timer = new Timer(1000);
             timer.Elapsed += Timer_Elapsed;
-            viewModel = new SetAddressWindowViewModel();
-            this.DataContext = viewModel;
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)

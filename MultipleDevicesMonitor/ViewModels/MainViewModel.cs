@@ -1,4 +1,5 @@
-﻿using CommonLib.Mvvm;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using MultipleDevicesMonitor.Properties;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -13,7 +14,7 @@ namespace MultipleDevicesMonitor.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private Timer timer;
+        private readonly Timer timer;
         private readonly List<int> addrList = new List<int>();
         
         public MainViewModel()
@@ -27,8 +28,8 @@ namespace MultipleDevicesMonitor.ViewModels
             SetPlotModel();
         }
 
-        public ICommand AddDeviceCommand { get => new RelayCommand(o => AddDevice()); }
-        public ICommand RemoveDeviceCommand { get => new RelayCommand(o => RemoveDevice()); }
+        public ICommand AddDeviceCommand { get => new RelayCommand(() => AddDevice()); }
+        public ICommand RemoveDeviceCommand { get => new RelayCommand(() => RemoveDevice()); }
 
         public PlotModel SeriesPlotModel { get; private set; }
 
@@ -36,7 +37,7 @@ namespace MultipleDevicesMonitor.ViewModels
         public int Address
         {
             get => _addr;
-            set => SetProperty(ref _addr, value);
+            set => Set(ref _addr, value);
         }
 
         private bool _isStopped;
@@ -47,7 +48,7 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 if (value) timer.Stop();
                 else timer.Start();
-                SetProperty(ref _isStopped, value);
+                Set(ref _isStopped, value);
             }
         }
 
@@ -109,7 +110,7 @@ namespace MultipleDevicesMonitor.ViewModels
             };
             SeriesPlotModel.Axes.Add(valueAxis);
 
-            RaiseProperty(nameof(SeriesPlotModel));
+            RaisePropertyChanged(nameof(SeriesPlotModel));
             timer.Start();
         }
 

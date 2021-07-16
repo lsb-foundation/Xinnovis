@@ -25,16 +25,16 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class ChannelUserControl : UserControl
     {
-        private readonly ChannelUserControlViewModel _viewModel = new ChannelUserControlViewModel();
+        private readonly ChannelUserControlViewModel _viewModel;
         private readonly FlowDataSaver _flowDataSaver;
 
         public ChannelUserControl(int address)
         {
             InitializeComponent();
+            _viewModel = this.DataContext as ChannelUserControlViewModel;
             _flowDataSaver = new FlowDataSaver(address, (int)_viewModel.InsertInterval);
             _viewModel.Address = address;
             _viewModel.InsertIntervalChanged += seconds => _flowDataSaver.SetInterval((int)seconds);
-            this.DataContext = _viewModel;
         }
 
         public event Action<ChannelUserControl> ChannelClosed; //控件被移除
@@ -73,14 +73,14 @@ namespace MFCSoftware.Views
                         case SerialCommandType.ValveControl:
                         case SerialCommandType.ZeroPointCalibration:
                         case SerialCommandType.FactoryRecovery:
-                            MainWindowViewModel.ShowAppMessage(ResolveActionAttribute.CheckAutomatically(data, type));
+                            _viewModel.ShowMessage(ResolveActionAttribute.CheckAutomatically(data, type));
                             break;
                     }
                 }
                 catch(Exception e)
                 {
                     _viewModel.WhenResolveFailed();
-                    MainWindowViewModel.ShowAppMessage(e.Message);
+                    _viewModel.ShowMessage(e.Message);
                     LoggerHelper.WriteLog(e.Message, e);
                 }
             });
@@ -189,7 +189,7 @@ namespace MFCSoftware.Views
                 }
                 else
                 {
-                    MainWindowViewModel.ShowAppMessage("未查询到数据！");
+                    _viewModel.ShowMessage("未查询到数据！");
                 }
             }
         }
@@ -249,12 +249,12 @@ namespace MFCSoftware.Views
                         sheet.Dispose();
                     }
                 });
-                MainWindowViewModel.ShowAppMessage("导出完成。");
+                _viewModel.ShowMessage("导出完成。");
             }
             catch (Exception e)
             {
                 LoggerHelper.WriteLog(e.Message, e);
-                MainWindowViewModel.ShowAppMessage("导出Excel出错：\n" + e.Message);
+                _viewModel.ShowMessage("导出Excel出错：\n" + e.Message);
             }
         }
 
@@ -282,12 +282,12 @@ namespace MFCSoftware.Views
         {
             if (_viewModel.BaseInfo == null)
             {
-                MainWindowViewModel.ShowAppMessage("未获取到基础数据，量程未知。");
+                _viewModel.ShowMessage("未获取到基础数据，量程未知。");
                 return;
             }
             if (_viewModel.FlowValue < 0 || _viewModel.FlowValue > _viewModel.BaseInfo.Range)
             {
-                MainWindowViewModel.ShowAppMessage("流量数据必须大于等于0，小于等于量程。");
+                _viewModel.ShowMessage("流量数据必须大于等于0，小于等于量程。");
                 return;
             }
             _viewModel.SetWriteFlowBytes();
@@ -298,7 +298,7 @@ namespace MFCSoftware.Views
         {
             if(_viewModel.ValveOpenValue < 0 || _viewModel.ValveOpenValue > 100)
             {
-                MainWindowViewModel.ShowAppMessage("阀门开度必须大于等于0，小于等于100。");
+                _viewModel.ShowMessage("阀门开度必须大于等于0，小于等于100。");
                 return;
             }
             _viewModel.SetWriteValveBytes();
@@ -308,8 +308,8 @@ namespace MFCSoftware.Views
         private void SetSaveTimeButton_Clicked(object sender, RoutedEventArgs e)
         {
             if (uint.TryParse(saveIntervalTextBox.Text, out uint _))
-                MainWindowViewModel.ShowAppMessage("保存时间间隔设置成功。");
-            else MainWindowViewModel.ShowAppMessage("输入有误，请重新输入。");
+                _viewModel.ShowMessage("保存时间间隔设置成功。");
+            else _viewModel.ShowMessage("输入有误，请重新输入。");
         }
 
         private void ZeroPointCaliButton_Click(object sender, RoutedEventArgs e)

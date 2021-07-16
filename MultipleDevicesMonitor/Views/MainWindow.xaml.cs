@@ -1,7 +1,6 @@
 ﻿using MultipleDevicesMonitor.ViewModels;
 using System.Windows;
 using MultipleDevicesMonitor.Properties;
-using CommonLib.Mvvm;
 
 namespace MultipleDevicesMonitor.Views
 {
@@ -10,13 +9,9 @@ namespace MultipleDevicesMonitor.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainViewModel main;
-
         public MainWindow()
         {
             InitializeComponent();
-            main = ViewModelBase.GetViewModelInstance<MainViewModel>();
-            DataContext = main;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -26,15 +21,19 @@ namespace MultipleDevicesMonitor.Views
 
         private void SettingsMenu_Clicked(object sender, RoutedEventArgs e)
         {
-            SettingsWindow win = new SettingsWindow();
-            win.Owner = this;
+            SettingsWindow win = new SettingsWindow
+            {
+                Owner = this
+            };
             win.ShowDialog();
         }
 
         private void AboutMenu_Clicked(object sender, RoutedEventArgs e)
         {
-            AboutWindow window = new AboutWindow();
-            window.Owner = this;
+            AboutWindow window = new AboutWindow
+            {
+                Owner = this
+            };
             window.ShowDialog();
         }
     }

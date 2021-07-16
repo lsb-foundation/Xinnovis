@@ -9,7 +9,7 @@ namespace CalibrationTool.Utils
 {
     public static class ConfigManager
     {
-        private static Configuration _config;
+        private static readonly Configuration _config;
 
         private static void Write(object value, [CallerMemberName] string key = null)
         {

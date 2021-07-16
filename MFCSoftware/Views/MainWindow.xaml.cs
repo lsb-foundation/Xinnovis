@@ -1,5 +1,4 @@
-﻿using CommonLib.Mvvm;
-using CommonLib.Utils;
+﻿using CommonLib.Utils;
 using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
@@ -31,8 +30,7 @@ namespace MFCSoftware.Views
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
-            mainVm = ViewModelBase.GetViewModelInstance<MainWindowViewModel>();
-            this.DataContext = mainVm;
+            mainVm = this.DataContext as MainWindowViewModel;
             InitializeTimer();
         }
 
@@ -129,7 +127,7 @@ namespace MFCSoftware.Views
             catch(Exception e)
             {
                 timer.Stop();
-                MainWindowViewModel.ShowAppMessage("串口可能被其他程序占用，请检查！");
+                mainVm.ShowMessage("串口可能被其他程序占用，请检查！");
                 LoggerHelper.WriteLog(e.Message, e);
                 return false;
             }
@@ -161,7 +159,7 @@ namespace MFCSoftware.Views
                 ChannelAdded(channelControl);
                 mainVm.ChannelCount++;
             }
-            else MainWindowViewModel.ShowAppMessage("地址重复，请重新添加。");
+            else mainVm.ShowMessage("地址重复，请重新添加。");
         }
 
 

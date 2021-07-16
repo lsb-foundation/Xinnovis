@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class AboutViewModel:ViewModelBase
+    public class AboutViewModel : ViewModelBase
     {
         public string Version 
         {

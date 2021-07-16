@@ -1,5 +1,5 @@
 ﻿using CalibrationTool.Utils;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 using System;
 using System.Windows.Input;
 
@@ -11,7 +11,7 @@ namespace CalibrationTool.ViewModels
         public string CodeToSend
         {
             get => _codeToSend;
-            set => SetProperty(ref _codeToSend, value);
+            set => Set(ref _codeToSend, value);
         }
 
         public string AppTitle { get => ConfigManager.AppTitle; }

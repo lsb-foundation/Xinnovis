@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using CommonLib.Communication.Serial;
 using MultipleDevicesMonitor.Properties;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
@@ -68,7 +66,7 @@ namespace MultipleDevicesMonitor.ViewModels
                     com.PortName = value;
                     Settings.Default.Serial_PortName = value;
                     SaveSettings();
-                    RaiseProperty();
+                    RaisePropertyChanged();
                 }
                 catch { }
             }
@@ -86,7 +84,7 @@ namespace MultipleDevicesMonitor.ViewModels
                 com.BaudRate = value;
                 Settings.Default.Serial_BaudRate = value;
                 SaveSettings();
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 

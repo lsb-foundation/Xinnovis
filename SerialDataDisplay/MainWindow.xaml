@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:SerialDataDisplay"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d" Closed="Window_Closed" Icon="logo.ico"
-        Title="青岛芯笙" Height="450" Width="800">
+        Title="青岛芯笙" Height="450" Width="800"
+        DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
     <Grid>
         <Grid.Resources>
             <Style TargetType="ComboBox">
@@ -55,9 +56,9 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Width="100" Margin="8" Click="btnSend_Click">开始</Button>
-            <Button Width="100" Margin="8" Click="btnStop_Click">停止</Button>
-            <Button Width="100" Margin="8" Click="btnExport_Click">数据导出</Button>
+            <Button Width="100" Margin="8" Click="SendButton_Click">开始</Button>
+            <Button Width="100" Margin="8" Click="StopButton_Click">停止</Button>
+            <Button Width="100" Margin="8" Click="ExportButton_Click">数据导出</Button>
         </StackPanel>
 
         <lvc:CartesianChart Grid.Row="2" Margin="0, 0, 0, 0" 

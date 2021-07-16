@@ -1,5 +1,5 @@
 ﻿using CommonLib.Communication.Serial;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 using MFCSoftware.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace MFCSoftware.ViewModels
 {
-    public class SetAddressWindowViewModel:BindableBase
+    public class SetAddressWindowViewModel : ViewModelBase
     {
         public SetAddressWindowViewModel()
         {
@@ -19,13 +19,13 @@ namespace MFCSoftware.ViewModels
         public uint ReaderAddress
         {
             get => _readerAddress;
-            set => SetProperty(ref _readerAddress, value);
+            set => Set(ref _readerAddress, value);
         }
         private uint _writerAddress;
         public uint WriterAddress
         {
             get => _writerAddress;
-            set => SetProperty(ref _writerAddress, value);
+            set => Set(ref _writerAddress, value);
         }
 
         public List<BaudRateCode> BaudRateCodes { get; private set; }
@@ -34,23 +34,23 @@ namespace MFCSoftware.ViewModels
         public BaudRateCode BaudRateCode
         {
             get => _baudRateCode;
-            set => SetProperty(ref _baudRateCode, value);
+            set => Set(ref _baudRateCode, value);
         }
 
         private bool _enable = true;
         public bool Enable
         {
             get => _enable;
-            set => SetProperty(ref _enable, value);
+            set => Set(ref _enable, value);
         }
 
-        public SerialCommand<byte[]> ReadAddressBytes 
-        { 
+        public SerialCommand<byte[]> ReadAddressBytes
+        {
             get
             {
                 byte[] command = new byte[] { 0xFE, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0x05 };
                 return new SerialCommand<byte[]>(command, SerialCommandType.ReadAddress, 7);
-            } 
+            }
         }
 
         public SerialCommand<byte[]> WriteAddressBytes

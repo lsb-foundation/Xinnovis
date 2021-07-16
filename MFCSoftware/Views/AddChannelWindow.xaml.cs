@@ -8,17 +8,16 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class AddChannelWindow : Window
     {
-        private readonly AddChannelWindowViewModel vm;
+        private readonly AddChannelWindowViewModel _vm;
         public AddChannelWindow()
         {
             InitializeComponent();
-            vm = new AddChannelWindowViewModel();
-            this.DataContext = vm;
             addressTextBox.Focus();
+            _vm = this.DataContext as AddChannelWindowViewModel;
         }
 
         public bool IsAddressSetted { get; private set; }
-        public int Address { get => vm.Address; }
+        public int Address { get => _vm.Address; }
        
         private void Button_Click(object sender, RoutedEventArgs e)
         {

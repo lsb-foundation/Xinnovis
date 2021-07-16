@@ -1,12 +1,11 @@
-﻿using CommonLib.Mvvm;
-using System;
+﻿using GalaSoft.MvvmLight;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MFCSoftware.ViewModels
 {
-    public class MainWindowViewModel:ViewModelBase
+    public class MainWindowViewModel : ViewModelBase
     {
         public bool Enable
         {
@@ -20,7 +19,7 @@ namespace MFCSoftware.ViewModels
             set
             {
                 _channelCount = value;
-                RaiseProperty(nameof(Enable));
+                RaisePropertyChanged(nameof(Enable));
             }
         }
 
@@ -33,13 +32,13 @@ namespace MFCSoftware.ViewModels
         public string AppMessage
         {
             get => _appMessage;
-            set => SetProperty(ref _appMessage, value);
+            set => Set(ref _appMessage, value);
         }
 
         private Task showMessageTask;
         private readonly object syncObject = new object();
         private CancellationTokenSource cts;
-        private async void ShowMessage(string message)
+        public async void ShowMessage(string message)
         {
             if (showMessageTask != null && !showMessageTask.IsCompleted)
             {
@@ -62,11 +61,6 @@ namespace MFCSoftware.ViewModels
                     App.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
                 }, cts.Token);
             }
-        }
-
-        public static void ShowAppMessage(string message)
-        {
-            ViewModelBase.GetViewModelInstance<MainWindowViewModel>().ShowMessage(message);
         }
     }
 }

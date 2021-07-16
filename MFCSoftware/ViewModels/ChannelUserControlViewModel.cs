@@ -1,5 +1,5 @@
 ﻿using CommonLib.Extensions;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using MFCSoftware.Models;
@@ -8,14 +8,17 @@ using System.Windows.Media;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
+using CommonServiceLocator;
 
 namespace MFCSoftware.ViewModels
 {
-    public class ChannelUserControlViewModel:BindableBase
+    public class ChannelUserControlViewModel : ViewModelBase
     {
+        private readonly MainWindowViewModel _mainVm;
         private const int xValuesCount = 300;
-        public ChannelUserControlViewModel()
+        public ChannelUserControlViewModel(MainWindowViewModel mainVm)
         {
+            _mainVm = mainVm;
             SetPlotModel();
         }
 
@@ -27,7 +30,7 @@ namespace MFCSoftware.ViewModels
             get => _address;
             set
             {
-                SetProperty(ref _address, value);
+                Set(ref _address, value);
                 SetCommands();
             }
         }
@@ -38,7 +41,7 @@ namespace MFCSoftware.ViewModels
         public string DisplayUnit
         {
             get => _displayUnit;
-            set => SetProperty(ref _displayUnit, value);
+            set => Set(ref _displayUnit, value);
         }
 
         public SolidColorBrush StatusColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
@@ -54,7 +57,7 @@ namespace MFCSoftware.ViewModels
             {
                 if(value > 0)
                 {
-                    SetProperty(ref _insertInterval, value);
+                    Set(ref _insertInterval, value);
                     InsertIntervalChanged?.Invoke(value);
                 }
             }
@@ -66,28 +69,28 @@ namespace MFCSoftware.ViewModels
         public float FlowValue
         {
             get => _flowValue;
-            set => SetProperty(ref _flowValue, value);
+            set => Set(ref _flowValue, value);
         }
 
         private float _valveOpenValue;
         public float ValveOpenValue
         {
             get => _valveOpenValue;
-            set => SetProperty(ref _valveOpenValue, value);
+            set => Set(ref _valveOpenValue, value);
         }
 
         private ControlSelector _selector = ControlSelector.FlowValue;
         public ControlSelector Selector
         {
             get => _selector;
-            set => SetProperty(ref _selector, value);
+            set => Set(ref _selector, value);
         }
 
         public Visibility ControlVisibility
         {
             get
             {
-                string appName = ViewModelBase.GetViewModelInstance<MainWindowViewModel>().AppName;
+                string appName = _mainVm.AppName;
                 return appName.Contains("MFC") ? Visibility.Visible : Visibility.Collapsed;
             }
         }
@@ -126,7 +129,7 @@ namespace MFCSoftware.ViewModels
             DisplayUnit = info.Unit?.Unit;
             UpdateYAxisMaxValue(info.Range);
 
-            RaiseProperty(nameof(BaseInfo));
+            RaisePropertyChanged(nameof(BaseInfo));
             WhenSuccess();
         }
 
@@ -156,7 +159,7 @@ namespace MFCSoftware.ViewModels
             Flow.Minutes = flow.Minutes;
             Flow.Seconds = flow.Seconds;
 
-            RaiseProperty(nameof(Flow));
+            RaisePropertyChanged(nameof(Flow));
             WhenSuccess();
         }
 
@@ -213,7 +216,7 @@ namespace MFCSoftware.ViewModels
                 InterpolationAlgorithm = InterpolationAlgorithms.CatmullRomSpline
             };
             SeriesPlotModel.Series.Add(line);
-            RaiseProperty(nameof(SeriesPlotModel));
+            RaisePropertyChanged(nameof(SeriesPlotModel));
         }
 
         public void UpdateYAxisMaxValue(double yMax)
@@ -264,7 +267,7 @@ namespace MFCSoftware.ViewModels
                 StatusColor.Color = Colors.Yellow;
             else if (status == ReceivedStatus.Timeout)
                 StatusColor.Color = Colors.Red;
-            RaiseProperty(nameof(StatusColor));
+            RaisePropertyChanged(nameof(StatusColor));
         }
 
         public void SetWriteFlowBytes()
@@ -291,6 +294,8 @@ namespace MFCSoftware.ViewModels
                 .ToSerialCommand(7);
         }
 
+        public void ShowMessage(string message) => _mainVm.ShowMessage(message);
+
         private int ParseFloatToInt32(float value)
         {
             //防止float直接转int导致精度丢失
@@ -307,16 +312,16 @@ namespace MFCSoftware.ViewModels
                 .ToSerialCommand(responseLength);
         }
 
-        private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList ,SerialCommandType type, int responseLength = 7)
-        {
-            SerialCommandBuilder builder = new SerialCommandBuilder(type).AppendAddress(Address);
-            foreach(byte[] bytes in bytesList)
-            {
-                builder.AppendBytes(bytes);
-            }
-            builder.AppendCrc16();
-            return builder.ToSerialCommand(responseLength);
-        }
+        //private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList ,SerialCommandType type, int responseLength = 7)
+        //{
+        //    SerialCommandBuilder builder = new SerialCommandBuilder(type).AppendAddress(Address);
+        //    foreach(byte[] bytes in bytesList)
+        //    {
+        //        builder.AppendBytes(bytes);
+        //    }
+        //    builder.AppendCrc16();
+        //    return builder.ToSerialCommand(responseLength);
+        //}
 
         enum ReceivedStatus
         {

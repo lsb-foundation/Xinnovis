@@ -3,16 +3,11 @@ using System;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using OfficeOpenXml;
 using Microsoft.Win32;
-using System.Windows.Documents;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CommonLib.Mvvm;
-using System.Text;
-using System.Threading;
 
 namespace SerialDataDisplay
 {
@@ -27,11 +22,10 @@ namespace SerialDataDisplay
 
         public MainWindow()
         {
-            this.Loaded += MainWindow_Loaded;
             InitializeComponent();
-            vm = ViewModelBase.GetViewModelInstance<MainWindowViewModel>();
+            this.Loaded += MainWindow_Loaded;
+            vm = this.DataContext as MainWindowViewModel;
             serial = vm.Serial;
-            DataContext = vm;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -110,7 +104,7 @@ namespace SerialDataDisplay
             }
         }
 
-        private void btnSend_Click(object sender, RoutedEventArgs e)
+        private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             if (vm.CurrentCommand == null) return;
             if (Send(vm.CurrentCommand, true))
@@ -121,7 +115,7 @@ namespace SerialDataDisplay
             }
         }
 
-        private void btnStop_Click(object sender, RoutedEventArgs e)
+        private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             if (vm.CurrentCommand == null) return;
             if (Send(vm.CurrentCommand, false))
@@ -134,17 +128,19 @@ namespace SerialDataDisplay
         private void Window_Closed(object sender, System.EventArgs e)
         {
             if (!sending) return;
-            btnStop_Click(this, null);
+            StopButton_Click(this, null);
         }
 
-        private async void btnExport_Click(object sender, RoutedEventArgs e)
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
         {
             var values = await vm.QueryValuesAsync();
             if(values.Count > 0)
             {
-                var dialog = new SaveFileDialog();
-                dialog.Filter = "Excel文件|*.xlsx;*.xls";
-                dialog.Title = "保存Excel文件";
+                var dialog = new SaveFileDialog
+                {
+                    Filter = "Excel文件|*.xlsx;*.xls",
+                    Title = "保存Excel文件"
+                };
                 if ((bool)dialog.ShowDialog())
                 {
                     if (!string.IsNullOrEmpty(dialog.FileName))

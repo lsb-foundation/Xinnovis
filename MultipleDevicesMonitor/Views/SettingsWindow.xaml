@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MultipleDevicesMonitor.Views"
-        mc:Ignorable="d" 
+        mc:Ignorable="d" DataContext="{Binding Source={StaticResource Locator}, Path=Settings}"
         ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         Title="设置" Height="300" Width="300" Background="#F0F0F0">
     <TabControl Margin="8">
@@ -25,7 +25,7 @@
                 <Setter Property="Width" Value="80"/>
             </Style>
         </TabControl.Resources>
-        <TabItem Header="端口设置" x:Name="serialSettingsTab">
+        <TabItem Header="端口设置" x:Name="serialSettingsTab" DataContext="{Binding Source={StaticResource Locator}, Path=Serial}">
             <StackPanel Margin="0,8,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Label>端口号：</Label>

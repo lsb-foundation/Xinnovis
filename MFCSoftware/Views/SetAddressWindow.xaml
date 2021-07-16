@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:MFCSoftware"
         xmlns:serial="clr-namespace:CommonLib.Communication.Serial;assembly=CommonLib"
         mc:Ignorable="d"
-        Title="设置地址" Height="200" Width="350" ResizeMode="NoResize">
+        Title="设置地址" Height="200" Width="350" ResizeMode="NoResize"
+        DataContext="{Binding Source={StaticResource Locator}, Path=SetAddressViewModel}">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Margin="8">
             <Button Width="100" Height="28" IsEnabled="{Binding Enable}"

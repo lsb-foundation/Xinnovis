@@ -11,7 +11,8 @@
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver" 
         mc:Ignorable="d" Icon="/Icons/app_icon.ico"
         pu:WindowXCaption.Background="#E4E8EB" Loaded="WindowX_Loaded"
-        Title="{Binding AppTitle, Mode=OneWay}" Height="720" Width="1080" MinHeight="360" MinWidth="720">
+        Title="{Binding AppTitle, Mode=OneWay}" Height="720" Width="1080" MinHeight="360" MinWidth="720"
+        DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}">
     
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">

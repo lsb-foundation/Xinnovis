@@ -1,7 +1,4 @@
-﻿using MultipleDevicesMonitor.ViewModels;
-using System.Windows;
-using System.Windows.Controls;
-using CommonLib.Mvvm;
+﻿using System.Windows;
 
 namespace MultipleDevicesMonitor.Views
 {
@@ -13,8 +10,6 @@ namespace MultipleDevicesMonitor.Views
         public SettingsWindow()
         {
             InitializeComponent();
-            serialSettingsTab.DataContext = ViewModelBase.GetViewModelInstance<SerialViewModel>();
-            softwareSettingsTab.DataContext = ViewModelBase.GetViewModelInstance<SettingsViewModel>();
         }
     }
 }

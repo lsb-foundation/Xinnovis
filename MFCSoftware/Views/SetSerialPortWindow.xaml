@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:MFCSoftware"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="串口设置" Height="200" Width="300" ResizeMode="NoResize">
+        Title="串口设置" Height="200" Width="300" ResizeMode="NoResize"
+        DataContext="{Binding Source={StaticResource Locator}, Path=SetSerialViewModel}">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
         <ComboBox Width="150" Margin="4"
                   ItemsSource="{Binding PortNames, Mode=OneWay}" 

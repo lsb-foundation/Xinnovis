@@ -5,7 +5,8 @@ using System.IO.Ports;
 using System.Management;
 using CalibrationTool.Models;
 using CalibrationTool.Utils;
-using CommonLib.Mvvm;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using CommonLib.Communication.Serial;
 using System.Linq;
 
@@ -21,7 +22,7 @@ namespace CalibrationTool.ViewModels
         public SerialPortViewModel()
         {
             InitializeSerialPort();
-            OpenOrCloseCommand = new RelayCommand(o =>
+            OpenOrCloseCommand = new RelayCommand(() =>
             {
                 if (serialPort.IsOpen) TryToClosePort();
                 else TryToOpenPort();
@@ -38,7 +39,7 @@ namespace CalibrationTool.ViewModels
                 TryToClosePort();
                 serialPort.PortName = value;
                 ConfigManager.Serial_PortName = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -49,7 +50,7 @@ namespace CalibrationTool.ViewModels
             {
                 serialPort.BaudRate = value;
                 ConfigManager.Serial_BaudRate = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -59,7 +60,7 @@ namespace CalibrationTool.ViewModels
             set
             {
                 serialPort.DataBits = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -69,7 +70,7 @@ namespace CalibrationTool.ViewModels
             set
             {
                 serialPort.Parity = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -79,7 +80,7 @@ namespace CalibrationTool.ViewModels
             set
             {
                 serialPort.StopBits = value;
-                RaiseProperty();
+                RaisePropertyChanged();
             }
         }
 
@@ -104,7 +105,7 @@ namespace CalibrationTool.ViewModels
         public bool AutoAddNewLine
         {
             get => _autoAddNewLine;
-            set => SetProperty(ref _autoAddNewLine, value);
+            set => Set(ref _autoAddNewLine, value);
         }
 
         //接收类型：ASCII/Hex
@@ -112,7 +113,7 @@ namespace CalibrationTool.ViewModels
         public CommunicationDataType ReceivedType
         {
             get => _receivedType;
-            set => SetProperty(ref _receivedType, value);
+            set => Set(ref _receivedType, value);
         }
 
         //发送类型：ASCII/Hex
@@ -120,7 +121,7 @@ namespace CalibrationTool.ViewModels
         public CommunicationDataType SendType
         {
             get => _sendType;
-            set => SetProperty(ref _sendType, value);
+            set => Set(ref _sendType, value);
         }
         #endregion
 
@@ -147,7 +148,7 @@ namespace CalibrationTool.ViewModels
                 {
                     serialPort.Open();
                     MessageHandler?.Invoke($"端口{serialPort.PortName}已打开");
-                    RaiseProperty(nameof(OpenOrCloseString));
+                    RaisePropertyChanged(nameof(OpenOrCloseString));
                 }
             }
             catch(Exception e)
@@ -185,7 +186,7 @@ namespace CalibrationTool.ViewModels
                 {
                     serialPort.Close();
                     MessageHandler?.Invoke($"端口{serialPort.PortName}已关闭");
-                    RaiseProperty(nameof(OpenOrCloseString));
+                    RaisePropertyChanged(nameof(OpenOrCloseString));
                 }
             }
             catch(Exception e)
