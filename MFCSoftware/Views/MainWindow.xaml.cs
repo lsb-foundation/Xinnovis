@@ -1,4 +1,5 @@
-﻿using CommonLib.Utils;
+﻿using CommonLib.Extensions;
+using CommonLib.Utils;
 using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
@@ -73,17 +74,20 @@ namespace MFCSoftware.Views
             //定时发送的后台任务
             sendTask = Task.Run(async () =>
             {
-                if (controlList.Count == 0) return;
+                if (controlList.Count == 0)
+                {
+                    return;
+                }
 
-                if (currentNode == null || currentNode == controlList.Last)
-                    currentNode = controlList.First;
-                else currentNode = currentNode.Next;
+                currentNode = currentNode is null || currentNode == controlList.Last ?
+                    controlList.First : currentNode.Next;
 
                 if (currentNode?.Value != null)
                 {
                     var channel = currentNode.Value;
                     if (Send(channel.ReadFlowBytes))
                     {
+                        LoggerHelper.WriteLog("[Send] 读取流量 [Data] " + channel.ReadFlowBytes.Command.ToHexString());
                         try
                         {
                             byte[] data = await SerialPortInstance.GetResponseBytes();

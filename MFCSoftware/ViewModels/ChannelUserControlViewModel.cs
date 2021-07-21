@@ -1,14 +1,12 @@
 ﻿using CommonLib.Extensions;
 using GalaSoft.MvvmLight;
 using System;
-using System.Collections.Generic;
 using MFCSoftware.Models;
 using System.Text;
 using System.Windows.Media;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
-using CommonServiceLocator;
 
 namespace MFCSoftware.ViewModels
 {

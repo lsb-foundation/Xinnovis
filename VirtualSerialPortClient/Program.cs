@@ -94,7 +94,7 @@ namespace VirtualSerialPortClient
             //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
             //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2
             //CRCL CRCH
-            byte[] ret = new byte[27];
+            byte[] ret = new byte[28];
             ret[0] = addr;
             ret[1] = 0x03;
             ret[2] = 0x16;
@@ -117,7 +117,6 @@ namespace VirtualSerialPortClient
 
             for (int i = 17; i <= 24; i++)
                 ret[i] = 0x00;
-
             byte[] crc = ret.GetCRC16(ret.Length - 2);
             ret[25] = crc[0];
             ret[26] = crc[1];
