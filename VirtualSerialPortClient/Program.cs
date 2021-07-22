@@ -94,7 +94,7 @@ namespace VirtualSerialPortClient
             //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
             //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2
             //CRCL CRCH
-            byte[] ret = new byte[28];
+            byte[] ret = new byte[27];
             ret[0] = addr;
             ret[1] = 0x03;
             ret[2] = 0x16;

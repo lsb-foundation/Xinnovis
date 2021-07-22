@@ -315,7 +315,8 @@
   <Import Project="..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>if not exist "$(TargetDir)\bin\" md "$(TargetDir)\bin\";
+    <PostBuildEvent>if exist "$(TargetDir)\bin\" rmdir /s/q "$(TargetDir)\bin\";
+md "$(TargetDir)\bin\";
 move "$(TargetDir)\*.dll" "$(TargetDir)\bin\";</PostBuildEvent>
   </PropertyGroup>
 </Project>
