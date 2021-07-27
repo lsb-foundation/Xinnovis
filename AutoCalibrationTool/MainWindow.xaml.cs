@@ -77,10 +77,6 @@ namespace AutoCalibrationTool
                 Task.Run(() => LoggerHelper.WriteLog($"Resolved: {line}"));
 
                 CalibrationMode currentMode = ViewModelLocator.Main.Mode;
-                if (currentMode != CalibrationMode.Incube && currentMode != CalibrationMode.Room)
-                {
-                    continue;
-                }
                 if (line.StartsWith("MID") || line.StartsWith("HIGH") || line.StartsWith("LOW"))
                 {
                     string[] datas = line.Split(':');
