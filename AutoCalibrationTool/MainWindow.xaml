@@ -131,7 +131,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Margin="0,4,0,-1" Text="{Binding Command}" Grid.ColumnSpan="2"/>
                 <Button Grid.Column="2" Margin="4,4,0.286,0" Width="50"
-                        IsEnabled="{Binding CommandButtonEnabled}"
+                        IsEnabled="{Binding SendButtonEnabled}"
                         Command="{Binding SendCommand}"
                         KeyDown="OnSendButtonKeyDown">发送</Button>
             </Grid>
