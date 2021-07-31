@@ -1,0 +1,36 @@
+﻿<Window x:Class="MFCSoftwareForCUP.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
+        xmlns:local="clr-namespace:MFCSoftwareForCUP" Background="#f0f0f0" 
+        mc:Ignorable="d" Closed="AppClosed" Loaded="AppLoaded"
+        DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
+        Title="MFCSoftwareForCUP" Height="600" Width="960">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="4">
+            <Label>串口</Label>
+            <ComboBox Width="100" VerticalContentAlignment="Center"
+                      ItemsSource="{Binding PortNames}" SelectedItem="{Binding PortName}"/>
+            <Label>设备数量</Label>
+            <TextBox Width="100" Text="{Binding MaxDeviceCount}"/>
+            <Label>设备地址:</Label>
+            <TextBox Width="100" Text="{Binding AddressToAdd}"/>
+            <metro:AduFlatButton Width="50" Height="24" Margin="4,0,0,0" Click="AddChannelButtonClick">添加</metro:AduFlatButton>
+        </StackPanel>
+
+        <metro:MetroScrollViewer Grid.Row="1" Margin="4" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <WrapPanel Name="ContentWrapPanel" />
+        </metro:MetroScrollViewer>
+    </Grid>
+</Window>

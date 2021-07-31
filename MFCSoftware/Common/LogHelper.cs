@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using CommonLib.Extensions;
+using CommonLib.MfcUtils;
 using CommonLib.Utils;
-using MFCSoftware.Models;
 
 namespace MFCSoftware.Common
 {

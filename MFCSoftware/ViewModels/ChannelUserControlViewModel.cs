@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
+using CommonLib.MfcUtils;
 
 namespace MFCSoftware.ViewModels
 {
@@ -320,13 +321,6 @@ namespace MFCSoftware.ViewModels
         //    builder.AppendCrc16();
         //    return builder.ToSerialCommand(responseLength);
         //}
-
-        enum ReceivedStatus
-        {
-            Success,
-            ResolveFailed,
-            Timeout
-        }
     }
 
     public enum ControlSelector

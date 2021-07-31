@@ -1,6 +1,6 @@
 ﻿using CommonLib.Communication.Serial;
+using CommonLib.MfcUtils;
 using GalaSoft.MvvmLight;
-using MFCSoftware.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

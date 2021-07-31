@@ -1,0 +1,112 @@
+﻿<UserControl x:Class="MFCSoftwareForCUP.Views.ChannelUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
+             xmlns:local="clr-namespace:MFCSoftwareForCUP.Views"
+             mc:Ignorable="d" Margin="4"
+             d:DesignHeight="200" d:DesignWidth="300"
+             DataContext="{Binding Source={StaticResource Locator}, Path=Channel}">
+    <UserControl.Resources>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DigitalFontStyle" TargetType="TextBlock" BasedOn="{StaticResource TextBlockStyle}">
+            <Setter Property="FontFamily" Value="{DynamicResource DigitalFont}"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Margin" Value="16,0"/>
+            <Setter Property="Foreground" Value="Green"/>
+        </Style>
+    </UserControl.Resources>
+    <metro:MetroBorder CornerRadius="5" BorderThickness="1" BorderBrush="Black">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border CornerRadius="5,5,0,0" Background="Green">
+                <Grid>
+                    <StackPanel Margin="4" Orientation="Horizontal"
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Top">
+                        <metro:MetroTextBlock Foreground="White">设备</metro:MetroTextBlock>
+                        <metro:MetroTextBlock Margin="4,0,0,0"  Foreground="White" 
+                                              Text="{Binding Address}"/>
+                    </StackPanel>
+                    <metro:AduFlatButton Margin="4" Click="ChannelCloseButtonClick"
+                                         Panel.ZIndex="1" Background="Red"
+                                         HorizontalAlignment="Right" VerticalAlignment="Top"
+                                         Width="16" Height="16">
+                        <Viewbox Width="16" Height="16">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="White" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+                            </Canvas>
+                        </Viewbox>
+                    </metro:AduFlatButton>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,4,4,0">
+                <Label>楼层</Label>
+                <metro:MetroTextBox Width="50" Text="{Binding Floor}"/>
+                <Label>房间号</Label>
+                <metro:MetroTextBox Width="50" Text="{Binding Room}"/>
+                <Label>气体类型</Label>
+                <metro:MetroTextBox Width="50" Text="{Binding GasType}"/>
+            </StackPanel>
+
+            <Grid Grid.Row="2" Margin="4,4,4,0">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Label>累积流量</Label>
+                
+                <metro:MetroTextBlock Grid.Column="1" 
+                                      Style="{StaticResource DigitalFontStyle}" 
+                                      Text="{Binding AccumulateFlow, StringFormat={}{0:N3}}"/>
+                
+                <TextBlock Grid.Column="2" FontSize="20"
+                           Text="{Binding AccumulateFlowUnit}"/>
+                
+                <Label Grid.Row="1" Margin="0,4,0,0">瞬时流量</Label>
+                
+                <metro:MetroTextBlock Grid.Row="1" Grid.Column="1"
+                                      Style="{StaticResource DigitalFontStyle}"
+                                      Text="{Binding CurrentFlow, StringFormat={}{0:N3}}"/>
+                
+                <TextBlock Grid.Row="1" Grid.Column="2" 
+                           Margin="0,4,0,0" FontSize="20"
+                           Text="{Binding CurrentFlowUnit}"/>
+                
+                <Ellipse Margin="8" Grid.RowSpan="2" Grid.Column="3"
+                         Panel.ZIndex="1" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Width="36" Height="36"
+                         Fill="{Binding StatusColor}"/>
+            </Grid>
+
+            <Grid Grid.Row="3" Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <metro:AduFlatButton Margin="4"
+                                     Click="ClearButtonClick">累积流量清零</metro:AduFlatButton>
+                <metro:AduFlatButton Grid.Column="1" Margin="4"
+                                     Click="ExportButtonClick">数据导出</metro:AduFlatButton>
+            </Grid>
+        </Grid>
+    </metro:MetroBorder>
+</UserControl>

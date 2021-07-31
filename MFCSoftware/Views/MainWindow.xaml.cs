@@ -1,4 +1,5 @@
 ﻿using CommonLib.Extensions;
+using CommonLib.MfcUtils;
 using CommonLib.Utils;
 using MFCSoftware.Common;
 using MFCSoftware.Models;

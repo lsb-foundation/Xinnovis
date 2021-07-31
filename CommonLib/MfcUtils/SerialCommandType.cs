@@ -1,8 +1,7 @@
-﻿using CommonLib.Extensions;
-using System;
+﻿using System;
 using System.Reflection;
 
-namespace MFCSoftware.Models
+namespace CommonLib.MfcUtils
 {
     public enum SerialCommandType
     {

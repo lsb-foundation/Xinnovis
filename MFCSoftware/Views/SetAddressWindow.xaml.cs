@@ -8,6 +8,7 @@ using System.Timers;
 using MFCSoftware.Models;
 using System.Reflection;
 using CommonLib.Utils;
+using CommonLib.MfcUtils;
 
 namespace MFCSoftware.Views
 {

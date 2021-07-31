@@ -1,5 +1,4 @@
-﻿
-namespace MFCSoftware.Models
+﻿namespace CommonLib.MfcUtils
 {
     public class SerialCommand<T>
     {

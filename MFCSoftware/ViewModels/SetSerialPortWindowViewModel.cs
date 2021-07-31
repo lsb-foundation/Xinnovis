@@ -1,9 +1,9 @@
 ﻿using GalaSoft.MvvmLight;
 using System.Collections.Generic;
 using CommonLib.Communication.Serial;
-using MFCSoftware.Common;
 using System;
 using System.IO.Ports;
+using CommonLib.MfcUtils;
 
 namespace MFCSoftware.ViewModels
 {

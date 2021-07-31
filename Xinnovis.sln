@@ -19,13 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialDataDisplay", "Serial
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDevicesMonitor", "MultipleDevicesMonitor\MultipleDevicesMonitor.csproj", "{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware.Tests", "MFCSoftware.Tests\MFCSoftware.Tests.csproj", "{0467B9B3-14E8-49A3-A210-DBE49E853FE1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.Tests", "CommonLib.Tests\CommonLib.Tests.csproj", "{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualSerialPortClient", "VirtualSerialPortClient\VirtualSerialPortClient.csproj", "{A79B17BE-F598-4E91-B2E4-93280E9BAF86}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCalibrationTool", "AutoCalibrationTool\AutoCalibrationTool.csproj", "{2A260736-CFCB-4847-B7A6-4A5A48A026C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftwareForCUP", "MFCSoftwareForCUP\MFCSoftwareForCUP.csproj", "{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,22 +73,6 @@ Global
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Release|x64.ActiveCfg = Release|Any CPU
 		{BBE8CAD4-2608-47E7-A651-52D3D9AA36DF}.Release|x64.Build.0 = Release|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Debug|x64.Build.0 = Debug|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Release|x64.ActiveCfg = Release|Any CPU
-		{0467B9B3-14E8-49A3-A210-DBE49E853FE1}.Release|x64.Build.0 = Release|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Debug|x64.Build.0 = Debug|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|x64.ActiveCfg = Release|Any CPU
-		{4A80A933-0381-450C-AB93-6E3FE0C8DFD4}.Release|x64.Build.0 = Release|Any CPU
 		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A79B17BE-F598-4E91-B2E4-93280E9BAF86}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -107,6 +89,14 @@ Global
 		{2A260736-CFCB-4847-B7A6-4A5A48A026C3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2A260736-CFCB-4847-B7A6-4A5A48A026C3}.Release|x64.ActiveCfg = Release|x64
 		{2A260736-CFCB-4847-B7A6-4A5A48A026C3}.Release|x64.Build.0 = Release|x64
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Debug|x64.Build.0 = Debug|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Release|x64.ActiveCfg = Release|Any CPU
+		{3BF15D6D-6CF5-4A5C-BEFF-BB34F7586F87}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

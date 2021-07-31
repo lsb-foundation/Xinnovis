@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Windows.Media;
 using System.Threading.Tasks;
 using CommonLib.Utils;
+using CommonLib.MfcUtils;
 
 namespace MFCSoftware.Views
 {
@@ -200,7 +201,7 @@ namespace MFCSoftware.Views
             {
                 await Task.Run(async () =>
                 {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
                     using (var package = new ExcelPackage(stream))
                     {

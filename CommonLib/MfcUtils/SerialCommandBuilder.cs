@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MFCSoftware.Models
+namespace CommonLib.MfcUtils
 {
     public class SerialCommandBuilder
     {

@@ -1,7 +1,6 @@
-﻿
-using System;
+﻿using System;
 
-namespace MFCSoftware.Models
+namespace CommonLib.MfcUtils
 {
     public class FlowData
     {

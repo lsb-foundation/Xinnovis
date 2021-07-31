@@ -154,7 +154,6 @@ namespace AutoCalibrationTool
             });
         }
 
-
         private void Export(DeviceDataCollection collection, string file)
         {
             using (var fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
