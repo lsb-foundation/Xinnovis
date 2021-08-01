@@ -8,11 +8,11 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("MFCSoftwareForCUP")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("MFCSoftware")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("青岛芯笙微纳电子科技有限公司")]
-[assembly: AssemblyProduct("MFCSoftwareForCUP")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyProduct("MFCSoftware")]
+[assembly: AssemblyCopyright("Copyright © Xinnovis 2021")]
 [assembly: AssemblyTrademark("Xinnovis")]
 [assembly: AssemblyCulture("")]
 

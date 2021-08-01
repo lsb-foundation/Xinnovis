@@ -19,8 +19,6 @@ namespace MFCSoftware
             messageBuilder.AppendLine("程序发生了尚未捕获到的异常：" + e.Exception.Message)
                 .AppendLine(e.Exception.StackTrace);
             MessageBox.Show(messageBuilder.ToString(), "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-            App.Current.Shutdown();
-            e.Handled = true;
         }
 
         protected override void OnStartup(StartupEventArgs e)

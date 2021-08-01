@@ -109,18 +109,27 @@ namespace MFCSoftware.Views
             //addr 0x03 0x16 FLOW1 FLOW2 FLOW3 FLOW4
             //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
             //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2 CRCL CRCH
-            float flow = data.SubArray(3, 4).ToInt32(0, 4) / 100.0f;
-            float accuFlow = BitConverter.ToInt64(data.SubArray(7, 8).Reverse().ToArray(),0) / 1000.0f;
-            int unitCode = data.SubArray(15, 2).ToInt32(0, 2);
+            Span<byte> dataSpan = data.AsSpan();
+            float flow = dataSpan.Slice(3, 4).ToInt32ForHighFirst() / 100.0f;
+            Span<byte> accuFlowSpan = dataSpan.Slice(7, 8);
+            accuFlowSpan.Reverse();
+            float accuFlow = BitConverter.ToInt64(accuFlowSpan.ToArray(), 0) / 1000.0f;
+            int unitCode = dataSpan.Slice(15, 2).ToInt32ForHighFirst();
 
             string unit = string.Empty;
-            if (unitCode == 0) unit = "L";
-            else if (unitCode == 1) unit = "m³";
+            if (unitCode == 0)
+            {
+                unit = "L";
+            }
+            else if (unitCode == 1)
+            {
+                unit = "m³";
+            }
 
-            int days = data.SubArray(17, 2).ToInt32(0, 2);
-            int hours = data.SubArray(19, 2).ToInt32(0, 2);
-            int mins = data.SubArray(21, 2).ToInt32(0, 2);
-            int secs = data.SubArray(23, 2).ToInt32(0, 2);
+            int days = dataSpan.Slice(17, 2).ToInt32ForHighFirst();
+            int hours = dataSpan.Slice(19, 2).ToInt32ForHighFirst();
+            int mins = dataSpan.Slice(21, 2).ToInt32ForHighFirst();
+            int secs = dataSpan.Slice(23, 2).ToInt32ForHighFirst();
 
             FlowData flowData = new FlowData()
             {
