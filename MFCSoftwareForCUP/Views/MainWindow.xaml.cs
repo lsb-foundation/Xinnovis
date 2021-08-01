@@ -70,7 +70,7 @@ namespace MFCSoftwareForCUP.Views
 
                 if ((bool)dialog.ShowDialog() && !string.IsNullOrEmpty(dialog.FileName))
                 {
-                    List<FlowData> datas = await DbStorage.QueryAllFlowDatasAsync(channel.Address);
+                    List<FlowData> datas = await DbStorage.QueryFlowDatasByTimeAsync(_main.AppStartTime, DateTime.Now, channel.Address);
                     ExportHistoryFlowDataToExcel(dialog.FileName, datas);
                 }
             });

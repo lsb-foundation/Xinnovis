@@ -1,5 +1,6 @@
 ﻿using CommonLib.MfcUtils;
 using GalaSoft.MvvmLight;
+using System;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
@@ -9,6 +10,7 @@ namespace MFCSoftwareForCUP.ViewModels
     public class MainViewModel : ViewModelBase
     {
         #region Fields
+        private readonly DateTime _startTime = DateTime.Now;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);   //用于线程间串口资源共享同步的信号量
         private readonly SerialPort _serialPort;
         private int maxDeviceCount;
@@ -42,6 +44,8 @@ namespace MFCSoftwareForCUP.ViewModels
         }
 
         public string[] PortNames => SerialPort.GetPortNames();
+
+        public DateTime AppStartTime => _startTime;
 
         private async void SetPortName(string port)
         {

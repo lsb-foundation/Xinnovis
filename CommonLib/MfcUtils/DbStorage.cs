@@ -69,13 +69,6 @@ namespace CommonLib.MfcUtils
             });
         }
 
-        public static async Task<List<FlowData>> QueryLastest2HoursFlowDatasAsync(int address)
-        {
-            DateTime now = DateTime.Now;
-            DateTime twoHoursAgo = now.AddHours(-2);
-            return await QueryFlowDatasByTimeAsync(twoHoursAgo, now, address);
-        }
-
         public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)
         {
             using (var connection = new SQLiteConnection(_connectionString))
