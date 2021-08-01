@@ -56,9 +56,19 @@ namespace CommonLib.MfcUtils
 
         public bool Check(byte[] data, int startIndex = 1)
         {
-            if (!AutoResolve) return true;
-            if (CheckBytes == null || CheckBytes.Length <= 0) return false;
-            if (CheckBytes.Length > data.Length - 2 - startIndex) return false; //校验位在数据接收后第一时间检查，这里不做处理
+            if (!AutoResolve)
+            {
+                return true;
+            }
+
+            if (CheckBytes == null || CheckBytes.Length <= 0)
+            {
+                return false;
+            }
+            if (CheckBytes.Length > data.Length - 2 - startIndex)
+            {
+                return false; //校验位在数据接收后第一时间检查，这里不做处理
+            }
 
             for (int index = 0; index < CheckBytes.Length; index++)
             {
@@ -79,9 +89,13 @@ namespace CommonLib.MfcUtils
         {
             var resolveActionAttr = type.GetType().GetField(type.ToString()).GetCustomAttribute<ResolveActionAttribute>();
             if (resolveActionAttr == null)
+            {
                 throw new NullReferenceException("Can't find " + nameof(ResolveActionAttribute));
+            }
             if (!resolveActionAttr.AutoResolve)
+            {
                 throw new ArgumentException("AutoResolve is false.", nameof(AutoResolve));
+            }
             return resolveActionAttr.ActionName + (resolveActionAttr.Check(data) ? "成功。" : "失败。");
         }
     }

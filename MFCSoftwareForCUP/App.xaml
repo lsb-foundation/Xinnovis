@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
              xmlns:local="clr-namespace:MFCSoftwareForCUP"
              xmlns:vm="clr-namespace:MFCSoftwareForCUP.ViewModels"
              d1p1:Ignorable="d"
@@ -11,6 +12,10 @@
         <ResourceDictionary>
             <FontFamily x:Key="DigitalFont">.\..\Resources\#Digital-7 Mono</FontFamily>
             <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
+            <Style TargetType="metro:MetroTextBox">
+                <Setter Property="Foreground" Value="Black"/>
+                <Setter Property="BorderBrush" Value="#3399ff"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

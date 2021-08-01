@@ -2,12 +2,14 @@
 using GalaSoft.MvvmLight;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
         #region Fields
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);   //用于线程间串口资源共享同步的信号量
         private readonly SerialPort _serialPort;
         private int maxDeviceCount;
         private int addressToAdd;
@@ -19,17 +21,12 @@ namespace MFCSoftwareForCUP.ViewModels
             _serialPort.BaudRate = 9600;
         }
 
+        public SemaphoreSlim Semaphore => _semaphore;
+
         public string PortName
         {
             get => _serialPort.PortName;
-            set
-            {
-                if (PortNames.Any(n => n == value))
-                {
-                    _serialPort.PortName = value;
-                    RaisePropertyChanged();
-                }
-            }
+            set => SetPortName(value);
         }
 
         public int MaxDeviceCount
@@ -45,5 +42,20 @@ namespace MFCSoftwareForCUP.ViewModels
         }
 
         public string[] PortNames => SerialPort.GetPortNames();
+
+        private async void SetPortName(string port)
+        {
+            if (PortNames.Any(n => n == port))
+            {
+                await _semaphore.WaitAsync();
+                if (_serialPort.IsOpen)
+                {
+                    _serialPort.Close();
+                }
+                _serialPort.PortName = port;
+                _ = _semaphore.Release();
+                RaisePropertyChanged();
+            }
+        }
     }
 }

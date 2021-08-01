@@ -1,6 +1,7 @@
 ﻿using CommonLib.Extensions;
 using CommonLib.MfcUtils;
 using CommonLib.Models;
+using CommonLib.Utils;
 using MFCSoftwareForCUP.Models;
 using MFCSoftwareForCUP.ViewModels;
 using Microsoft.Win32;
@@ -24,9 +25,6 @@ namespace MFCSoftwareForCUP.Views
         private readonly MainViewModel _main;
         private readonly List<UnitCode> _unitCodes = UnitCode.GetUnitCodesFromConfiguration();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-        private readonly SemaphoreSlim _slim = new SemaphoreSlim(1);
-
-        private Task sendTask;
 
         public MainWindow()
         {
@@ -54,10 +52,10 @@ namespace MFCSoftwareForCUP.Views
 
         private async void OnClearAccumulateFlow(ChannelUserControl channel)
         {
-            await _slim.WaitAsync();
+            await _main.Semaphore.WaitAsync();
             SerialCommand<byte[]> command = BuildClearAccumulateFlowCommand(channel.Address);
             await SendAsync(command, channel);
-            _ = _slim.Release();
+            _ = _main.Semaphore.Release();
         }
 
         private async void OnExport(ChannelUserControl channel)
@@ -108,56 +106,59 @@ namespace MFCSoftwareForCUP.Views
                     return;
                 }
 
-                await _slim.WaitAsync();
                 if (address <= _main.MaxDeviceCount)
                 {
+                    await _main.Semaphore.WaitAsync();
                     SerialCommand<byte[]> command = BuildReadFlowCommand(address);
                     ChannelUserControl channel = await Dispatcher.InvokeAsync(() => ContentWrapPanel.Children.OfType<ChannelUserControl>().FirstOrDefault(uc => uc.Address == address));
                     await SendAsync(command, channel);
                     address = address < _main.MaxDeviceCount ? address + 1 : 1;
+                    _ = _main.Semaphore.Release();
                 }
-                _ = _slim.Release();
+
                 Thread.Sleep(5);
             }
         }
 
         private async Task SendAsync(SerialCommand<byte[]> command, ChannelUserControl channel)
         {
-            if (sendTask != null && !sendTask.IsCompleted)
+            try
             {
-                await sendTask;
-            }
-            sendTask = Task.Run(async () =>
-            {
-                try
-                {
-                    SerialPortInstance.Send(command);
-                    byte[] data = await SerialPortInstance.GetResponseBytes();
-                    if (!data.CheckCRC16ByDefault())
-                    {
-                        throw new Exception("CRC校验失败。");
-                    }
+                SerialPortInstance.Send(command);
+                LoggerHelper.WriteLog($"Send: {command}");
 
-                    if (command.Type == SerialCommandType.ReadFlow)
-                    {
-                        ResolveFlowData(data, channel);
-                    }
-                    else if (command.Type == SerialCommandType.ClearAccuFlowData)
-                    {
-                        _ = ResolveActionAttribute.CheckAutomatically(data, command.Type);  //测试解析，不进行其他操作
-                    }
-                    channel?.WhenSuccess();
-                }
-                catch (TimeoutException)
+                byte[] data = await SerialPortInstance.GetResponseBytes();
+                LoggerHelper.WriteLog($"Received: {data.ToHexString()}");
+
+                if (!data.CheckCRC16ByDefault())
                 {
-                    channel?.WhenTimeOut();
+                    throw new Exception("CRC校验失败。");
                 }
-                catch
+
+                if (command.Type == SerialCommandType.ReadFlow)
                 {
-                    channel?.WhenResolveFailed();
-                    throw;
+                    ResolveFlowData(data, channel);
                 }
-            });
+                else if (command.Type == SerialCommandType.ClearAccuFlowData)
+                {
+                    _ = ResolveActionAttribute.CheckAutomatically(data, command.Type);  //测试解析，不进行其他操作
+                }
+
+                channel?.WhenSuccess();
+            }
+            catch (TimeoutException)
+            {
+                channel?.WhenTimeOut();
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                LoggerHelper.WriteLog(e.Message, e);
+            }
+            catch
+            {
+                channel?.WhenResolveFailed();
+                throw;
+            }
         }
 
         private void ResolveFlowData(byte[] data, ChannelUserControl channel)
@@ -246,7 +247,6 @@ namespace MFCSoftwareForCUP.Views
                 ICellStyle headerStyle = workbook.CreateCellStyle();
                 headerStyle.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
 
-                //Epplus操作Excel从1开始
                 sheet.SetCellValue(0, 0, "采样时间");
                 sheet.SetCellValue(0, 1, "瞬时流量");
                 sheet.SetCellValue(0, 2, "瞬时流量单位");

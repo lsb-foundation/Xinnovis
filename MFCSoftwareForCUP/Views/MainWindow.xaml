@@ -20,17 +20,24 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="4">
             <Label>串口</Label>
-            <ComboBox Width="100" VerticalContentAlignment="Center"
-                      ItemsSource="{Binding PortNames}" SelectedItem="{Binding PortName}"/>
+            <metro:AduComboBox Width="100" VerticalContentAlignment="Center" 
+                               Foreground="Black" Background="Transparent" ToggleButtonColor="#3399ff" BorderBrush="#3399ff"
+                               ItemsSource="{Binding PortNames}" SelectedItem="{Binding PortName}"/>
             <Label>设备数量</Label>
-            <TextBox Width="100" Text="{Binding MaxDeviceCount}"/>
+            <metro:MetroTextBox Width="100" Text="{Binding MaxDeviceCount}"/>
             <Label>设备地址:</Label>
-            <TextBox Width="100" Text="{Binding AddressToAdd}"/>
-            <metro:AduFlatButton Width="50" Height="24" Margin="4,0,0,0" Click="AddChannelButtonClick">添加</metro:AduFlatButton>
+            <metro:AduIntegerUpDown Width="100"  Background="Transparent"
+                                    Foreground="Black" BorderBrush="#3399ff"
+                                    Maximum="{Binding MaxDeviceCount}"
+                                    Value="{Binding AddressToAdd, Mode=TwoWay}"/>
+            <metro:AduFlatButton Width="50" Height="24" Margin="4,0,0,0" 
+                                 Click="AddChannelButtonClick">添加</metro:AduFlatButton>
         </StackPanel>
 
-        <metro:MetroScrollViewer Grid.Row="1" Margin="4" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-            <WrapPanel Name="ContentWrapPanel" />
+        <metro:MetroScrollViewer Grid.Row="1"
+                                 HorizontalScrollBarVisibility="Disabled" 
+                                 VerticalScrollBarVisibility="Auto">
+            <WrapPanel Name="ContentWrapPanel" Background="White"/>
         </metro:MetroScrollViewer>
     </Grid>
 </Window>

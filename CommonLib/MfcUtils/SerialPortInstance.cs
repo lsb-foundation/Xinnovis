@@ -7,13 +7,13 @@ namespace CommonLib.MfcUtils
 {
     public static class SerialPortInstance
     {
-        private static SerialPort com;
+        private static SerialPort comInstance;
         private static SerialCommand<byte[]> currentCommand = null;
         private const int waitTime = 100;
 
         static SerialPortInstance()
         {
-            com = new SerialPort
+            comInstance = new SerialPort
             {
                 DtrEnable = true
             };
@@ -21,27 +21,29 @@ namespace CommonLib.MfcUtils
 
         public static SerialPort GetSerialPortInstance()
         {
-            if (com == null)
+            if (comInstance == null)
             {
-                com = new SerialPort
+                comInstance = new SerialPort
                 {
                     DtrEnable = true
                 };
             }
-            return com;
+            return comInstance;
         }
 
         public static void Send(SerialCommand<byte[]> command)
         {
-            if (!com.IsOpen)
-                com.Open();
+            if (!comInstance.IsOpen)
+            {
+                comInstance.Open();
+            }
 
-            while (!string.IsNullOrEmpty(com.ReadExisting()))
+            while (!string.IsNullOrEmpty(comInstance.ReadExisting()))
             {
                 Thread.Sleep(5);
             }
 
-            com.Write(command.Command, 0, command.Command.Length);
+            comInstance.Write(command.Command, 0, command.Command.Length);
             currentCommand = command;
         }
 
@@ -52,13 +54,13 @@ namespace CommonLib.MfcUtils
         public async static Task<byte[]> GetResponseBytes()
         {
             await Task.Delay(waitTime);
-            if(com.BytesToRead < currentCommand.ResponseLength)
+            if (comInstance.BytesToRead < currentCommand.ResponseLength)
             {
                 throw new TimeoutException();
             }
-            int count = com.BytesToRead;
+            int count = comInstance.BytesToRead;
             byte[] rets = new byte[count];
-            com.Read(rets, 0, count);
+            _ = comInstance.Read(rets, 0, count);
             return rets;
         }
     }
