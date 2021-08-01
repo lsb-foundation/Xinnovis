@@ -10,10 +10,10 @@ using System.Windows;
 [assembly: AssemblyTitle("MFCSoftwareForCUP")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("青岛芯笙微纳电子科技有限公司")]
 [assembly: AssemblyProduct("MFCSoftwareForCUP")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Xinnovis")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
