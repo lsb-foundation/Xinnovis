@@ -219,21 +219,23 @@ namespace MFCSoftwareForCUP.Views
 
         private async void AppLoaded(object sender, RoutedEventArgs e)
         {
-            AppJsonModel model = await AppJsonModel.ReadFromFileAsync();
-            _main.PortName = model.PortName;
-            _main.MaxDeviceCount = model.DeviceMaxCount;
-            _main.AddressToAdd = model.AddressToAdd;
-            foreach (DeviceExtras extras in model.Devices)
+            if (await AppJsonModel.ReadFromFileAsync() is AppJsonModel model)
             {
-                ChannelUserControl channel = new ChannelUserControl
+                _main.PortName = model.PortName;
+                _main.MaxDeviceCount = model.DeviceMaxCount;
+                _main.AddressToAdd = model.AddressToAdd;
+                foreach (DeviceExtras extras in model.Devices)
                 {
-                    Address = extras.Address
-                };
-                channel.SetDeviceExtras(extras);
-                channel.ControlRemoved += c => ContentWrapPanel.Children.Remove(c);
-                channel.ClearAccumulateFlow += OnClearAccumulateFlow;
-                channel.OnExport += OnExport;
-                _ = ContentWrapPanel.Children.Add(channel);
+                    ChannelUserControl channel = new ChannelUserControl
+                    {
+                        Address = extras.Address
+                    };
+                    channel.SetDeviceExtras(extras);
+                    channel.ControlRemoved += c => ContentWrapPanel.Children.Remove(c);
+                    channel.ClearAccumulateFlow += OnClearAccumulateFlow;
+                    channel.OnExport += OnExport;
+                    _ = ContentWrapPanel.Children.Add(channel);
+                }
             }
         }
 

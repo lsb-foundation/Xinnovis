@@ -10,7 +10,7 @@ namespace CommonLib.Utils
 
         static LoggerHelper()
         {
-            _logger = new LoggerConfiguration().WriteTo.File(@"Logs\.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+            _logger = new LoggerConfiguration().WriteTo.File(@"logs\.txt", rollingInterval: RollingInterval.Day).CreateLogger();
         }
 
         public static void WriteLog(string info)

@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
-        xmlns:local="clr-namespace:MFCSoftwareForCUP" Background="#f0f0f0" 
+        xmlns:local="clr-namespace:MFCSoftwareForCUP" Background="#f0f0f0"
+        Icon="../icon.ico"
         mc:Ignorable="d" Closed="AppClosed" Loaded="AppLoaded"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
         Title="MFCSoftwareForCUP" Height="600" Width="960">
