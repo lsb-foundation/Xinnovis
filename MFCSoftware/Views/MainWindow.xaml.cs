@@ -86,12 +86,12 @@ namespace MFCSoftware.Views
                 if (currentNode?.Value != null)
                 {
                     var channel = currentNode.Value;
-                    if (Send(channel.ReadFlowBytes))
+                    if (await SendAsync(channel.ReadFlowBytes))
                     {
                         LoggerHelper.WriteLog("[Send] 读取流量 [Data] " + channel.ReadFlowBytes.Command.ToHexString());
                         try
                         {
-                            byte[] data = await SerialPortInstance.GetResponseBytes();
+                            byte[] data = await SerialPortInstance.GetResponseBytesAsync();
                             channel.ResolveData(data, channel.ReadFlowBytes.Type);
                         }
                         catch (TimeoutException)
@@ -122,11 +122,11 @@ namespace MFCSoftware.Views
             }
         }
 
-        private bool Send(SerialCommand<byte[]> sc)
+        private async Task<bool> SendAsync(SerialCommand<byte[]> sc)
         {
             try
             {
-                SerialPortInstance.Send(sc);
+                await SerialPortInstance.SendAsync(sc);
                 return true;
             }
             catch(Exception e)
@@ -179,11 +179,11 @@ namespace MFCSoftware.Views
             await SendTaskCompletedAsync();
 
             timer.Stop();
-            if (Send(command))
+            if (await SendAsync(command))
             {
                 try
                 {
-                    byte[] data = await SerialPortInstance.GetResponseBytes();
+                    byte[] data = await SerialPortInstance.GetResponseBytesAsync();
                     channel.ResolveData(data, command.Type);
                 }
                 catch (TimeoutException)

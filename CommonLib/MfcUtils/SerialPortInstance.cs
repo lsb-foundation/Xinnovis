@@ -31,7 +31,7 @@ namespace CommonLib.MfcUtils
             return comInstance;
         }
 
-        public static void Send(SerialCommand<byte[]> command)
+        public static Task SendAsync(SerialCommand<byte[]> command)
         {
             if (!comInstance.IsOpen)
             {
@@ -45,13 +45,15 @@ namespace CommonLib.MfcUtils
 
             comInstance.Write(command.Command, 0, command.Command.Length);
             currentCommand = command;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// 异步获取数据。在确定的等待时间内，如果获取到的数据长度不足，抛出TimeoutException异常。
         /// </summary>
         /// <returns></returns>
-        public async static Task<byte[]> GetResponseBytes()
+        public async static Task<byte[]> GetResponseBytesAsync()
         {
             await Task.Delay(waitTime);
             if (comInstance.BytesToRead < currentCommand.ResponseLength)

@@ -131,10 +131,10 @@ namespace MFCSoftware.Views
         {
             try
             {
-                SerialPortInstance.Send(command);
+                await SerialPortInstance.SendAsync(command);
                 viewModel.Enable = false;
                 timer.Start();
-                var data = await SerialPortInstance.GetResponseBytes();
+                var data = await SerialPortInstance.GetResponseBytesAsync();
                 ResolveData(data, command.Type);
             }
             catch (TimeoutException)

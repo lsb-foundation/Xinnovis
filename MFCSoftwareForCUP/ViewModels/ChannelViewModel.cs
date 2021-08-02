@@ -7,11 +7,11 @@ namespace MFCSoftwareForCUP.ViewModels
     public class ChannelViewModel : ViewModelBase
     {
         #region Fields
-        private DeviceExtras _deviceExtras = new DeviceExtras();
         private float accuFlow;
         private float currFlow;
         private string accuFlowUnit;
         private string currFlowUnit;
+        private DeviceExtras _deviceExtras = new DeviceExtras();
         private SolidColorBrush statusColor = new SolidColorBrush(Colors.Green);
         #endregion
 

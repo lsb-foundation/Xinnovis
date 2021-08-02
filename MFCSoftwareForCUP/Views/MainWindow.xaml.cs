@@ -23,6 +23,8 @@ namespace MFCSoftwareForCUP.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _main;
+        private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
+        private readonly byte[] _readFlowBytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
         private readonly List<UnitCode> _unitCodes = UnitCode.GetUnitCodesFromConfiguration();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
@@ -78,20 +80,18 @@ namespace MFCSoftwareForCUP.Views
 
         private SerialCommand<byte[]> BuildReadFlowCommand(int address)
         {
-            byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
             return new SerialCommandBuilder(SerialCommandType.ReadFlow)
                 .AppendAddress(address)
-                .AppendBytes(bytes)
+                .AppendBytes(_readFlowBytes)
                 .AppendCrc16()
                 .ToSerialCommand(27);
         }
 
         private SerialCommand<byte[]> BuildClearAccumulateFlowCommand(int address)
         {
-            byte[] bytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
             return new SerialCommandBuilder(SerialCommandType.ClearAccuFlowData)
                 .AppendAddress(address)
-                .AppendBytes(bytes)
+                .AppendBytes(_clearFlowBytes)
                 .AppendCrc16()
                 .ToSerialCommand(7);
         }
@@ -124,10 +124,10 @@ namespace MFCSoftwareForCUP.Views
         {
             try
             {
-                SerialPortInstance.Send(command);
+                await SerialPortInstance.SendAsync(command);
                 LoggerHelper.WriteLog($"Send: {command}");
 
-                byte[] data = await SerialPortInstance.GetResponseBytes();
+                byte[] data = await SerialPortInstance.GetResponseBytesAsync();
                 LoggerHelper.WriteLog($"Received: {data.ToHexString()}");
 
                 if (!data.CheckCRC16ByDefault())
@@ -150,14 +150,10 @@ namespace MFCSoftwareForCUP.Views
             {
                 channel?.WhenTimeOut();
             }
-            catch (UnauthorizedAccessException e)
+            catch (Exception e)
             {
                 LoggerHelper.WriteLog(e.Message, e);
-            }
-            catch
-            {
                 channel?.WhenResolveFailed();
-                throw;
             }
         }
 
