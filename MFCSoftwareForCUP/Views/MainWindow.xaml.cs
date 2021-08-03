@@ -202,6 +202,7 @@ namespace MFCSoftwareForCUP.Views
 
             FlowData flowData = new FlowData
             {
+                Address = channel.Address,
                 CurrentFlow = flow,
                 Unit = _unitCodes?.FirstOrDefault(u => u.Code == unitCode)?.Unit,
                 AccuFlow = accuFlow,

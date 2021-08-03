@@ -33,11 +33,7 @@ namespace MFCSoftwareForCUP.Views
                 _channel.Address = value;
                 if (saver == null)
                 {
-                    saver = new FlowDataSaver(_channel.Address, 30);
-                }
-                else
-                {
-                    saver.SetAddress(_channel.Address);
+                    saver = new FlowDataSaver(30);
                 }
             }
         }

@@ -14,13 +14,13 @@ namespace CommonLib.MfcUtils
     {
         private const string dbFile = "db.sqlite";
         private static readonly string _connectionString;
-        private static readonly ConcurrentQueue<QueueModel> _queue;
+        private static readonly ConcurrentQueue<FlowData> _queue;
 
         static DbStorage()
         {
             string dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
             _connectionString = string.Format("data source = {0}", dbFilePath);
-            _queue = new ConcurrentQueue<QueueModel>();
+            _queue = new ConcurrentQueue<FlowData>();
             CreateTable();
             _ = Task.Run(() => InsertFlowFromQueue());
         }
@@ -45,7 +45,7 @@ namespace CommonLib.MfcUtils
         {
             while (true)
             {
-                if (_queue.TryDequeue(out QueueModel model))
+                if (_queue.TryDequeue(out FlowData flow))
                 {
                     using (var connection = new SQLiteConnection(_connectionString))
                     {
@@ -54,12 +54,12 @@ namespace CommonLib.MfcUtils
                               values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit);",
                               new
                               {
-                                  model.Address,
+                                  flow.Address,
                                   CollectTime = DateTime.Now,
-                                  model.Flow.CurrentFlow,
-                                  Unit = model.Flow.Unit ?? string.Empty,
-                                  model.Flow.AccuFlow,
-                                  model.Flow.AccuFlowUnit
+                                  flow.CurrentFlow,
+                                  Unit = flow.Unit ?? string.Empty,
+                                  flow.AccuFlow,
+                                  flow.AccuFlowUnit
                               });
                     }
                 }
@@ -67,14 +67,7 @@ namespace CommonLib.MfcUtils
             }
         }
 
-        public static void InsertFlowData(int address, FlowData data)
-        {
-            _queue.Enqueue(new QueueModel
-            {
-                Address = address,
-                Flow = data
-            });
-        }
+        public static void InsertFlowData(FlowData data) => _queue.Enqueue(data);
 
         public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)
         {
@@ -136,11 +129,5 @@ namespace CommonLib.MfcUtils
                     new { Password = md5Password });
             }
         }
-    }
-    
-    class QueueModel
-    {
-        public int Address;
-        public FlowData Flow;
     }
 }

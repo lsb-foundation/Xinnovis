@@ -33,7 +33,7 @@ namespace MFCSoftware.Views
         {
             InitializeComponent();
             _viewModel = this.DataContext as ChannelUserControlViewModel;
-            _flowDataSaver = new FlowDataSaver(address, (int)_viewModel.InsertInterval);
+            _flowDataSaver = new FlowDataSaver((int)_viewModel.InsertInterval);
             _viewModel.Address = address;
             _viewModel.InsertIntervalChanged += seconds => _flowDataSaver.SetInterval((int)seconds);
         }
@@ -133,6 +133,7 @@ namespace MFCSoftware.Views
 
             FlowData flowData = new FlowData()
             {
+                Address = this.Address,
                 CurrentFlow = flow,
                 Unit = _viewModel.BaseInfo?.Unit?.Unit,
                 AccuFlow = accuFlow,

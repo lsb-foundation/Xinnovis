@@ -10,23 +10,16 @@ namespace CommonLib.MfcUtils
     /// </summary>
     public class FlowDataSaver
     {
-        private int address;
         private readonly Timer _timer;
         private readonly BlockingCollection<FlowData> _flowDatas;
         public FlowData Flow { get; set; }
-        public FlowDataSaver(int address, int intervalSeconds)
+        public FlowDataSaver(int intervalSeconds)
         {
-            this.address = address;
             _flowDatas = new BlockingCollection<FlowData>();
-            Task.Run(() => InsertFlowData());
+            _ = Task.Run(() => InsertFlowData());
             _timer = new Timer(TimeSpan.FromSeconds(intervalSeconds).TotalMilliseconds) { AutoReset = false };
             _timer.Elapsed += Timer_Elapsed;
             _timer.Start();
-        }
-
-        public void SetAddress(int addr)
-        {
-            address = addr;
         }
 
         public void SetInterval(int seconds)
@@ -50,7 +43,7 @@ namespace CommonLib.MfcUtils
         {
             foreach (var flowData in _flowDatas.GetConsumingEnumerable())
             {
-                DbStorage.InsertFlowData(address, flowData);
+                DbStorage.InsertFlowData(flowData);
             }
         }
     }
