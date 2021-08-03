@@ -37,12 +37,9 @@ namespace MFCSoftwareForCUP.ViewModels
             PasswordConfirmed = await DbStorage.CheckPasswordAsync(Password);
             if (!PasswordConfirmed)
             {
-                await Task.Run(async () =>
-                {
-                    LabelMessage = "密码错误！";
-                    await Task.Delay(1000);
-                    LabelMessage = null;
-                });
+                LabelMessage = "密码错误！";
+                await Task.Delay(1000);
+                LabelMessage = null;
             }
         }
     }

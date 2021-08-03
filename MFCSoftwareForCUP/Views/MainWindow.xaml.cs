@@ -276,12 +276,12 @@ namespace MFCSoftwareForCUP.Views
                 for (int index = 0; index < flowDatas.Count; index++)
                 {
                     int row = index + 1;
-
-                    sheet.SetCellValue(row, 0, flowDatas[index].CollectTime, dateStyle);
-                    sheet.SetCellValue(row, 1, flowDatas[index].CurrentFlow, currFlowStyle);
-                    sheet.SetCellValue(row, 2, flowDatas[index].Unit, basicStyle);
-                    sheet.SetCellValue(row, 3, flowDatas[index].AccuFlow, accuFlowStyle);
-                    sheet.SetCellValue(row, 4, flowDatas[index].AccuFlowUnit, basicStyle);
+                    FlowData flow = flowDatas[index];
+                    sheet.SetCellValue(row, 0, flow.CollectTime, dateStyle);
+                    sheet.SetCellValue(row, 1, flow.CurrentFlow, currFlowStyle);
+                    sheet.SetCellValue(row, 2, flow.Unit, basicStyle);
+                    sheet.SetCellValue(row, 3, flow.AccuFlow, accuFlowStyle);
+                    sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
                 }
 
                 sheet.AutoSizeColumns(0, 4);
@@ -347,12 +347,13 @@ namespace MFCSoftwareForCUP.Views
                     DeviceExtras extra = extras[index];
                     if (flows.FirstOrDefault(f => f.Address == extra.Address) is FlowData flow)
                     {
-                        sheet.SetCellValue(index + 1, 0, extra.Floor, basicStyle);
-                        sheet.SetCellValue(index + 1, 1, extra.Room, basicStyle);
-                        sheet.SetCellValue(index + 1, 2, extra.GasType, basicStyle);
-                        sheet.SetCellValue(index + 1, 3, flow.AccuFlow, basicStyle);
-                        sheet.SetCellValue(index + 1, 4, flow.AccuFlowUnit, basicStyle);
-                        sheet.SetCellValue(index + 1, 5, flow.CollectTime, dateStyle);
+                        int row = index + 1;
+                        sheet.SetCellValue(row, 0, extra.Floor, basicStyle);
+                        sheet.SetCellValue(row, 1, extra.Room, basicStyle);
+                        sheet.SetCellValue(row, 2, extra.GasType, basicStyle);
+                        sheet.SetCellValue(row, 3, flow.AccuFlow, basicStyle);
+                        sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
+                        sheet.SetCellValue(row, 5, flow.CollectTime, dateStyle);
                     }
                 }
                 sheet.AutoSizeColumns(0, 5);

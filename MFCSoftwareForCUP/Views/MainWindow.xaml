@@ -27,16 +27,16 @@
                                ItemsSource="{Binding PortNames}" SelectedItem="{Binding PortName}"/>
             <Label>设备数量</Label>
             <metro:MetroTextBox Width="100" Text="{Binding MaxDeviceCount}"/>
-            <Label>设备地址:</Label>
+            <Label>设备地址</Label>
             <metro:AduIntegerUpDown Width="100"  Background="Transparent"
                                     Foreground="Black" BorderBrush="#3399ff"
                                     Maximum="{Binding MaxDeviceCount}"
                                     Value="{Binding AddressToAdd, Mode=TwoWay}"/>
-            <metro:AduFlatButton Width="50" Margin="4,0,0,0" Height="28"
+            <metro:AduFlatButton Width="65" Margin="4,0,0,0" Height="28"
                                  Click="AddChannelButtonClick">添加</metro:AduFlatButton>
-            <metro:AduFlatButton Margin="4,0,0,0" Height="28"
+            <metro:AduFlatButton Margin="4,0,0,0" Height="28" Width="65"
                                  Click="ExportSummaryButtonClick">汇总导出</metro:AduFlatButton>
-            <metro:AduFlatButton Margin="4,0,0,0" Height="28"
+            <metro:AduFlatButton Margin="4,0,0,0" Height="28" Width="65"
                                  Click="ResetPasswordButtonClick">重置密码</metro:AduFlatButton>
         </StackPanel>
 
