@@ -4,6 +4,7 @@ namespace CommonLib.MfcUtils
 {
     public class FlowData
     {
+        public int Address { get; set; }
         public float CurrentFlow { get; set; }
         public string Unit { get; set; }
         public float AccuFlow { get; set; }

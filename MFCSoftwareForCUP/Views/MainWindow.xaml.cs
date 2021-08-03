@@ -45,15 +45,27 @@ namespace MFCSoftwareForCUP.Views
                 {
                     Address = _main.AddressToAdd
                 };
-                channel.ControlRemoved += c => ContentWrapPanel.Children.Remove(c);
+                channel.ControlRemoved += OnControlRemove;
                 channel.ClearAccumulateFlow += OnClearAccumulateFlow;
                 channel.OnExport += OnExport;
                 _ = ContentWrapPanel.Children.Add(channel);
             }
         }
 
+        private void OnControlRemove(ChannelUserControl channel)
+        {
+            if (ConfirmPassword())
+            {
+                ContentWrapPanel.Children.Remove(channel);
+            }
+        }
+
         private async void OnClearAccumulateFlow(ChannelUserControl channel)
         {
+            if (!ConfirmPassword())
+            {
+                return;
+            }
             await _main.Semaphore.WaitAsync();
             SerialCommand<byte[]> command = BuildClearAccumulateFlowCommand(channel.Address);
             await SendAsync(command, channel);
@@ -62,19 +74,26 @@ namespace MFCSoftwareForCUP.Views
 
         private async void OnExport(ChannelUserControl channel)
         {
+            if (!ConfirmPassword())
+            {
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog()
+            {
+                Filter = "Excel文件|*.xlsx;*.xls",
+                Title = "导出数据"
+            };
+            _ = dialog.ShowDialog();
+            if (string.IsNullOrEmpty(dialog.FileName))
+            {
+                return;
+            }
+
             await Task.Run(async () =>
             {
-                SaveFileDialog dialog = new SaveFileDialog()
-                {
-                    Filter = "Excel文件|*.xlsx;*.xls",
-                    Title = "导出数据"
-                };
-
-                if ((bool)dialog.ShowDialog() && !string.IsNullOrEmpty(dialog.FileName))
-                {
-                    List<FlowData> datas = await DbStorage.QueryFlowDatasByTimeAsync(_main.AppStartTime, DateTime.Now, channel.Address);
-                    ExportHistoryFlowDataToExcel(dialog.FileName, datas);
-                }
+                List<FlowData> datas = await DbStorage.QueryFlowDatasByTimeAsync(_main.AppStartTime, DateTime.Now, channel.Address);
+                ExportHistoryFlowDataToExcel(dialog.FileName, datas);
             });
         }
 
@@ -226,7 +245,7 @@ namespace MFCSoftwareForCUP.Views
                         Address = extras.Address
                     };
                     channel.SetDeviceExtras(extras);
-                    channel.ControlRemoved += c => ContentWrapPanel.Children.Remove(c);
+                    channel.ControlRemoved += OnControlRemove;
                     channel.ClearAccumulateFlow += OnClearAccumulateFlow;
                     channel.OnExport += OnExport;
                     _ = ContentWrapPanel.Children.Add(channel);
@@ -241,24 +260,17 @@ namespace MFCSoftwareForCUP.Views
                 IWorkbook workbook = new XSSFWorkbook();
                 ISheet sheet = workbook.CreateSheet("数据流量表");
 
-                ICellStyle headerStyle = workbook.CreateCellStyle();
-                headerStyle.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+                ICellStyle headerStyle = workbook.HeaderStyle();
+                sheet.SetCellValue(0, 0, "采样时间", headerStyle);
+                sheet.SetCellValue(0, 1, "瞬时流量", headerStyle);
+                sheet.SetCellValue(0, 2, "瞬时流量单位", headerStyle);
+                sheet.SetCellValue(0, 3, "累积流量", headerStyle);
+                sheet.SetCellValue(0, 4, "累积流量单位", headerStyle);
 
-                sheet.SetCellValue(0, 0, "采样时间");
-                sheet.SetCellValue(0, 1, "瞬时流量");
-                sheet.SetCellValue(0, 2, "瞬时流量单位");
-                sheet.SetCellValue(0, 3, "累积流量");
-                sheet.SetCellValue(0, 4, "累积流量单位");
-
-                ICellStyle dateStyle = workbook.CreateCellStyle();
-                IDataFormat format = workbook.CreateDataFormat();
-                dateStyle.DataFormat = format.GetFormat("yyyy/MM/DD HH:mm:ss");
-
-                ICellStyle currFlowStyle = workbook.CreateCellStyle();
-                currFlowStyle.DataFormat = format.GetFormat("#,##0.00"); //瞬时流量保留两位小数
-
-                ICellStyle accuFlowStyle = workbook.CreateCellStyle();
-                accuFlowStyle.DataFormat = format.GetFormat("#,###0.000"); //累积流量保留三位小数
+                ICellStyle basicStyle = workbook.BasicStyle();
+                ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/DD HH:mm:ss");
+                ICellStyle currFlowStyle = workbook.FormattedStyle("#,##0.00");
+                ICellStyle accuFlowStyle = workbook.FormattedStyle("#,###0.000");
 
                 for (int index = 0; index < flowDatas.Count; index++)
                 {
@@ -266,14 +278,93 @@ namespace MFCSoftwareForCUP.Views
 
                     sheet.SetCellValue(row, 0, flowDatas[index].CollectTime, dateStyle);
                     sheet.SetCellValue(row, 1, flowDatas[index].CurrentFlow, currFlowStyle);
-                    sheet.SetCellValue(row, 2, flowDatas[index].Unit);
+                    sheet.SetCellValue(row, 2, flowDatas[index].Unit, basicStyle);
                     sheet.SetCellValue(row, 3, flowDatas[index].AccuFlow, accuFlowStyle);
-                    sheet.SetCellValue(row, 4, flowDatas[index].AccuFlowUnit);
+                    sheet.SetCellValue(row, 4, flowDatas[index].AccuFlowUnit, basicStyle);
                 }
 
                 sheet.AutoSizeColumns(0, 4);
                 workbook.Write(stream);
+                workbook.Close();
             }
+        }
+
+        private void ResetPasswordButtonClick(object sender, RoutedEventArgs e)
+        {
+            ResetPasswordWindow reset = new ResetPasswordWindow { Owner = this };
+            _ = reset.ShowDialog();
+        }
+
+        private async void ExportSummaryButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (!ConfirmPassword())
+            {
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog()
+            {
+                Filter = "Excel文件|*.xlsx;*.xls",
+                Title = "导出数据"
+            };
+            _ = dialog.ShowDialog();
+            if (string.IsNullOrEmpty(dialog.FileName))
+            {
+                return;
+            }
+
+            string file = dialog.FileName;
+            List<DeviceExtras> extras = new List<DeviceExtras>();
+            foreach (ChannelUserControl channel in ContentWrapPanel.Children)
+            {
+                extras.Add(channel.DeviceExtras);
+            }
+            await Task.Run(() => ExportSummary(extras, file));
+        }
+
+        private async void ExportSummary(List<DeviceExtras> extras, string file)
+        {
+            List<FlowData> flows = await DbStorage.QueryLatestAccumulateFlowDatasAsync();
+            using (FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                IWorkbook workbook = new XSSFWorkbook();
+                ISheet sheet = workbook.CreateSheet("流量汇总");
+
+                ICellStyle headerStyle = workbook.HeaderStyle();
+                sheet.SetCellValue(0, 0, "楼层号", headerStyle);
+                sheet.SetCellValue(0, 1, "房间号", headerStyle);
+                sheet.SetCellValue(0, 2, "气体类型", headerStyle);
+                sheet.SetCellValue(0, 3, "累积流量", headerStyle);
+                sheet.SetCellValue(0, 4, "单位", headerStyle);
+                sheet.SetCellValue(0, 5, "采集时间", headerStyle);
+
+                ICellStyle basicStyle = workbook.BasicStyle();
+                ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/dd HH:mm:ss");
+
+                for (int index = 0; index < extras.Count; ++index)
+                {
+                    DeviceExtras extra = extras[index];
+                    if (flows.FirstOrDefault(f => f.Address == extra.Address) is FlowData flow)
+                    {
+                        sheet.SetCellValue(index + 1, 0, extra.Floor, basicStyle);
+                        sheet.SetCellValue(index + 1, 1, extra.Room, basicStyle);
+                        sheet.SetCellValue(index + 1, 2, extra.GasType, basicStyle);
+                        sheet.SetCellValue(index + 1, 3, flow.AccuFlow, basicStyle);
+                        sheet.SetCellValue(index + 1, 4, flow.AccuFlowUnit, basicStyle);
+                        sheet.SetCellValue(index + 1, 5, flow.CollectTime, dateStyle);
+                    }
+                }
+                sheet.AutoSizeColumns(0, 5);
+                workbook.Write(stream);
+                workbook.Close();
+            }
+        }
+
+        private bool ConfirmPassword()
+        {
+            ConfirmPasswordWindow confirm = new ConfirmPasswordWindow { Owner = this };
+            _ = confirm.ShowDialog();
+            return confirm.PasswordConfirmed;
         }
     }
 }

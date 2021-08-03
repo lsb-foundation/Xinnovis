@@ -12,7 +12,6 @@ namespace MFCSoftwareForCUP.ViewModels
         private string accuFlowUnit;
         private string currFlowUnit;
         private DeviceExtras _deviceExtras = new DeviceExtras();
-        private SolidColorBrush statusColor = new SolidColorBrush(Colors.Green);
         #endregion
 
         #region Properties
@@ -80,11 +79,7 @@ namespace MFCSoftwareForCUP.ViewModels
             set => Set(ref currFlowUnit, value);
         }
 
-        public SolidColorBrush StatusColor
-        {
-            get => statusColor;
-            set => Set(ref statusColor, value);
-        }
+        public SolidColorBrush StatusColor { get; } = new SolidColorBrush(Colors.Green);
 
         public DeviceExtras DeviceExtras => _deviceExtras;
         #endregion

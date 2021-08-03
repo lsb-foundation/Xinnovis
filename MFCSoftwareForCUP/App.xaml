@@ -16,6 +16,11 @@
                 <Setter Property="Foreground" Value="Black"/>
                 <Setter Property="BorderBrush" Value="#3399ff"/>
             </Style>
+            <Style TargetType="metro:AduPasswordBox">
+                <Setter Property="Foreground" Value="Black"/>
+                <Setter Property="BorderBrush" Value="#3399ff"/>
+                <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

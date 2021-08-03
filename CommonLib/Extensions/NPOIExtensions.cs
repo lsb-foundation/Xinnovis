@@ -50,6 +50,7 @@ namespace CommonLib.Extensions
 
         public static void SetCellValueEx(this ICell cell, object value, ICellStyle style = null)
         {
+            if (value == null) return;
             switch (value.GetType().FullName)
             {
                 case "System.Int16":

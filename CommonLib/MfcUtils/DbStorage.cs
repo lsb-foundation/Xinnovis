@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data.SQLite;
 using System.Collections.Concurrent;
 using System.Threading;
+using CommonLib.Extensions;
 
 namespace CommonLib.MfcUtils
 {
@@ -24,13 +25,19 @@ namespace CommonLib.MfcUtils
             _ = Task.Run(() => InsertFlowFromQueue());
         }
 
-        private static void CreateTable()
+        private async static void CreateTable()
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
-                connection.Execute("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
-                connection.Execute("create index if not exists idx_tb_flow_addr on tb_flow(address);");
-                connection.Execute("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
+                _ = connection.Execute("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
+                _ = connection.Execute("create index if not exists idx_tb_flow_addr on tb_flow(address);");
+                _ = connection.Execute("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
+                _ = connection.Execute("create table if not exists tb_password(password varchar(64));");
+                if ((await connection.QueryFirstAsync<int>("select count(1) from tb_password")) == 0)
+                {
+                    string defaultPassword = "123456".MD5HashString();
+                    _ = connection.Execute("insert into tb_password(password) values(@password);", new { password = defaultPassword});
+                }
             }
         }
 
@@ -95,6 +102,38 @@ namespace CommonLib.MfcUtils
                       from tb_flow where address = @address",
                     new { address });
                 return flows.AsList();
+            }
+        }
+
+        public static async Task<List<FlowData>> QueryLatestAccumulateFlowDatasAsync()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                var flows = await connection.QueryAsync<FlowData>(
+                    @"select address as Address, collect_time as CollectTime, accu_flow as AccuFlow, accu_unit as AccuFlowUnit from (
+                     	select *, rank() over(partition by address order by collect_time desc) rk from tb_flow
+                     ) where rk = 1");
+                return flows.AsList();
+            }
+        }
+
+        public static async Task<bool> CheckPasswordAsync(string password)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                string md5Password = await connection.QueryFirstAsync<string>("select password from tb_password");
+                string hashedPassword = password.MD5HashString();
+                return md5Password == hashedPassword;
+            }
+        }
+
+        public static async Task UpdatePasswordAsync(string password)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                string md5Password = password.MD5HashString();
+                _ = await connection.ExecuteAsync("update tb_password set password = @Password;",
+                    new { Password = md5Password });
             }
         }
     }

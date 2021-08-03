@@ -106,6 +106,7 @@
     <Compile Include="MfcUtils\DbStorage.cs" />
     <Compile Include="MfcUtils\FlowData.cs" />
     <Compile Include="MfcUtils\FlowDataSaver.cs" />
+    <Compile Include="MfcUtils\MfcNPOIExtensions.cs" />
     <Compile Include="MfcUtils\SerialCommand.cs" />
     <Compile Include="MfcUtils\SerialCommandBuilder.cs" />
     <Compile Include="MfcUtils\SerialCommandType.cs" />
