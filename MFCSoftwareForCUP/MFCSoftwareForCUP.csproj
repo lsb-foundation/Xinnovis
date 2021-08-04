@@ -236,6 +236,10 @@
       <Project>{d8cdf989-c229-4ce8-bd34-eb702056623f}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MFCSoftware.Utils\MFCSoftware.Utils.csproj">
+      <Project>{e1daa3ba-40df-4c18-ab9a-cd4ec139ea4c}</Project>
+      <Name>MFCSoftware.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

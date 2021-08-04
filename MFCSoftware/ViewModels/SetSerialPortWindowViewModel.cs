@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CommonLib.Communication.Serial;
 using System;
 using System.IO.Ports;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 
 namespace MFCSoftware.ViewModels
 {

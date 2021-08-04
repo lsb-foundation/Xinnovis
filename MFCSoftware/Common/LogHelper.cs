@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using CommonLib.Extensions;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 using CommonLib.Utils;
 
 namespace MFCSoftware.Common

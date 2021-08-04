@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     /// <summary>
     /// 按照一定间隔时间保存数据

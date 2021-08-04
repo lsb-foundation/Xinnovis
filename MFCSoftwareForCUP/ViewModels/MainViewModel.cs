@@ -1,4 +1,4 @@
-﻿using CommonLib.MfcUtils;
+﻿using MFCSoftware.Utils;
 using GalaSoft.MvvmLight;
 using System;
 using System.IO.Ports;

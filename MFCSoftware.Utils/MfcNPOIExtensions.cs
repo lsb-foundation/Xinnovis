@@ -1,6 +1,6 @@
 ﻿using NPOI.SS.UserModel;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     public static class MfcNPOIStyleExtensions
     {

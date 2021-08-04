@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 using MFCSoftwareForCUP.Extensions;
 using MFCSoftwareForCUP.Models;
 using MFCSoftwareForCUP.ViewModels;

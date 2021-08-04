@@ -1,5 +1,5 @@
 ﻿using CommonLib.Extensions;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 using CommonLib.Utils;
 using MFCSoftware.ViewModels;
 using System;

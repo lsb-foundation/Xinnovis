@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using CommonLib.Extensions;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     public static class DbStorage
     {

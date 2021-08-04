@@ -4,20 +4,16 @@ using MFCSoftware.Common;
 using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Microsoft.Win32;
-using System.IO;
 using System.Globalization;
 using System.Windows.Media;
 using System.Threading.Tasks;
 using CommonLib.Utils;
-using CommonLib.MfcUtils;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using MFCSoftware.Utils;
 
 namespace MFCSoftware.Views
 {

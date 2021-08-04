@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 
 namespace MFCSoftware.ViewModels
 {

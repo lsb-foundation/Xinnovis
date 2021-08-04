@@ -1,6 +1,5 @@
 ﻿using CommonLib.Extensions;
-using CommonLib.MfcUtils;
-using CommonLib.Models;
+using MFCSoftware.Utils;
 using CommonLib.Utils;
 using MFCSoftwareForCUP.Models;
 using MFCSoftwareForCUP.ViewModels;

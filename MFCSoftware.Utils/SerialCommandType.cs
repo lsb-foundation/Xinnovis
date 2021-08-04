@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     public enum SerialCommandType
     {

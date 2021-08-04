@@ -1,4 +1,4 @@
-﻿namespace CommonLib.MfcUtils
+﻿namespace MFCSoftware.Utils
 {
     public enum ReceivedStatus
     {

@@ -1,7 +1,7 @@
 ﻿using CommonLib.Extensions;
 using System.Reflection;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     public class SerialCommand<T>
     {

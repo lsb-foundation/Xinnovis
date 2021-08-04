@@ -1,5 +1,5 @@
 ﻿using CommonLib.Communication.Serial;
-using CommonLib.MfcUtils;
+using MFCSoftware.Utils;
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;

@@ -3,7 +3,7 @@ using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CommonLib.MfcUtils
+namespace MFCSoftware.Utils
 {
     public static class SerialPortInstance
     {
