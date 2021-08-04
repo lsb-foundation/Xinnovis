@@ -1,8 +1,6 @@
 ﻿using CommonLib.Extensions;
 using CommonLib.MfcUtils;
 using CommonLib.Utils;
-using MFCSoftware.Common;
-using MFCSoftware.Models;
 using MFCSoftware.ViewModels;
 using System;
 using System.Collections.Generic;

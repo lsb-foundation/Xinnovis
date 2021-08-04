@@ -9,8 +9,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
@@ -18,6 +16,8 @@ using System.Windows.Media;
 using System.Threading.Tasks;
 using CommonLib.Utils;
 using CommonLib.MfcUtils;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace MFCSoftware.Views
 {
@@ -174,9 +174,9 @@ namespace MFCSoftware.Views
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 ShowInTaskbar = false
             };
-            win.ShowDialog();
+            _ = win.ShowDialog();
 
-            if(win.IsReady)
+            if (win.IsReady)
             {
                 var flowDatas = win.ExportType == ExportType.ByTime ?
                     await DbStorage.QueryFlowDatasByTimeAsync(win.FromTime, win.ToTime, Address) :
@@ -194,7 +194,8 @@ namespace MFCSoftware.Views
                     {
                         if (!string.IsNullOrEmpty(dialog.FileName))
                         {
-                            ExportHistoryFlowDataToExcel(dialog.FileName, flowDatas);
+                            await Task.Run(() => ExportHistory(dialog.FileName, flowDatas));
+                            _viewModel.ShowMessage("导出完成。");
                         }
                     }
                 }
@@ -205,67 +206,39 @@ namespace MFCSoftware.Views
             }
         }
 
-        public async void ExportHistoryFlowDataToExcel(string fileName, List<FlowData> flowDatas)
+        public void ExportHistory(string fileName, List<FlowData> flowDatas)
         {
-            try
+            using (FileStream stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                await Task.Run(async () =>
+                IWorkbook workbook = new XSSFWorkbook();
+                ISheet sheet = workbook.CreateSheet("数据流量表");
+
+                ICellStyle headerStyle = workbook.HeaderStyle();
+                sheet.SetCellValue(0, 0, "采样时间", headerStyle);
+                sheet.SetCellValue(0, 1, "瞬时流量", headerStyle);
+                sheet.SetCellValue(0, 2, "瞬时流量单位", headerStyle);
+                sheet.SetCellValue(0, 3, "累积流量", headerStyle);
+                sheet.SetCellValue(0, 4, "累积流量单位", headerStyle);
+
+                ICellStyle basicStyle = workbook.BasicStyle();
+                ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/DD HH:mm:ss");
+                ICellStyle currFlowStyle = workbook.FormattedStyle("#,##0.00");
+                ICellStyle accuFlowStyle = workbook.FormattedStyle("#,###0.000");
+
+                for (int index = 0; index < flowDatas.Count; index++)
                 {
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    using (var stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        ExcelWorksheet sheet;
-                        if (package.Workbook.Worksheets.Any(e => e.Name == "流量数据表"))
-                            sheet = package.Workbook.Worksheets.FirstOrDefault(e => e.Name == "流量数据表");
-                        else sheet = package.Workbook.Worksheets.Add("流量数据表");
+                    int row = index + 1;
+                    FlowData flow = flowDatas[index];
+                    sheet.SetCellValue(row, 0, flow.CollectTime, dateStyle);
+                    sheet.SetCellValue(row, 1, flow.CurrentFlow, currFlowStyle);
+                    sheet.SetCellValue(row, 2, flow.Unit, basicStyle);
+                    sheet.SetCellValue(row, 3, flow.AccuFlow, accuFlowStyle);
+                    sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
+                }
 
-                        //Epplus操作Excel从1开始
-                        for (int column = 1; column <= 5; column++)
-                        {
-                            sheet.Cells[1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        }
-                        sheet.SetValue(1, 1, "采样时间");
-                        sheet.SetValue(1, 2, "瞬时流量");
-                        sheet.SetValue(1, 3, "瞬时流量单位");
-                        sheet.SetValue(1, 4, "累积流量");
-                        sheet.SetValue(1, 5, "累积流量单位");
-
-                        for (int index = 0; index < flowDatas.Count; index++)
-                        {
-                            int row = index + 2;
-                            for (int column = 1; column <= 5; column++)
-                            {
-                                sheet.Cells[row, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                            }
-
-                            sheet.Cells[row, 1].Style.Numberformat.Format = "YYYY/MM/DD HH:mm:ss";
-                            sheet.SetValue(row, 1, flowDatas[index].CollectTime);
-
-                            sheet.Cells[row, 2].Style.Numberformat.Format = "#,##0.00";   //瞬时流量保留两位小数
-                            sheet.SetValue(row, 2, flowDatas[index].CurrentFlow);
-                            sheet.SetValue(row, 3, flowDatas[index].Unit);
-
-                            sheet.Cells[row, 4].Style.Numberformat.Format = "#,###0.000"; //累积流量保留三位小数
-                            sheet.SetValue(row, 4, flowDatas[index].AccuFlow);
-                            sheet.SetValue(row, 5, flowDatas[index].AccuFlowUnit);
-                        }
-
-                        for (int column = 1; column <= 5; column++)
-                        {   //调整列宽度为自适应
-                            sheet.Column(column).AutoFit();
-                        }
-
-                        await package.SaveAsync();
-                        sheet.Dispose();
-                    }
-                });
-                _viewModel.ShowMessage("导出完成。");
-            }
-            catch (Exception e)
-            {
-                LoggerHelper.WriteLog(e.Message, e);
-                _viewModel.ShowMessage("导出Excel出错：\n" + e.Message);
+                sheet.AutoSizeColumns(0, 4);
+                workbook.Write(stream);
+                workbook.Close();
             }
         }
 
