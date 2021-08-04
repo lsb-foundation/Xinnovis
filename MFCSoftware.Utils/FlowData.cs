@@ -25,7 +25,6 @@ namespace MFCSoftware.Utils
         #endregion
 
         #region Methods
-        private static readonly List<UnitCode> _unitCodes = UnitCode.GetUnitCodesFromConfiguration();
         public static FlowData ResolveFromBytes(byte[] data)
         {
             Span<byte> dataSpan = data.AsSpan();
@@ -53,7 +52,6 @@ namespace MFCSoftware.Utils
             FlowData flowData = new FlowData
             {
                 CurrentFlow = flow,
-                Unit = _unitCodes.FirstOrDefault(u => u.Code == unitCode)?.Unit,
                 AccuFlow = accuFlow,
                 AccuFlowUnit = unit,
                 Days = days,

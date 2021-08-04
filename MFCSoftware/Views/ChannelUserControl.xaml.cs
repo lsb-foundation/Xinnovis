@@ -65,6 +65,7 @@ namespace MFCSoftware.Views
                         case SerialCommandType.ReadFlow:
                             var flow = FlowData.ResolveFromBytes(data);
                             flow.Address = Address;
+                            flow.Unit = _viewModel.BaseInfo?.Unit?.Unit;
                             _viewModel.SetFlow(flow);
                             _viewModel.UpdateSeries();
                             _flowDataSaver.Flow = flow;
