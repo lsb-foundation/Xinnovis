@@ -25,7 +25,6 @@ namespace MFCSoftwareForCUP.Views
         private readonly MainViewModel _main;
         private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
         private readonly byte[] _readFlowBytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-        private readonly List<UnitCode> _unitCodes = UnitCode.GetUnitCodesFromConfiguration();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         public MainWindow()
@@ -130,7 +129,9 @@ namespace MFCSoftwareForCUP.Views
 
                 if (command.Type == SerialCommandType.ReadFlow)
                 {
-                    ResolveFlowData(data, channel);
+                    var flow = FlowData.ResolveFromBytes(data);
+                    flow.Address = channel.Address;
+                    channel?.SetFlow(flow);
                 }
                 else if (command.Type == SerialCommandType.ClearAccuFlowData)
                 {
@@ -148,45 +149,6 @@ namespace MFCSoftwareForCUP.Views
                 LoggerHelper.WriteLog(e.Message, e);
                 channel?.WhenResolveFailed();
             }
-        }
-
-        private void ResolveFlowData(byte[] data, ChannelUserControl channel)
-        {
-            Span<byte> dataSpan = data.AsSpan();
-            float flow = dataSpan.Slice(3, 4).ToInt32ForHighFirst() / 100.0f;
-            Span<byte> accuFlowSpan = dataSpan.Slice(7, 8);
-            accuFlowSpan.Reverse();
-            float accuFlow = BitConverter.ToInt64(accuFlowSpan.ToArray(), 0) / 1000.0f;
-            int unitCode = dataSpan.Slice(15, 2).ToInt32ForHighFirst();
-
-            string unit = string.Empty;
-            if (unitCode == 0)
-            {
-                unit = "L";
-            }
-            else if (unitCode == 1)
-            {
-                unit = "m³";
-            }
-
-            int days = dataSpan.Slice(17, 2).ToInt32ForHighFirst();
-            int hours = dataSpan.Slice(19, 2).ToInt32ForHighFirst();
-            int mins = dataSpan.Slice(21, 2).ToInt32ForHighFirst();
-            int secs = dataSpan.Slice(23, 2).ToInt32ForHighFirst();
-
-            FlowData flowData = new FlowData
-            {
-                Address = channel.Address,
-                CurrentFlow = flow,
-                Unit = _unitCodes?.FirstOrDefault(u => u.Code == unitCode)?.Unit,
-                AccuFlow = accuFlow,
-                AccuFlowUnit = unit,
-                Days = days,
-                Hours = hours,
-                Minutes = mins,
-                Seconds = secs
-            };
-            channel?.SetFlow(flowData);
         }
 
         private void AppClosed(object sender, EventArgs e)

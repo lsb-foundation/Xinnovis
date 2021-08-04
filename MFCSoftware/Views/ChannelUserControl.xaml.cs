@@ -67,7 +67,11 @@ namespace MFCSoftware.Views
                             ResolveBaseInfoData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            ResolveFlowData(data);
+                            var flow = FlowData.ResolveFromBytes(data);
+                            flow.Address = Address;
+                            _viewModel.SetFlow(flow);
+                            _viewModel.UpdateSeries();
+                            _flowDataSaver.Flow = flow;
                             break;
                         case SerialCommandType.ClearAccuFlowData:
                         case SerialCommandType.SetFlow:
@@ -104,59 +108,9 @@ namespace MFCSoftware.Views
             _viewModel.SetBaseInfomation(info);
         }
 
-        private void ResolveFlowData(byte[] data)
-        {
-            //addr 0x03 0x16 FLOW1 FLOW2 FLOW3 FLOW4
-            //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
-            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2 CRCL CRCH
-            Span<byte> dataSpan = data.AsSpan();
-            float flow = dataSpan.Slice(3, 4).ToInt32ForHighFirst() / 100.0f;
-            Span<byte> accuFlowSpan = dataSpan.Slice(7, 8);
-            accuFlowSpan.Reverse();
-            float accuFlow = BitConverter.ToInt64(accuFlowSpan.ToArray(), 0) / 1000.0f;
-            int unitCode = dataSpan.Slice(15, 2).ToInt32ForHighFirst();
-
-            string unit = string.Empty;
-            if (unitCode == 0)
-            {
-                unit = "L";
-            }
-            else if (unitCode == 1)
-            {
-                unit = "m³";
-            }
-
-            int days = dataSpan.Slice(17, 2).ToInt32ForHighFirst();
-            int hours = dataSpan.Slice(19, 2).ToInt32ForHighFirst();
-            int mins = dataSpan.Slice(21, 2).ToInt32ForHighFirst();
-            int secs = dataSpan.Slice(23, 2).ToInt32ForHighFirst();
-
-            FlowData flowData = new FlowData()
-            {
-                Address = this.Address,
-                CurrentFlow = flow,
-                Unit = _viewModel.BaseInfo?.Unit?.Unit,
-                AccuFlow = accuFlow,
-                AccuFlowUnit = unit,
-                Days = days,
-                Hours = hours,
-                Minutes = mins,
-                Seconds = secs
-            };
-            _viewModel.SetFlow(flowData);
-            _viewModel.UpdateSeries();
-            _flowDataSaver.Flow = flowData;
-        }
-
         public void WhenTimeOut()
         {
-            this.Dispatcher.Invoke(() =>
-            {
-                _viewModel.WhenTimeOut();
-#if DEBUG
-                Console.WriteLine($"Channel {Address}: TimeoutException");
-#endif
-            });
+            this.Dispatcher.Invoke(() => _viewModel.WhenTimeOut());
         }
 
         //递归查找当前控件的根节点Window对象
@@ -194,7 +148,7 @@ namespace MFCSoftware.Views
                     {
                         if (!string.IsNullOrEmpty(dialog.FileName))
                         {
-                            await Task.Run(() => ExportHistory(dialog.FileName, flowDatas));
+                            await Task.Run(() => FlowData.ExportFlowDatas(dialog.FileName, flowDatas));
                             _viewModel.ShowMessage("导出完成。");
                         }
                     }
@@ -203,42 +157,6 @@ namespace MFCSoftware.Views
                 {
                     _viewModel.ShowMessage("未查询到数据！");
                 }
-            }
-        }
-
-        public void ExportHistory(string fileName, List<FlowData> flowDatas)
-        {
-            using (FileStream stream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                IWorkbook workbook = new XSSFWorkbook();
-                ISheet sheet = workbook.CreateSheet("数据流量表");
-
-                ICellStyle headerStyle = workbook.HeaderStyle();
-                sheet.SetCellValue(0, 0, "采样时间", headerStyle);
-                sheet.SetCellValue(0, 1, "瞬时流量", headerStyle);
-                sheet.SetCellValue(0, 2, "瞬时流量单位", headerStyle);
-                sheet.SetCellValue(0, 3, "累积流量", headerStyle);
-                sheet.SetCellValue(0, 4, "累积流量单位", headerStyle);
-
-                ICellStyle basicStyle = workbook.BasicStyle();
-                ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/DD HH:mm:ss");
-                ICellStyle currFlowStyle = workbook.FormattedStyle("#,##0.00");
-                ICellStyle accuFlowStyle = workbook.FormattedStyle("#,###0.000");
-
-                for (int index = 0; index < flowDatas.Count; index++)
-                {
-                    int row = index + 1;
-                    FlowData flow = flowDatas[index];
-                    sheet.SetCellValue(row, 0, flow.CollectTime, dateStyle);
-                    sheet.SetCellValue(row, 1, flow.CurrentFlow, currFlowStyle);
-                    sheet.SetCellValue(row, 2, flow.Unit, basicStyle);
-                    sheet.SetCellValue(row, 3, flow.AccuFlow, accuFlowStyle);
-                    sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
-                }
-
-                sheet.AutoSizeColumns(0, 4);
-                workbook.Write(stream);
-                workbook.Close();
             }
         }
 
