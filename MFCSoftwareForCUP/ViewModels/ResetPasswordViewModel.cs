@@ -51,9 +51,9 @@ namespace MFCSoftwareForCUP.ViewModels
             {
                 return;
             }
-            if (await DbStorage.CheckPasswordAsync(oldPassword))
+            if (await SqliteHelper.CheckPasswordAsync(oldPassword))
             {
-                await DbStorage.UpdatePasswordAsync(newPassword);
+                await SqliteHelper.UpdatePasswordAsync(newPassword);
                 SetLabelMessage("密码修改成功。", true);
             }
             else

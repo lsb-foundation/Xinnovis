@@ -223,7 +223,7 @@ namespace MFCSoftwareForCUP.Views
 
         private async void ExportSummary(List<DeviceExtras> extras, string file)
         {
-            List<FlowData> flows = await DbStorage.QueryLatestAccumulateFlowDatasAsync();
+            List<FlowData> flows = await SqliteHelper.QueryLatestAccumulateFlowDatasAsync();
             using (FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 IWorkbook workbook = new XSSFWorkbook();

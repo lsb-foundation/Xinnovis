@@ -43,7 +43,7 @@ namespace MFCSoftware.Utils
         {
             foreach (var flowData in _flowDatas.GetConsumingEnumerable())
             {
-                DbStorage.InsertFlowData(flowData);
+                SqliteHelper.InsertFlowData(flowData);
             }
         }
     }

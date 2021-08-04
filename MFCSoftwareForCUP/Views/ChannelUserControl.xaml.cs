@@ -85,7 +85,7 @@ namespace MFCSoftwareForCUP.Views
             ViewModelLocator locator = FindResource("Locator") as ViewModelLocator;
             await Task.Run(async () =>
             {
-                List<FlowData> datas = await DbStorage.QueryFlowDatasByTimeAsync(locator.Main.AppStartTime, DateTime.Now, Address);
+                List<FlowData> datas = await SqliteHelper.QueryFlowDatasByTimeAsync(locator.Main.AppStartTime, DateTime.Now, Address);
                 FlowData.ExportFlowDatas(dialog.FileName, datas);
             });
         }

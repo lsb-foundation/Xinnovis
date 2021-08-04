@@ -2,7 +2,7 @@
 
 namespace MFCSoftware.Utils
 {
-    public static class MfcNPOIStyleExtensions
+    public static class NPOIStyleExtensions
     {
         public static ICellStyle BasicStyle(this IWorkbook workbook)
         {

@@ -130,8 +130,8 @@ namespace MFCSoftware.Views
             if (win.IsReady)
             {
                 var flowDatas = win.ExportType == ExportType.ByTime ?
-                    await DbStorage.QueryFlowDatasByTimeAsync(win.FromTime, win.ToTime, Address) :
-                    await DbStorage.QueryAllFlowDatasAsync(Address);
+                    await SqliteHelper.QueryFlowDatasByTimeAsync(win.FromTime, win.ToTime, Address) :
+                    await SqliteHelper.QueryAllFlowDatasAsync(Address);
 
                 if (flowDatas?.Count > 0)
                 {

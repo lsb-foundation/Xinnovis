@@ -31,7 +31,7 @@ namespace CommonLib.Extensions
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static int ToInt32ForHighFirst(this Span<byte> span)
+        public static int ToInt32(this Span<byte> span)
         {
             if (span.Length > 4)
             {

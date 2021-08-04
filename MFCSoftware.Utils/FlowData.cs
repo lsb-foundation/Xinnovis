@@ -1,5 +1,4 @@
 ﻿using CommonLib.Extensions;
-using CommonLib.Models;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -28,32 +27,23 @@ namespace MFCSoftware.Utils
         public static FlowData ResolveFromBytes(byte[] data)
         {
             Span<byte> dataSpan = data.AsSpan();
-            float flow = dataSpan.Slice(3, 4).ToInt32ForHighFirst() / 100.0f;
-            Span<byte> accuFlowSpan = dataSpan.Slice(7, 8);
-            accuFlowSpan.Reverse();
-            float accuFlow = BitConverter.ToInt64(accuFlowSpan.ToArray(), 0) / 1000.0f;
-            int unitCode = dataSpan.Slice(15, 2).ToInt32ForHighFirst();
+            float flow = dataSpan.Slice(3, 4).ToInt32() / 100.0f;
 
-            string unit = string.Empty;
-            if (unitCode == 0)
-            {
-                unit = "L";
-            }
-            else if (unitCode == 1)
-            {
-                unit = "m³";
-            }
+            Span<byte> accuSpan = dataSpan.Slice(7, 8);
+            accuSpan.Reverse();
+            float accuFlow = BitConverter.ToInt64(accuSpan.ToArray(), 0) / 1000.0f;
 
-            int days = dataSpan.Slice(17, 2).ToInt32ForHighFirst();
-            int hours = dataSpan.Slice(19, 2).ToInt32ForHighFirst();
-            int mins = dataSpan.Slice(21, 2).ToInt32ForHighFirst();
-            int secs = dataSpan.Slice(23, 2).ToInt32ForHighFirst();
+            int unitCode = dataSpan.Slice(15, 2).ToInt32();
+            int days = dataSpan.Slice(17, 2).ToInt32();
+            int hours = dataSpan.Slice(19, 2).ToInt32();
+            int mins = dataSpan.Slice(21, 2).ToInt32();
+            int secs = dataSpan.Slice(23, 2).ToInt32();
 
             FlowData flowData = new FlowData
             {
                 CurrentFlow = flow,
                 AccuFlow = accuFlow,
-                AccuFlowUnit = unit,
+                AccuFlowUnit = unitCode == 0 ? "L" : (unitCode == 1 ? "m³" : string.Empty),
                 Days = days,
                 Hours = hours,
                 Minutes = mins,

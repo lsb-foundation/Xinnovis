@@ -10,13 +10,13 @@ using CommonLib.Extensions;
 
 namespace MFCSoftware.Utils
 {
-    public static class DbStorage
+    public static class SqliteHelper
     {
         private const string dbFile = "db.sqlite";
         private static readonly string _connectionString;
         private static readonly ConcurrentQueue<FlowData> _queue;
 
-        static DbStorage()
+        static SqliteHelper()
         {
             string dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
             _connectionString = string.Format("data source = {0}", dbFilePath);
@@ -29,14 +29,17 @@ namespace MFCSoftware.Utils
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
-                _ = connection.Execute("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
-                _ = connection.Execute("create index if not exists idx_tb_flow_addr on tb_flow(address);");
-                _ = connection.Execute("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
-                _ = connection.Execute("create table if not exists tb_password(password varchar(64));");
+                _ = await connection.ExecuteAsync("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
+                _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_addr on tb_flow(address);");
+                _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
+                _ = await connection.ExecuteAsync("create table if not exists tb_password(password varchar(64));");
                 if ((await connection.QueryFirstAsync<int>("select count(1) from tb_password")) == 0)
                 {
                     string defaultPassword = "123456".MD5HashString();
-                    _ = connection.Execute("insert into tb_password(password) values(@password);", new { password = defaultPassword});
+                    _ = await connection.ExecuteAsync("insert into tb_password(password) values(@password);", new
+                    {
+                        password = defaultPassword
+                    });
                 }
             }
         }
