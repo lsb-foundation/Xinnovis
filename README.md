@@ -1,21 +1,29 @@
-# 芯笙微纳电子科技上位机项目
+## 芯笙微纳电子科技上位机项目
 
-## CommonLib
+### AutoCalibrationTool
 
-项目公用库，包括各类实用的扩展方法、Mvvm基类以及数据及通信相关的辅助工具类。
+自动标定工具
 
-## CalibrationTool
+### CalibrationTool
 
 MFD/MFM校准工具
 
-## MFCSoftware
+### MFCSoftware
 
 MFC上位机软件
 
-## SerialDataDisplay
+### MFCSoftwareForCUP
+
+石油大学上位机项目
+
+### SerialDataDisplay
 
 采集数据并用曲线呈现
 
-## MultipleDevicesMonitor
+### MultipleDevicesMonitor
 
 多设备监测采集软件
+
+### VirtualSerialPortClient
+
+虚拟测试使用的串口监听工具
