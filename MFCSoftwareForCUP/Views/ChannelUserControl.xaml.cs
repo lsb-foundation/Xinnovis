@@ -43,8 +43,8 @@ namespace MFCSoftwareForCUP.Views
             _channel.AccumulateFlow = flow.AccuFlow;
             _channel.AccumulateFlowUnit = flow.AccuFlowUnit;
             _channel.CurrentFlow = flow.CurrentFlow;
-            _channel.CurrentFlowUnit = flow.Unit;
             _saver.Flow = flow;
+            _saver.Flow.Unit = _channel.CurrentFlowUnit;
         }
 
         public void SetDeviceExtras(DeviceExtras extras) => _channel.SetExtras(extras);

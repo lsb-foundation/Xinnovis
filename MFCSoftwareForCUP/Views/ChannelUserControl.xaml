@@ -78,7 +78,7 @@
                                       Style="{StaticResource DigitalFontStyle}" 
                                       Text="{Binding AccumulateFlow, StringFormat={}{0:N3}}"/>
                 
-                <TextBlock Grid.Column="2" FontSize="20"
+                <TextBlock Grid.Column="2" FontSize="16" VerticalAlignment="Center"
                            Text="{Binding AccumulateFlowUnit}"/>
                 
                 <Label Grid.Row="1" Margin="0,4,0,0">瞬时流量</Label>
@@ -88,7 +88,7 @@
                                       Text="{Binding CurrentFlow, StringFormat={}{0:N3}}"/>
                 
                 <TextBlock Grid.Row="1" Grid.Column="2" 
-                           Margin="0,4,0,0" FontSize="20"
+                           FontSize="16" VerticalAlignment="Center"
                            Text="{Binding CurrentFlowUnit}"/>
                 
                 <Ellipse Margin="8" Grid.RowSpan="2" Grid.Column="3"

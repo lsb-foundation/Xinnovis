@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using MFCSoftwareForCUP.Models;
+using System.Configuration;
 using System.Windows.Media;
 
 namespace MFCSoftwareForCUP.ViewModels
@@ -10,7 +11,6 @@ namespace MFCSoftwareForCUP.ViewModels
         private float accuFlow;
         private float currFlow;
         private string accuFlowUnit;
-        private string currFlowUnit;
         private DeviceExtras _deviceExtras = new DeviceExtras();
         #endregion
 
@@ -73,11 +73,7 @@ namespace MFCSoftwareForCUP.ViewModels
             set => Set(ref currFlow, value);
         }
 
-        public string CurrentFlowUnit
-        {
-            get => currFlowUnit;
-            set => Set(ref currFlowUnit, value);
-        }
+        public string CurrentFlowUnit { get; } = ConfigurationManager.AppSettings["瞬时流量单位"];
 
         public SolidColorBrush StatusColor { get; } = new SolidColorBrush(Colors.Green);
 
