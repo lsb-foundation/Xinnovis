@@ -43,9 +43,7 @@ namespace AwesomeCommand.UIModels
         }
 
         [XmlIgnore]
-        public Command Parent { get; private set; }
-
-        internal void SetParentCommand(Command cmd) => Parent = cmd;
+        public Command Parent { get; set; }
 
         public DependencyObject[] Build()
         {

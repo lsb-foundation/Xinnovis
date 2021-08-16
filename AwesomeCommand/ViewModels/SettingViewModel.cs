@@ -13,6 +13,15 @@ namespace AwesomeCommand.ViewModels
         public SettingViewModel(SerialPortInstance instance)
         {
             _instance = instance;
+            SerialPortNames = new ObservableCollection<string>();
+            foreach (string portName in SerialPort.GetPortNames())
+            {
+                SerialPortNames.Add(portName);
+            }
+            if (SerialPortNames.Count > 0)
+            {
+                _instance.SerialPort.PortName = SerialPortNames[0];
+            }
         }
 
         public string PortName
@@ -65,7 +74,7 @@ namespace AwesomeCommand.ViewModels
             }
         }
 
-        public ObservableCollection<string> SerialPortNames { get; } = new ObservableCollection<string>();
+        public ObservableCollection<string> SerialPortNames { get; }
         public List<int> SerialBaudRates { get; } = BaudRateCode.GetBaudRates();
         public List<int> SerialDataBits { get; } = new List<int>() { 5, 6, 7, 8 };
         public List<Parity> SerialParities { get; } = AdvancedSerialPort.GetParities();

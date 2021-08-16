@@ -38,6 +38,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <StackPanel
@@ -61,14 +62,26 @@
                 Grid.Row="1"
                 x:Name="ResultTextBox"
                 />
-            <Grid Grid.Row="2" Height="50">
+            <Grid Grid.Row="2" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="常用命令"/>
+                <ComboBox
+                    Grid.Column="1"
+                    ItemsSource="{Binding LatestCommands}"
+                    SelectedItem="{Binding SelectedLatestCommand}"
+                    x:Name="CmdCombox"/>
+            </Grid>
+            <Grid Grid.Row="3" Height="50">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox
                     Margin="0,4,0,0"
-                    x:Name="CommandTextBox"/>
+                    Text="{Binding EditableCommand}"/>
                 <Button
                     Grid.Column="1"
                     Width="60" Margin="4,4,0,0"

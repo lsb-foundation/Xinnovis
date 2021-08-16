@@ -22,9 +22,7 @@ namespace AwesomeCommand.UIModels
         public string Type { get; set; }
 
         [XmlIgnore]
-        public Tab Parent { get; private set; }
-
-        internal void SetParent(Tab tab) => Parent = tab;
+        public Tab Parent { get; set; }
 
         public Button Build()
         {

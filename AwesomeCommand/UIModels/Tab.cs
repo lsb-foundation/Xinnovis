@@ -27,7 +27,7 @@ namespace AwesomeCommand.UIModels
             };
             if (FileReader != null)
             {
-                FileReader.SetParent(this);
+                FileReader.Parent = this;
                 _ = stackPanel.Children.Add(FileReader.Build());
             }
             foreach (Group group in Groups)

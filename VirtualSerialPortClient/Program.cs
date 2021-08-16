@@ -4,6 +4,7 @@ using CommonLib.Extensions;
 using System.Threading;
 using System.Configuration;
 using System.Text;
+using System.Collections.Generic;
 
 namespace VirtualSerialPortClient
 {
@@ -41,12 +42,18 @@ namespace VirtualSerialPortClient
 
         private static void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int count = port.BytesToRead;
-            byte[] buffer = new byte[count];
-            port.Read(buffer, 0, count);
-            Console.WriteLine($"{portName} received: {buffer.ToHexString()}");
-            Thread.Sleep(10);
+            int count = 0;
+            List<byte> bufferList = new List<byte>();
+            while ((count = port.BytesToRead) > 0)
+            {
+                byte[] bytes = new byte[count];
+                _ = port.Read(bytes, 0, count);
+                bufferList.AddRange(bytes);
+                Thread.Sleep(10);
+            }
 
+            byte[] buffer = bufferList.ToArray();
+            Console.WriteLine($"{portName} received: {buffer.ToHexString()}");
             //if (buffer.Length != 8)
             //    return;
 

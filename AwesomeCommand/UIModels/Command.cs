@@ -35,7 +35,7 @@ namespace AwesomeCommand.UIModels
             for (int index = 0; index < Parameters.Count; index++)
             {
                 Parameter parameter = Parameters[index];
-                parameter.SetParentCommand(this);
+                parameter.Parent = this;
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 DependencyObject[] controls = parameter.Build();
                 Label label = controls[0] as Label;
@@ -51,7 +51,7 @@ namespace AwesomeCommand.UIModels
             for (int index = 0; index < Actions.Count; index++)
             {
                 UIAction act = Actions[index];
-                act.SetParent(this);
+                act.Parent = this;
                 act.Executed += build => this.Executed?.Invoke(build);
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 Button button = act.Build();

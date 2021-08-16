@@ -24,14 +24,9 @@ namespace AwesomeCommand.UIModels
         public bool IsConfirmed { get; set; }
 
         [XmlIgnore]
-        public Command Parent { get; private set; }
+        public Command Parent { get; set; }
 
         public event Action<IAutoBuilder> Executed;
-
-        internal void SetParent(Command cmd)
-        {
-            Parent = cmd;
-        }
 
         public Button Build()
         {

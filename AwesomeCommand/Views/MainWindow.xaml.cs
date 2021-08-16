@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
+using System.Linq;
 using System.Windows;
 using AwesomeCommand.UIModels;
 using AwesomeCommand.ViewModels;
@@ -13,26 +14,28 @@ namespace AwesomeCommand.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly SerialPortInstance _instance;
+        private readonly MainViewModel _main;
         public MainWindow()
         {
             InitializeComponent();
-            _instance = (DataContext as MainViewModel).Instance;
-            _instance.SerialPort.DataReceived += SerialPort_DataReceived;
+            _main = DataContext as MainViewModel;
+            _main.Instance.SerialPort.DataReceived += SerialPort_DataReceived;
         }
 
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private async void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            SerialPort port = _instance.SerialPort;
-            int count = port.BytesToWrite;
-            byte[] datas = new byte[count];
-            port.Read(datas, 0, count);
-            string chars = Encoding.Default.GetString(datas);
-            ResultTextBox.AppendText(chars);
+            SerialPort port = _main.Instance.SerialPort;
+            string chars = port.ReadExisting();
+            await Dispatcher.InvokeAsync(() =>
+            {
+                ResultTextBox.AppendText(chars);
+                ResultTextBox.ScrollToEnd();
+            });
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            InitializeCommandsCombox();
             string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./autoui.xml");
             if (!File.Exists(file))
             {
@@ -74,7 +77,7 @@ namespace AwesomeCommand.Views
                 {
                     return;
                 }
-                _instance.Send(command);
+                _main.Instance.Send(command);
             }
         }
 
@@ -88,12 +91,49 @@ namespace AwesomeCommand.Views
             _ = setting.ShowDialog();
         }
 
-        private void SendButton_Click(object sender, RoutedEventArgs e)
+        private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            string command = CommandTextBox.Text;
+            string command = _main.EditableCommand?.Trim();
             if (!string.IsNullOrWhiteSpace(command))
             {
-                _instance.Send(command.Trim());
+                _main.Instance.Send(command);
+                if (!_main.LatestCommands.Contains(command))
+                {
+                    _main.LatestCommands.Insert(0, command);
+                }
+                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./commands.txt");
+                using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.Write))
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    await writer.WriteLineAsync(command);
+                }
+            }
+        }
+
+        private async void InitializeCommandsCombox()
+        {
+            string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./commands.txt");
+            using (FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.Read))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string line;
+                List<string> commands = new List<string>();
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        commands.Add(line);
+                    }
+                }
+                IEnumerable<string> orderComamnds = from c in commands
+                                                    group c by c into g
+                                                    select (command: g.Key, count: g.Count()) into cc
+                                                    orderby cc.count descending
+                                                    select cc.command;
+                foreach (string command in orderComamnds.Take(10))
+                {
+                    _main.LatestCommands.Add(command);
+                }
             }
         }
 
