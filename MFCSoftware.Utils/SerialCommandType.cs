@@ -24,9 +24,11 @@ namespace MFCSoftware.Utils
         ClearAccuFlowData,
 
         [ResolveAction("设置流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]
+        //[ResolveAction("设置流量", true, new byte[] {0x10, 0x02, 0x00, 0x00 })] //针对客户修改 2021.08.17
         SetFlow,
 
         [ResolveAction("设置阀门开度", true, new byte[] { 0x06, 0x02, 0x00, 0x03 })]
+        //[ResolveAction("设置阀门开度", true, new byte[] { 0x10, 0x02, 0x00, 0x03 })] //针对客户修改 2021.08.17
         ValveControl,
 
         [ResolveAction("零点校准", true, new byte[] { 0x06, 0x02, 0x00, 0x01 })]

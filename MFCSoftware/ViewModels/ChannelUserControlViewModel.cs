@@ -276,7 +276,9 @@ namespace MFCSoftware.ViewModels
             WriteFlowBytes = new SerialCommandBuilder(SerialCommandType.SetFlow)
                 .AppendAddress(Address)
                 .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 })
+                //.AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x00 }) //针对客户的修改 2021.08.17
                 .AppendBytes(flowIntValue.ToHex())
+                //.AppendBytes(new byte[] { 0x00, 0x00 }) //针对客户的修改 2021.08.17
                 .AppendCrc16()
                 .ToSerialCommand(7);
         }
@@ -288,6 +290,7 @@ namespace MFCSoftware.ViewModels
             WriteValveBytes = new SerialCommandBuilder(SerialCommandType.ValveControl)
                 .AppendAddress(Address)
                 .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 })
+                //.AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }) //针对客户的修改 2021.08.17
                 .AppendBytes(openIntValue.ToHex().SubArray(2, 2))
                 .AppendCrc16()
                 .ToSerialCommand(7);

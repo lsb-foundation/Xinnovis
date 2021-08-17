@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AutoUI xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Tabs>
+    <Tab Header="测量">
+      <Groups>
+        <Group Header="标定">
+          <Commands>
+            <Command Name="CaliCommand" Description="CALI指令">
+              <Actions>
+                <Action Name="CaliAction" Description="风速原始电压数据" Format="CALI Volt!"></Action>
+              </Actions>
+            </Command>
+          </Commands>
+        </Group>
+        <Group Header="指令">
+          <Commands>
+            <Command Name="Commands" Description="无参数指令集合">
+              <Actions>
+                <Action Name="WindSpeed" Description="风速数据" Format="Wind Speed!"></Action>
+                <Action Name="Temperature" Description="NTC温度" Format="Temperature!"></Action>
+                <Action Name="TempVolt" Description="NTC温度原始电压数据" Format="Temp Volt!"></Action>
+                <Action Name="MCU" Description="MCU温度" Format="MCU!"></Action>
+                <Action Name="RXTXStop" Description="通讯停止" Format="RXTX Stop!"></Action>
+                <Action Name="SwitchToIIC" Description="切换至IIC通讯模式" Format="Switch To IIC!" IsAuthorized="true"></Action>
+              </Actions>
+            </Command>
+          </Commands>
+        </Group>
+      </Groups>
+    </Tab>
+    <Tab Header="K/VOLT">
+      <FileReader Name="ExcelReader" Description="打开Excel文件" Type="excel"></FileReader>
+      <Groups>
+        <Group Header="VOLT">
+          <Commands>
+            <Command>
+              <Parameters>
+                <Parameter Name="VoltData" Description="VOLT" Type="excel" DataRange="Sheet1!B2:B11" Seperator=";"></Parameter>
+              </Parameters>
+              <Actions>
+                <Action Name="CaliVolt" Description="写入Volt" Format="VOLT:{VoltData}!" IsConfirmed="true"></Action>
+              </Actions>
+            </Command>
+          </Commands>
+        </Group>
+        <Group Header="K">
+          <Commands>
+            <Command>
+              <Parameters>
+                <Parameter Name="KData" Description="K" Type="excel" DataRange="Sheet1!C2:C11" Seperator=";"></Parameter>
+              </Parameters>
+              <Actions>
+                <Action Name="CaliK" Description="写入K" Format="KKKK:{KData}!" IsConfirmed="true"></Action>
+              </Actions>
+            </Command>
+          </Commands>
+        </Group>
+        <Group Header="FLOW">
+          <Commands>
+            <Command>
+              <Parameters>
+                <Parameter Name="FlowData" Description="Flow" Type="excel" DataRange="Sheet1!A2:A11" Seperator=";"></Parameter>
+              </Parameters>
+              <Actions>
+                <Action Name="CaliFlow" Description="写入Flow" Format="FLOW:{FlowData}!" IsConfirmed="true"></Action>
+              </Actions>
+            </Command>
+          </Commands>
+        </Group>
+      </Groups>
+    </Tab>
+  </Tabs>
+</AutoUI>

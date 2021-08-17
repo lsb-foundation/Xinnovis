@@ -4,6 +4,10 @@
 
 自动标定工具
 
+### AutoCommander
+
+界面自动配置工具：从CalibrationTool中提取出来的自动配置功能
+
 ### CalibrationTool
 
 MFD/MFM校准工具
