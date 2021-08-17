@@ -1,6 +1,8 @@
-﻿using System.IO.Ports;
+﻿using AutoCommander.Properties;
+using System.IO.Ports;
+using System.Linq;
 
-namespace AwesomeCommand.ViewModels
+namespace AutoCommander.ViewModels
 {
     public class SerialPortInstance
     {
@@ -11,9 +13,14 @@ namespace AwesomeCommand.ViewModels
         {
             _port = new SerialPort();
             _syncRoot = new object();
+            string port = Settings.Default.PortName;
+            if (SerialPort.GetPortNames().Any(pn => pn == port))
+            {
+                SetPortName(port);
+            }
         }
 
-        public SerialPort SerialPort => _port;
+        public SerialPort Port => _port;
 
         public void SetPortName(string portName)
         {
@@ -24,6 +31,10 @@ namespace AwesomeCommand.ViewModels
                     _port.Close();
                 }
                 _port.PortName = portName;
+
+                Settings.Default.PortName = portName;
+                Settings.Default.Save();
+                Settings.Default.Reload();
             }
         }
 

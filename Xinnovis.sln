@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftwareForCUP", "MFCSof
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCSoftware.Utils", "MFCSoftware.Utils\MFCSoftware.Utils.csproj", "{E1DAA3BA-40DF-4C18-AB9A-CD4EC139EA4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwesomeCommand", "AwesomeCommand\AwesomeCommand.csproj", "{466063A1-4324-4F32-B073-A1DEFBFF4B86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCommander", "AutoCommander\AutoCommander.csproj", "{466063A1-4324-4F32-B073-A1DEFBFF4B86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

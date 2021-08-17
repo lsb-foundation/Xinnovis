@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
-namespace AwesomeCommand.UIModels
+namespace AutoCommander.UIModels
 {
     public class Command : IAutoBuild<Grid>
     {

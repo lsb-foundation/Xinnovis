@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
-namespace AwesomeCommand.UIModels
+namespace AutoCommander.UIModels
 {
     public class FileReader : IAutoBuild<Button>
     {

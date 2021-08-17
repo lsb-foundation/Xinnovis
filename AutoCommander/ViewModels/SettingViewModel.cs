@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 
-namespace AwesomeCommand.ViewModels
+namespace AutoCommander.ViewModels
 {
     public class SettingViewModel : ViewModelBase
     {
@@ -18,15 +18,15 @@ namespace AwesomeCommand.ViewModels
             {
                 SerialPortNames.Add(portName);
             }
-            if (SerialPortNames.Count > 0)
+            if (!SerialPortNames.Contains(_instance.Port.PortName))
             {
-                _instance.SerialPort.PortName = SerialPortNames[0];
+                _instance.Port.PortName = SerialPortNames[0];
             }
         }
 
         public string PortName
         {
-            get => _instance.SerialPort.PortName;
+            get => _instance.Port.PortName;
             set
             {
                 _instance.SetPortName(value);
@@ -36,40 +36,40 @@ namespace AwesomeCommand.ViewModels
 
         public int BaudRate
         {
-            get => _instance.SerialPort.BaudRate;
+            get => _instance.Port.BaudRate;
             set
             {
-                _instance.SerialPort.BaudRate = value;
+                _instance.Port.BaudRate = value;
                 RaisePropertyChanged();
             }
         }
 
         public int DataBits
         {
-            get => _instance.SerialPort.DataBits;
+            get => _instance.Port.DataBits;
             set
             {
-                _instance.SerialPort.DataBits = value;
+                _instance.Port.DataBits = value;
                 RaisePropertyChanged();
             }
         }
 
         public Parity Parity
         {
-            get => _instance.SerialPort.Parity;
+            get => _instance.Port.Parity;
             set
             {
-                _instance.SerialPort.Parity = value;
+                _instance.Port.Parity = value;
                 RaisePropertyChanged();
             }
         }
 
         public StopBits StopBits
         {
-            get => _instance.SerialPort.StopBits;
+            get => _instance.Port.StopBits;
             set
             {
-                _instance.SerialPort.StopBits = value;
+                _instance.Port.StopBits = value;
                 RaisePropertyChanged();
             }
         }

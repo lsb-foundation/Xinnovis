@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
-namespace AwesomeCommand.UIModels
+namespace AutoCommander.UIModels
 {
     public class Tab : IAutoBuild<TabItem>
     {

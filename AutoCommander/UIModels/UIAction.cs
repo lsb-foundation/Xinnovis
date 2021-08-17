@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
-namespace AwesomeCommand.UIModels
+namespace AutoCommander.UIModels
 {
     public class UIAction : IAutoBuild<Button>
     {

@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
 using System.Windows;
-using AwesomeCommand.UIModels;
-using AwesomeCommand.ViewModels;
+using AutoCommander.Properties;
+using AutoCommander.UIModels;
+using AutoCommander.ViewModels;
+using CommonLib.Extensions;
 
-namespace AwesomeCommand.Views
+namespace AutoCommander.Views
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -19,12 +19,12 @@ namespace AwesomeCommand.Views
         {
             InitializeComponent();
             _main = DataContext as MainViewModel;
-            _main.Instance.SerialPort.DataReceived += SerialPort_DataReceived;
+            _main.Instance.Port.DataReceived += SerialPort_DataReceived;
         }
 
         private async void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            SerialPort port = _main.Instance.SerialPort;
+            SerialPort port = _main.Instance.Port;
             string chars = port.ReadExisting();
             await Dispatcher.InvokeAsync(() =>
             {
@@ -35,7 +35,7 @@ namespace AwesomeCommand.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeCommandsCombox();
+            InitializePassword();
             string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./autoui.xml");
             if (!File.Exists(file))
             {
@@ -91,49 +91,13 @@ namespace AwesomeCommand.Views
             _ = setting.ShowDialog();
         }
 
-        private async void SendButton_Click(object sender, RoutedEventArgs e)
+        private void InitializePassword()
         {
-            string command = _main.EditableCommand?.Trim();
-            if (!string.IsNullOrWhiteSpace(command))
+            if (Settings.Default.Password == "123456")
             {
-                _main.Instance.Send(command);
-                if (!_main.LatestCommands.Contains(command))
-                {
-                    _main.LatestCommands.Insert(0, command);
-                }
-                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./commands.txt");
-                using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.Write))
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    await writer.WriteLineAsync(command);
-                }
-            }
-        }
-
-        private async void InitializeCommandsCombox()
-        {
-            string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./commands.txt");
-            using (FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.Read))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string line;
-                List<string> commands = new List<string>();
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(line))
-                    {
-                        commands.Add(line);
-                    }
-                }
-                IEnumerable<string> orderComamnds = from c in commands
-                                                    group c by c into g
-                                                    select (command: g.Key, count: g.Count()) into cc
-                                                    orderby cc.count descending
-                                                    select cc.command;
-                foreach (string command in orderComamnds.Take(10))
-                {
-                    _main.LatestCommands.Add(command);
-                }
+                Settings.Default.Password = "123456".MD5HashString();
+                Settings.Default.Save();
+                Settings.Default.Reload();
             }
         }
 

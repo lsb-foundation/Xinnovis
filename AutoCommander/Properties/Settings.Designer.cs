@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AwesomeCommand.Properties {
+namespace AutoCommander.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -32,6 +32,18 @@ namespace AwesomeCommand.Properties {
             }
             set {
                 this["Password"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("COM1")]
+        public string PortName {
+            get {
+                return ((string)(this["PortName"]));
+            }
+            set {
+                this["PortName"] = value;
             }
         }
     }

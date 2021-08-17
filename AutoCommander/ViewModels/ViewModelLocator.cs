@@ -1,7 +1,7 @@
 ﻿using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 
-namespace AwesomeCommand.ViewModels
+namespace AutoCommander.ViewModels
 {
     public class ViewModelLocator
     {

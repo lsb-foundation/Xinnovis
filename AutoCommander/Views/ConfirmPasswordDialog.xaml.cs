@@ -1,9 +1,9 @@
-﻿using AwesomeCommand.Properties;
+﻿using AutoCommander.Properties;
 using CommonLib.Extensions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace AwesomeCommand.Views
+namespace AutoCommander.Views
 {
     /// <summary>
     /// ConfirmPasswordDialog.xaml 的交互逻辑
@@ -33,16 +33,6 @@ namespace AwesomeCommand.Views
                     await Task.Delay(1000);
                     TipsLabel.Content = null;
                 }
-            }
-        }
-
-        private void Dialog_Load(object sender, RoutedEventArgs e)
-        {
-            if (Settings.Default.Password == "123456")
-            {
-                Settings.Default.Password = "123456".MD5HashString();
-                Settings.Default.Save();
-                Settings.Default.Reload();
             }
         }
     }

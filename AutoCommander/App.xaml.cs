@@ -1,7 +1,7 @@
 ﻿using CommonLib.Utils;
 using System.Windows;
 
-namespace AwesomeCommand
+namespace AutoCommander
 {
     /// <summary>
     /// App.xaml 的交互逻辑

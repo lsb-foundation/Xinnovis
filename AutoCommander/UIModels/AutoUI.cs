@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
-namespace AwesomeCommand.UIModels
+namespace AutoCommander.UIModels
 {
     [XmlRoot]
     public class AutoUI : IAutoBuild<TabControl>

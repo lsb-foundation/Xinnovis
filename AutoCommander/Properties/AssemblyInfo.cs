@@ -7,11 +7,11 @@ using System.Windows;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("AwesomeCommand")]
+[assembly: AssemblyTitle("AutoCommander")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xinnovis")]
-[assembly: AssemblyProduct("AwesomeCommand")]
+[assembly: AssemblyProduct("AutoCommander")]
 [assembly: AssemblyCopyright("Copyright © Xinnovis 2021")]
 [assembly: AssemblyTrademark("Xinnovis")]
 [assembly: AssemblyCulture("")]

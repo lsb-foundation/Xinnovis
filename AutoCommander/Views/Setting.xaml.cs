@@ -1,10 +1,10 @@
-﻿using AwesomeCommand.Properties;
+﻿using AutoCommander.Properties;
 using CommonLib.Extensions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace AwesomeCommand.Views
+namespace AutoCommander.Views
 {
     /// <summary>
     /// Setting.xaml 的交互逻辑

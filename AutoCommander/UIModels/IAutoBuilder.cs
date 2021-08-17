@@ -1,4 +1,4 @@
-﻿namespace AwesomeCommand.UIModels
+﻿namespace AutoCommander.UIModels
 {
     public interface IAutoBuilder { }
 
