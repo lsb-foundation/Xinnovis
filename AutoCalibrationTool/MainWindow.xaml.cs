@@ -32,7 +32,7 @@ namespace AutoCalibrationTool
         {
             InitializeComponent();
             _originDatas = new BlockingCollection<string>(5);
-            _dataLines = new BlockingCollection<string>(4);
+            _dataLines = new BlockingCollection<string>(5);
             _incubeCollection = new DeviceDataCollection();
             _roomCollection = new DeviceDataCollection();
             ViewModelLocator.Port.OnDataReceived += Port_OnDataReceived;
@@ -137,20 +137,32 @@ namespace AutoCalibrationTool
         {
             await Task.Run(async () =>
             {
-                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testlog.txt");
-                using (var stream = File.OpenRead(file))
+                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./ttt.txt");
+                using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.Read))
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    var reader = new StreamReader(stream);
-                    string line = null;
-                    while((line = await reader.ReadLineAsync()) != null)
+                    string line;
+                    while ((line = await reader.ReadLineAsync()) != null)
                     {
-                        int idx = line.IndexOf("Received:");
-                        if (idx == -1) continue;
-                        var bytes = line.Substring(idx + 10).HexStringToBytes();
-                        _originDatas.Add(Encoding.Default.GetString(bytes));
-                        Thread.Sleep(20);
+                        _dataLines.Add(line);
                     }
                 }
+                file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./ttt.xlsx");
+                Export(_roomCollection, file);
+                //string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testlog.txt");
+                //using (var stream = File.OpenRead(file))
+                //{
+                //    var reader = new StreamReader(stream);
+                //    string line = null;
+                //    while((line = await reader.ReadLineAsync()) != null)
+                //    {
+                //        int idx = line.IndexOf("Received:");
+                //        if (idx == -1) continue;
+                //        var bytes = line.Substring(idx + 10).HexStringToBytes();
+                //        _originDatas.Add(Encoding.Default.GetString(bytes));
+                //        Thread.Sleep(20);
+                //    }
+                //}
             });
         }
 

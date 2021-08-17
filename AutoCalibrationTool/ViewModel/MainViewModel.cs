@@ -109,6 +109,8 @@ namespace AutoCalibrationTool.ViewModel
                 case CommandType.TestLeakageOn:
                     Mode = CalibrationMode.TestLeakage;
                     break;
+                case CommandType.CustomCommand:
+                    break;
                 default:
                     Mode = CalibrationMode.Stop;
                     break;

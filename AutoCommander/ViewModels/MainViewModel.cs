@@ -28,7 +28,7 @@ namespace AutoCommander.ViewModels
             set
             {
                 _ = Set(ref selectedLatestCommand, value);
-                _ = Set(nameof(EditableCommand), ref editableCommand, value);
+                EditableCommand = value;
             }
         }
         public string EditableCommand
