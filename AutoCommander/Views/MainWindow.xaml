@@ -59,8 +59,8 @@
                 </Button>
             </StackPanel>
             <TextBox 
-                Grid.Row="1"
-                x:Name="ResultTextBox"
+                Grid.Row="1" UndoLimit="0"
+                x:Name="ResultTextBox" IsReadOnly="True"
                 />
             <Grid Grid.Row="2" Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>

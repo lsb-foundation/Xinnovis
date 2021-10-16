@@ -57,14 +57,13 @@ namespace MFCSoftware.ViewModels
         {
             get
             {
-                //0xFE 0x06 0x00 0x00 0x00 addr CRCL CRCH
                 byte addr = Convert.ToByte(_writerAddress);
                 byte[] header = { 0xFE, 0x06, 0x00, 0x00, 0x00 };
                 return new SerialCommandBuilder(SerialCommandType.WriteAddress)
                     .AppendBytes(header)
                     .AppendBytes(addr)
                     .AppendCrc16()
-                    .ToSerialCommand(7);
+                    .ToSerialCommand(8);
             }
         }
 
@@ -72,14 +71,13 @@ namespace MFCSoftware.ViewModels
         {
             get
             {
-                //0xFE 0x06 0x00 0x01 0x00 baudcode CRCL CRCH
                 byte[] header = { 0xFE, 0x06, 0x00, 0x01, 0x00 };
                 byte baudcode = Convert.ToByte(_baudRateCode.Code);
                 return new SerialCommandBuilder(SerialCommandType.SetBaudRate)
                     .AppendBytes(header)
                     .AppendBytes(baudcode)
                     .AppendCrc16()
-                    .ToSerialCommand(7);
+                    .ToSerialCommand(8);
             }
         }
     }

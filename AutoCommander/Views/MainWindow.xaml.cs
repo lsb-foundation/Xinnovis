@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.IO;
 using System.IO.Ports;
 using System.Windows;
@@ -6,6 +7,7 @@ using AutoCommander.Properties;
 using AutoCommander.UIModels;
 using AutoCommander.ViewModels;
 using CommonLib.Extensions;
+using System.Windows.Threading;
 
 namespace AutoCommander.Views
 {
@@ -15,22 +17,49 @@ namespace AutoCommander.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _main;
+        private readonly DispatcherTimer _dispatcherTimer;  //更新UI的Timer
+        private readonly StringBuilder _builder;
+
         public MainWindow()
         {
             InitializeComponent();
+
             _main = DataContext as MainViewModel;
             _main.Instance.Port.DataReceived += SerialPort_DataReceived;
+
+            _builder = new StringBuilder();
+            _dispatcherTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+            _dispatcherTimer.Tick += DispatcherTimer_Tick;
+            _dispatcherTimer.Start();
         }
 
-        private async void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void DispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            string text = null;
+            lock (_builder)
+            {
+                text = _builder.ToString();
+                _ = _builder.Clear();
+            }
+            if (!string.IsNullOrEmpty(text))
+            {
+                ResultTextBox.AppendText(text);
+                ResultTextBox.ScrollToEnd();
+            }
+        }
+
+        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort port = _main.Instance.Port;
-            string chars = port.ReadExisting();
-            await Dispatcher.InvokeAsync(() =>
+            byte[] buffer = new byte[port.BytesToRead];
+            _ = port.Read(buffer, 0, buffer.Length);
+            string chars = Encoding.Default.GetString(buffer);
+
+            lock (_builder)
             {
-                ResultTextBox.AppendText(chars);
-                ResultTextBox.ScrollToEnd();
-            });
+                _ = _builder.Append(chars);
+            }
+            //await Task.Run(() => LoggerHelper.WriteLog($"Received: {chars}"));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -72,7 +101,7 @@ namespace AutoCommander.Views
                     }
                 }
 
-                if (action.IsConfirmed 
+                if (action.IsConfirmed
                     && MessageBox.Show($"确定要发送吗?\n{command}", "确认", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 {
                     return;

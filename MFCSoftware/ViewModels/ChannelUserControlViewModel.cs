@@ -106,12 +106,16 @@ namespace MFCSoftware.ViewModels
         {
             byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
             ReadFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ReadFlow, 27);
+
             bytes = new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 };
             ReadBaseInfoBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.BaseInfoData, 37);
-            bytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
-            ClearAccuFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ClearAccuFlowData);
+
+            bytes = new byte[] { 0x10, 0x00, 0x18, 0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; //修改为标准modbus协议 2021.09.01
+            ClearAccuFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ClearAccuFlowData, 8);
+
             bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 };
             ZeroPointCalibrationBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ZeroPointCalibration);
+
             bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 };
             FactoryRecoveryBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.FactoryRecovery);
         }
@@ -119,7 +123,9 @@ namespace MFCSoftware.ViewModels
         public void SetBaseInfomation(BaseInformation info)
         {
             if (BaseInfo == null)
+            {
                 BaseInfo = new BaseInformation();
+            }
 
             BaseInfo.SN = ConvertSN(info.SN);
             BaseInfo.Range = info.Range;
@@ -136,7 +142,7 @@ namespace MFCSoftware.ViewModels
         {
             var builder = new StringBuilder();
             string[] splitter = sn.Split(' ');
-            for(int index = 0; index < splitter.Length; index++)
+            for (int index = 0; index < splitter.Length; index++)
             {
                 builder.Append(splitter[index]);
                 if ((index + 1) % 2 == 0 && index < splitter.Length - 1)
@@ -147,8 +153,10 @@ namespace MFCSoftware.ViewModels
 
         public void SetFlow(FlowData flow)
         {
-            if (Flow == null) 
+            if (Flow == null)
+            {
                 Flow = new FlowData();
+            }
 
             SetCurrentFlowByUnit(flow.CurrentFlow);
             Flow.AccuFlow = flow.AccuFlow;
@@ -233,25 +241,31 @@ namespace MFCSoftware.ViewModels
         private void SetCurrentFlowByUnit(float flow)
         {
             //UCCM和CCM与SCCM等价，因此均按照SCCM进行处理
-            var meterUnit = BaseInfo?.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
-            Func<float, float> converterFunc = v => v;       //默认不转换
+            string meterUnit = BaseInfo?.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
+            Flow.CurrentFlow = flow;       //默认不转换
 
             if (meterUnit == "SCCM")
             {
                 if (DisplayUnit == "SLM")           //SCCM->SLM
-                    converterFunc = v => v / 1000;
+                {
+                    Flow.CurrentFlow = flow / 1000;
+                }
                 else if (DisplayUnit == "%F.S")     //SCCM->%F.S
-                    converterFunc = v => v / BaseInfo.Range * 100;
+                {
+                    Flow.CurrentFlow = flow / BaseInfo.Range * 100;
+                }
             }
             else
             {
                 if (DisplayUnit == "SCCM")          //SLM->SCCM
-                    converterFunc = v => v * 1000;
+                {
+                    Flow.CurrentFlow = flow * 1000;
+                }
                 else if (DisplayUnit == "%F.S")     //SLM->%F.S
-                    converterFunc = v => v / BaseInfo.Range * 100;
+                {
+                    Flow.CurrentFlow = flow / BaseInfo.Range * 100;
+                }
             }
-
-            Flow.CurrentFlow = converterFunc.Invoke(flow);
         }
 
         public void WhenTimeOut() => SetStatusColor(ReceivedStatus.Timeout);
@@ -261,11 +275,18 @@ namespace MFCSoftware.ViewModels
         private void SetStatusColor(ReceivedStatus status)
         {
             if (status == ReceivedStatus.Success)
+            {
                 StatusColor.Color = Colors.Green;
+            }
             else if (status == ReceivedStatus.ResolveFailed)
+            {
                 StatusColor.Color = Colors.Yellow;
+            }
             else if (status == ReceivedStatus.Timeout)
+            {
                 StatusColor.Color = Colors.Red;
+            }
+
             RaisePropertyChanged(nameof(StatusColor));
         }
 
@@ -275,12 +296,12 @@ namespace MFCSoftware.ViewModels
             int flowIntValue = ParseFloatToInt32(FlowValue * 100);
             WriteFlowBytes = new SerialCommandBuilder(SerialCommandType.SetFlow)
                 .AppendAddress(Address)
-                .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x00 })
                 //.AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x00 }) //针对客户的修改 2021.08.17
+                .AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x03, 0x06, 0x00, 0x00 }) //修改为标准modbus协议 2021.09.01
                 .AppendBytes(flowIntValue.ToHex())
                 //.AppendBytes(new byte[] { 0x00, 0x00 }) //针对客户的修改 2021.08.17
                 .AppendCrc16()
-                .ToSerialCommand(7);
+                .ToSerialCommand(8); //修改为标准modbus协议，响应长度为8 2021.09.01
         }
 
         public void SetWriteValveBytes()
@@ -289,11 +310,12 @@ namespace MFCSoftware.ViewModels
             int openIntValue = ParseFloatToInt32(ValveOpenValue * 100);
             WriteValveBytes = new SerialCommandBuilder(SerialCommandType.ValveControl)
                 .AppendAddress(Address)
-                .AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 })
+                //.AppendBytes(new byte[] { 0x06, 0x00, 0x21, 0x00, 0x03 })
                 //.AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 }) //针对客户的修改 2021.08.17
+                .AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 })
                 .AppendBytes(openIntValue.ToHex().SubArray(2, 2))
                 .AppendCrc16()
-                .ToSerialCommand(7);
+                .ToSerialCommand(8);
         }
 
         public void ShowMessage(string message) => _mainVm.ShowMessage(message);

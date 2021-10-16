@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner"
         Title="设置" Height="400" Width="300" Background="#f0f0f0"
         ResizeMode="NoResize"
@@ -91,6 +92,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -118,6 +120,13 @@
                     Content="修改密码" Height="28" Width="200"
                     Click="UpdatePasswordButton_Click"
                     />
+                <StackPanel 
+                    Grid.Row="4" Grid.ColumnSpan="2"
+                    Orientation="Horizontal" Margin="8,4"
+                    HorizontalAlignment="Center">
+                    <fa:ImageAwesome Height="9" Foreground="DarkGray" Icon="InfoCircle"/>
+                    <TextBlock FontSize="9" Margin="4,0" Foreground="DarkGray">默认密码为123456</TextBlock>
+                </StackPanel>
             </Grid>
         </TabItem>
     </TabControl>

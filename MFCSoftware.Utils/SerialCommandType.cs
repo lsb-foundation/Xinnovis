@@ -8,10 +8,12 @@ namespace MFCSoftware.Utils
         [ResolveAction("读取地址", true, new byte[] { 0xFE, 0x03, 0x02, 0x00 })]
         ReadAddress,
 
-        [ResolveAction("设置地址", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        //[ResolveAction("设置地址", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        [ResolveAction("设置地址", true, new byte[] { 0xfe, 0x06, 0x00, 0x00, 0x00 })]
         WriteAddress,
 
-        [ResolveAction("设置波特率", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        //[ResolveAction("设置波特率", true, new byte[] { 0xFE, 0x06, 0x02, 0x00 })]
+        [ResolveAction("设置波特率", true, new byte[] { 0xfe, 0x06, 0x00, 0x01, 0x00 })]
         SetBaudRate,
 
         [ResolveAction("获取基本信息")]
@@ -20,21 +22,25 @@ namespace MFCSoftware.Utils
         [ResolveAction("读取流量")]
         ReadFlow,
 
-        [ResolveAction("清除累积流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]
+        //[ResolveAction("清除累积流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]    //最原始的版本
+        [ResolveAction("清除累积流量", true, new byte[] { 0x10, 0x00, 0x18, 0x00, 0x04 })] //按照标准modbus协议修改 2021.09.01
         ClearAccuFlowData,
 
-        [ResolveAction("设置流量", true, new byte[] { 0x06, 0x02, 0x00, 0x00 })]
         //[ResolveAction("设置流量", true, new byte[] {0x10, 0x02, 0x00, 0x00 })] //针对客户修改 2021.08.17
+        [ResolveAction("设置流量", true, new byte[] { 0x10, 0x00, 0x21, 0x00, 0x03 })] //按照标准Modbus协议修改 2021.09.01
         SetFlow,
 
-        [ResolveAction("设置阀门开度", true, new byte[] { 0x06, 0x02, 0x00, 0x03 })]
+        //[ResolveAction("设置阀门开度", true, new byte[] { 0x06, 0x02, 0x00, 0x03 })]
         //[ResolveAction("设置阀门开度", true, new byte[] { 0x10, 0x02, 0x00, 0x03 })] //针对客户修改 2021.08.17
+        [ResolveAction("设置阀门开度", true, new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04 })]
         ValveControl,
 
-        [ResolveAction("零点校准", true, new byte[] { 0x06, 0x02, 0x00, 0x01 })]
+        //[ResolveAction("零点校准", true, new byte[] { 0x06, 0x02, 0x00, 0x01 })]
+        [ResolveAction("零点校准", true, new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 })]
         ZeroPointCalibration,
 
-        [ResolveAction("恢复出厂", true, new byte[] { 0x06, 0x02, 0x00, 0x02 })]
+        //[ResolveAction("恢复出厂", true, new byte[] { 0x06, 0x02, 0x00, 0x02 })]
+        [ResolveAction("恢复出厂", true, new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 })]
         FactoryRecovery
     }
 

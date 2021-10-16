@@ -73,11 +73,11 @@ namespace AutoCommander.ViewModels
                         commands.Add(line);
                     }
                 }
-                IEnumerable<string> orderComamnds = from c in commands
-                                                    group c by c into g
-                                                    select (command: g.Key, count: g.Count()) into cc
-                                                    orderby cc.count descending
-                                                    select cc.command;
+                var orderComamnds = from c in commands
+                                    group c by c into g
+                                    select (command: g.Key, count: g.Count()) into cc
+                                    orderby cc.count descending
+                                    select cc.command;
                 foreach (string command in orderComamnds.Take(10))
                 {
                     LatestCommands.Add(command);

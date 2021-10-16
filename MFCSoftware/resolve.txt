@@ -1,0 +1,19 @@
+﻿[section]
+name=ReadAddress #读取地址
+send=fe 03 00 00 00 01 90 05
+receive=fe 03 02 00 {addr:1} {crc:2}
+
+[section]
+name=SetAddress #设置地址
+send=fe 06 00 00 00 {addr:1} {crc:2}
+receive=fe 06 02 00 {addr:1} {crc:2}
+
+[section]
+name=SetBaudRate #设置波特率
+send=fe 06 00 01 00 {data:1} {crc:2}
+receive=fe 06 02 00 {data:1} {crc:2}
+
+[section]
+name=ClearAccuFlow #清除累积流量
+send=
+receive={addr} 10 00 18 00 04

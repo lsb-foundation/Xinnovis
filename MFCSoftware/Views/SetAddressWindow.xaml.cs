@@ -81,7 +81,7 @@ namespace MFCSoftware.Views
         {
             if (AutoCheck(data, SerialCommandType.WriteAddress))
             {
-                viewModel.WriterAddress = data[4];
+                viewModel.WriterAddress = data[5];
                 return true;
             }
             return false;
@@ -91,7 +91,7 @@ namespace MFCSoftware.Views
         {
             if(AutoCheck(data, SerialCommandType.SetBaudRate))
             {
-                uint intBaudcode = data[4];
+                uint intBaudcode = data[5];
                 viewModel.BaudRateCode = viewModel.BaudRateCodes.FirstOrDefault(c => c.Code == intBaudcode);
                 return true;
             }

@@ -53,6 +53,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowedReferenceRelatedFileExtensions>*.pdb;*.xml;</AllowedReferenceRelatedFileExtensions>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>IDE0008,IDE0011,IDE0022,IDE0058</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>

@@ -1,4 +1,5 @@
 ﻿using AutoCommander.Properties;
+using CommonLib.Utils;
 using System.IO.Ports;
 using System.Linq;
 
@@ -47,6 +48,7 @@ namespace AutoCommander.ViewModels
                     _port.Open();
                 }
                 _port.Write(command);
+                LoggerHelper.WriteLog($"Send: {command}");
             }
         }
     }
