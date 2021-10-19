@@ -30,7 +30,6 @@ namespace MFCSoftwareForCUP.Views
         {
             InitializeComponent();
             _main = DataContext as MainViewModel;
-            _ = Task.Run(() => LoopToSend());
         }
 
         private void AddChannelButtonClick(object sender, RoutedEventArgs e)
@@ -92,6 +91,7 @@ namespace MFCSoftwareForCUP.Views
             int address = 1;
             while (true)
             {
+                LoggerHelper.WriteLog("轮询地址： " + address);
                 if (_tokenSource.IsCancellationRequested)
                 {
                     return;
@@ -103,10 +103,10 @@ namespace MFCSoftwareForCUP.Views
                     SerialCommand<byte[]> command = BuildReadFlowCommand(address);
                     ChannelUserControl channel = await Dispatcher.InvokeAsync(() => ContentWrapPanel.Children.OfType<ChannelUserControl>().FirstOrDefault(uc => uc.Address == address));
                     await SendAsync(command, channel);
-                    address = address < _main.MaxDeviceCount ? address + 1 : 1;
                     _ = _main.Semaphore.Release();
                 }
 
+                address = address < _main.MaxDeviceCount ? address + 1 : 1;
                 Thread.Sleep(5);
             }
         }
@@ -126,11 +126,11 @@ namespace MFCSoftwareForCUP.Views
                     throw new Exception("CRC校验失败。");
                 }
 
-                if (command.Type == SerialCommandType.ReadFlow)
+                if (command.Type == SerialCommandType.ReadFlow && channel != null)
                 {
                     var flow = FlowData.ResolveFromBytes(data);
                     flow.Address = channel.Address;
-                    channel?.SetFlow(flow);
+                    channel.SetFlow(flow);
                 }
                 else if (command.Type == SerialCommandType.ClearAccuFlowData)
                 {
@@ -186,6 +186,7 @@ namespace MFCSoftwareForCUP.Views
                     _ = ContentWrapPanel.Children.Add(channel);
                 }
             }
+            _ = Task.Run(() => LoopToSend());
         }
 
         private void ResetPasswordButtonClick(object sender, RoutedEventArgs e)
