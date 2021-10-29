@@ -58,7 +58,7 @@ namespace MFCSoftwareForCUP.ViewModels
                 }
                 _serialPort.PortName = port;
                 _ = _semaphore.Release();
-                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(PortName));
             }
         }
     }

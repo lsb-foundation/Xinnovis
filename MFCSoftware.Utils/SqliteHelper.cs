@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.Collections.Concurrent;
 using System.Threading;
 using CommonLib.Extensions;
+using CommonLib.Utils;
 
 namespace MFCSoftware.Utils
 {
@@ -15,14 +16,16 @@ namespace MFCSoftware.Utils
         private const string dbFile = "db.sqlite";
         private static readonly string _connectionString;
         private static readonly ConcurrentQueue<FlowData> _queue;
+        private static readonly CancellationTokenSource _cancel;
 
         static SqliteHelper()
         {
             string dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
             _connectionString = string.Format("data source = {0}", dbFilePath);
             _queue = new ConcurrentQueue<FlowData>();
+            _cancel = new CancellationTokenSource();
             CreateTable();
-            _ = Task.Run(() => InsertFlowFromQueue());
+            StartInsertFlowTask();
         }
 
         private async static void CreateTable()
@@ -44,30 +47,41 @@ namespace MFCSoftware.Utils
             }
         }
 
-        private static async void InsertFlowFromQueue()
+        private static void StartInsertFlowTask()
         {
-            while (true)
+            Task.Factory.StartNew(async () =>
             {
-                if (_queue.TryDequeue(out FlowData flow))
+                while (!_cancel.IsCancellationRequested)
                 {
-                    using (var connection = new SQLiteConnection(_connectionString))
+                    try
                     {
-                        _ = await connection.ExecuteAsync(
-                            @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit) 
+                        if (_queue.TryDequeue(out FlowData flow))
+                        {
+                            using (var connection = new SQLiteConnection(_connectionString))
+                            {
+                                _ = await connection.ExecuteAsync(
+                                    @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit) 
                               values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit);",
-                              new
-                              {
-                                  flow.Address,
-                                  CollectTime = DateTime.Now,
-                                  flow.CurrentFlow,
-                                  Unit = flow.Unit ?? string.Empty,
-                                  flow.AccuFlow,
-                                  flow.AccuFlowUnit
-                              });
+                                      new
+                                      {
+                                          flow.Address,
+                                          CollectTime = DateTime.Now,
+                                          flow.CurrentFlow,
+                                          Unit = flow.Unit ?? string.Empty,
+                                          flow.AccuFlow,
+                                          flow.AccuFlowUnit
+                                      });
+                            }
+                        }
+                        Thread.Sleep(5);
+                    }
+                    catch (Exception e) //客户反馈此处发生SqliteException异常，暂未查找到具体原因，暂时记录日志便于后续观察
+                    {
+                        LoggerHelper.WriteLog(e.Message, e);
+                        continue;
                     }
                 }
-                Thread.Sleep(5);
-            }
+            }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public static void InsertFlowData(FlowData data) => _queue.Enqueue(data);

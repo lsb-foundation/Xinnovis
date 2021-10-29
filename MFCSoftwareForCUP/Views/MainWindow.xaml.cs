@@ -126,18 +126,19 @@ namespace MFCSoftwareForCUP.Views
                     throw new Exception("CRC校验失败。");
                 }
 
-                if (command.Type == SerialCommandType.ReadFlow && channel != null)
+                if (channel != null && command.Type == SerialCommandType.ReadFlow)
                 {
                     var flow = FlowData.ResolveFromBytes(data);
                     flow.Address = channel.Address;
                     channel.SetFlow(flow);
+                    channel.WhenSuccess();
                 }
-                else if (command.Type == SerialCommandType.ClearAccuFlowData)
-                {
-                    _ = ResolveActionAttribute.CheckAutomatically(data, command.Type);  //测试解析，不进行其他操作
-                }
+                //else if (command.Type == SerialCommandType.ClearAccuFlowData)
+                //{
+                //    _ = ResolveActionAttribute.CheckAutomatically(data, command.Type);  //测试解析，不进行其他操作
+                //}
 
-                channel?.WhenSuccess();
+                //channel?.WhenSuccess();
             }
             catch (TimeoutException)
             {
