@@ -75,7 +75,7 @@ namespace MFCSoftware.Utils
                         }
                         Thread.Sleep(5);
                     }
-                    catch (Exception e) //客户反馈此处发生SqliteException异常，暂未查找到具体原因，暂时记录日志便于后续观察
+                    catch (SQLiteException e) //客户反馈此处发生SqliteException异常(经核实，偶尔会出现attempt to write a readonly database异常，频率较低)
                     {
                         LoggerHelper.WriteLog(e.Message, e);
                         continue;
