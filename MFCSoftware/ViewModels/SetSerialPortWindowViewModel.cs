@@ -34,6 +34,12 @@ namespace MFCSoftware.ViewModels
             set => Set(ref _baudRate, value);
         }
 
+        public int WaitTime
+        {
+            get => SerialPortInstance.WaitTime;
+            set => Set(ref SerialPortInstance.WaitTime, value);
+        }
+
         public void SetSerialPort()
         {
             try

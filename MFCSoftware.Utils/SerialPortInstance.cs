@@ -9,7 +9,11 @@ namespace MFCSoftware.Utils
     {
         private static SerialPort comInstance;
         private static SerialCommand<byte[]> currentCommand = null;
-        private const int waitTime = 100;
+
+        /// <summary>
+        /// 超时等待时间
+        /// </summary>
+        public static int WaitTime = 100;
 
         static SerialPortInstance()
         {
@@ -55,7 +59,7 @@ namespace MFCSoftware.Utils
         /// <returns></returns>
         public async static Task<byte[]> GetResponseBytesAsync()
         {
-            await Task.Delay(waitTime);
+            await Task.Delay(WaitTime);
             if (comInstance.BytesToRead < currentCommand.ResponseLength)
             {
                 throw new TimeoutException();

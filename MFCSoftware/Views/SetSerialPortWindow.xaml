@@ -18,6 +18,10 @@
                   md:HintAssist.Hint="波特率" md:HintAssist.FloatingScale="1"
                   Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                   ItemsSource="{Binding BaudRates, Mode=OneWay}" SelectedItem="{Binding BaudRate}"></ComboBox>
+        <Label>超时时长(ms):</Label>
+        <TextBox Width="150" Margin="4"
+                 Style="{StaticResource MaterialDesignTextBox}"
+                 Text="{Binding WaitTime}"/>
         <Button Margin="8" Height="28" Click="SetSerialPort">确定</Button>
     </StackPanel>
 </Window>

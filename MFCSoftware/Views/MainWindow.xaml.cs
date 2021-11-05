@@ -5,8 +5,8 @@ using MFCSoftware.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 
 namespace MFCSoftware.Views
@@ -17,21 +17,17 @@ namespace MFCSoftware.Views
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel mainVm;
+        private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
         private readonly LinkedList<ChannelUserControl> controlList = new LinkedList<ChannelUserControl>();
-
-        private LinkedListNode<ChannelUserControl> currentNode;
-        private Timer timer;
-        private Task sendTask;
-
-        private const int totalInterval = 1000;
-        private const int minInterval = 100;      //最小的发送间隔时间固定为100毫秒
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         
         public MainWindow()
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
             mainVm = this.DataContext as MainWindowViewModel;
-            InitializeTimer();
+
+            StartLoopToSend();
         }
 
         private void OpenSetSerialPortWindow(object sender, EventArgs e)
@@ -59,84 +55,33 @@ namespace MFCSoftware.Views
         //关闭窗口，清理资源
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            timer.Stop();
-            timer.Dispose();
-
+            _cancel.Cancel();
             ChannelGrid.Children.Clear();
             controlList.Clear();
         }
 
-        private async void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        //todo: 完善线程发送机制
+        //todo: 退出保存设置
+        private void StartLoopToSend()
         {
-            await SendTaskCompletedAsync();
-
-            //定时发送的后台任务
-            sendTask = Task.Run(async () =>
+            Task.Factory.StartNew(async () =>
             {
-                if (controlList.Count == 0)
+                LinkedListNode<ChannelUserControl> currentNode = null;
+                while (!_cancel.IsCancellationRequested && controlList.Count > 0)
                 {
-                    return;
-                }
-
-                currentNode = currentNode is null || currentNode == controlList.Last ?
-                    controlList.First : currentNode.Next;
-
-                if (currentNode?.Value != null)
-                {
-                    var channel = currentNode.Value;
-                    if (await SendAsync(channel.ReadFlowBytes))
+                    currentNode = currentNode is null || currentNode == controlList.Last ?
+                        controlList.First : currentNode.Next;
+                    if (currentNode?.Value != null)
                     {
-                        LoggerHelper.WriteLog("[Send] 读取流量 [Data] " + channel.ReadFlowBytes.Command.ToHexString());
-                        try
-                        {
-                            byte[] data = await SerialPortInstance.GetResponseBytesAsync();
-                            channel.ResolveData(data, channel.ReadFlowBytes.Type);
-                        }
-                        catch (TimeoutException)
-                        {
-                            channel.WhenTimeOut();
-                        }
-                        catch (Exception ex)
-                        {
-                            LoggerHelper.WriteLog(ex.Message, ex);
-                        }
+                        var channel = currentNode.Value;
+                        await SendResolveAsync(channel, channel.ReadFlowBytes);
                     }
+                    Thread.Sleep(10);
                 }
-            });
+            }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        /// <summary>
-        /// 异步等待当前发送任务执行结束
-        /// </summary>
-        /// <returns></returns>
-        private async Task SendTaskCompletedAsync()
-        {
-            if (sendTask == null) return;
-            if (!sendTask.IsCompleted)
-            {
-                timer.Stop();
-                await sendTask;
-                timer.Start();
-            }
-        }
-
-        private async Task<bool> SendAsync(SerialCommand<byte[]> sc)
-        {
-            try
-            {
-                await SerialPortInstance.SendAsync(sc);
-                return true;
-            }
-            catch(Exception e)
-            {
-                timer.Stop();
-                mainVm.ShowMessage("串口可能被其他程序占用，请检查！");
-                LoggerHelper.WriteLog(e.Message, e);
-                return false;
-            }
-        }
-
-        private void AddChannelButton_Click(object sender, RoutedEventArgs e)
+        private async void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
             AddChannelWindow window = new AddChannelWindow
             {
@@ -152,50 +97,40 @@ namespace MFCSoftware.Views
             bool addrExists = controlList.Any(c => c.Address == window.Address);
             if (!addrExists)
             {
-                ChannelUserControl channelControl = new ChannelUserControl(window.Address);
-                channelControl.ChannelClosed += ChannelControl_ControlWasRemoved;
-                channelControl.SingleCommandSended += (channel, command) => SendSingleCommand(channel, command);
+                ChannelUserControl channel = new ChannelUserControl(window.Address);
+                channel.ChannelClosed += ChannelControl_ControlWasRemoved;
+                channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
 
-                ChannelGrid.Children.Add(channelControl);
-                controlList.AddLast(channelControl);
-                SetTimerInterval();
-                ChannelAdded(channelControl);
+                ChannelGrid.Children.Add(channel);
+                controlList.AddLast(channel);
+                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
                 mainVm.ChannelCount++;
             }
             else mainVm.ShowMessage("地址重复，请重新添加。");
         }
 
-
-        private void ChannelAdded(ChannelUserControl channel)
+        private async Task SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
         {
-            //添加通道后读取基本信息
-            SendSingleCommand(channel, channel.ReadBaseInfoBytes);
-        }
-
-        private async void SendSingleCommand(ChannelUserControl channel, SerialCommand<byte[]> command)
-        {
-            await SendTaskCompletedAsync();
-
-            timer.Stop();
-            if (await SendAsync(command))
+            try
             {
-                try
-                {
-                    byte[] data = await SerialPortInstance.GetResponseBytesAsync();
-                    channel.ResolveData(data, command.Type);
-                }
-                catch (TimeoutException)
-                {
-                    channel.WhenTimeOut();
-                }
-                catch(Exception ex)
-                {
-                    LoggerHelper.WriteLog(ex.Message, ex);
-                }
-                finally
-                {
-                    timer.Start();
-                }
+                await _semaphore.WaitAsync();
+                await SerialPortInstance.SendAsync(command);
+                LoggerHelper.WriteLog("[Send] 读物流量 [Data] " + channel.ReadFlowBytes.Command.ToHexString());
+                byte[] data = await SerialPortInstance.GetResponseBytesAsync();
+                channel.ResolveData(data, command.Type);
+            }
+            catch (TimeoutException)
+            {
+                channel.WhenTimeOut();
+            }
+            catch (Exception e)
+            {
+                mainVm.ShowMessage("发生异常: " + e.Message);
+                LoggerHelper.WriteLog(e.Message, e);
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 
@@ -204,31 +139,6 @@ namespace MFCSoftware.Views
             controlList.Remove(channel);
             ChannelGrid.Children.Remove(channel);
             mainVm.ChannelCount--;
-            SetTimerInterval();
-        }
-
-        private void InitializeTimer()
-        {
-            timer = new Timer
-            {
-                Interval = totalInterval
-            };
-            timer.Elapsed += Timer_Elapsed;
-            timer.Start();
-        }
-
-        private void SetTimerInterval()
-        {
-            if (controlList.Count == 0)
-            {
-                timer.Interval = totalInterval;
-                return;
-            }
-
-            var interval = totalInterval / controlList.Count;
-            if (interval < minInterval)
-                interval = minInterval;
-            timer.Interval = interval;
         }
     }
 }
