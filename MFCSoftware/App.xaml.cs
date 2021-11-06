@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using CommonLib.Utils;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
@@ -18,6 +19,7 @@ namespace MFCSoftware
             StringBuilder messageBuilder = new StringBuilder();
             messageBuilder.AppendLine("程序发生了尚未捕获到的异常：" + e.Exception.Message)
                 .AppendLine(e.Exception.StackTrace);
+            LoggerHelper.WriteLog(e.Exception.Message, e.Exception);
             MessageBox.Show(messageBuilder.ToString(), "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 

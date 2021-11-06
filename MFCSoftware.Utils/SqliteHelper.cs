@@ -36,6 +36,7 @@ namespace MFCSoftware.Utils
                 _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_addr on tb_flow(address);");
                 _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
                 _ = await connection.ExecuteAsync("create table if not exists tb_password(password varchar(64));");
+                _ = await connection.ExecuteAsync("create table if not exists tb_settings(s_key varchar(32), s_value varchar(32));");
                 if ((await connection.QueryFirstAsync<int>("select count(1) from tb_password")) == 0)
                 {
                     string defaultPassword = "123456".MD5HashString();
@@ -144,6 +145,34 @@ namespace MFCSoftware.Utils
                 string md5Password = password.MD5HashString();
                 _ = await connection.ExecuteAsync("update tb_password set password = @Password;",
                     new { Password = md5Password });
+            }
+        }
+
+        public static async Task<string> GetSettings(string key)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                return await connection.QueryFirstOrDefaultAsync<string>(
+                    "select s_value from tb_settings where s_key = @key", new { key });
+            }
+        }
+
+        public static async Task UpdateSettings(string key, string value)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                if (string.IsNullOrEmpty(await GetSettings(key)))
+                {
+                    _ = await connection.ExecuteAsync(
+                        "insert into tb_settings(s_key, s_value) values(@key, @value);",
+                        new { key, value });
+                }
+                else
+                {
+                    _ = await connection.ExecuteAsync(
+                        "update tb_settings set s_value = @value where s_key = @key;",
+                        new { value, key });
+                }
             }
         }
     }

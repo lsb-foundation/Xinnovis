@@ -14,7 +14,7 @@ namespace MFCSoftware.ViewModels
     public class ChannelUserControlViewModel : ViewModelBase
     {
         private readonly MainWindowViewModel _mainVm;
-        private const int xValuesCount = 300;
+        public static int SeriesPointNumber = 100;  //曲线显示点数
         public ChannelUserControlViewModel(MainWindowViewModel mainVm)
         {
             _mainVm = mainVm;
@@ -179,7 +179,7 @@ namespace MFCSoftware.ViewModels
                 double y = Flow.CurrentFlow;
                 s.Points.Add(new DataPoint(x, y));
 
-                if (s.Points.Count > xValuesCount)
+                if (s.Points.Count > SeriesPointNumber)
                 {
                     s.Points.RemoveAt(0);
                 }

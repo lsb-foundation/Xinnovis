@@ -24,10 +24,9 @@ namespace MFCSoftware.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.Closed += MainWindow_Closed;
-            mainVm = this.DataContext as MainWindowViewModel;
+            mainVm = DataContext as MainWindowViewModel;
 
-            StartLoopToSend();
+            StartLoopTask();
         }
 
         private void OpenSetSerialPortWindow(object sender, EventArgs e)
@@ -52,23 +51,15 @@ namespace MFCSoftware.Views
             window.ShowDialog();
         }
 
-        //关闭窗口，清理资源
-        private void MainWindow_Closed(object sender, EventArgs e)
-        {
-            _cancel.Cancel();
-            ChannelGrid.Children.Clear();
-            controlList.Clear();
-        }
-
-        //todo: 完善线程发送机制
-        //todo: 退出保存设置
-        private void StartLoopToSend()
+        private void StartLoopTask()
         {
             Task.Factory.StartNew(async () =>
             {
                 LinkedListNode<ChannelUserControl> currentNode = null;
-                while (!_cancel.IsCancellationRequested && controlList.Count > 0)
+                while (!_cancel.IsCancellationRequested)
                 {
+                    if (controlList.Count == 0) continue;
+
                     currentNode = currentNode is null || currentNode == controlList.Last ?
                         controlList.First : currentNode.Next;
                     if (currentNode?.Value != null)
@@ -115,8 +106,9 @@ namespace MFCSoftware.Views
             {
                 await _semaphore.WaitAsync();
                 await SerialPortInstance.SendAsync(command);
-                LoggerHelper.WriteLog("[Send] 读物流量 [Data] " + channel.ReadFlowBytes.Command.ToHexString());
+                LoggerHelper.WriteLog("[Send]" + command.Command.ToHexString());
                 byte[] data = await SerialPortInstance.GetResponseBytesAsync();
+                LoggerHelper.WriteLog("[Received]" + data.ToHexString());
                 channel.ResolveData(data, command.Type);
             }
             catch (TimeoutException)
@@ -139,6 +131,34 @@ namespace MFCSoftware.Views
             controlList.Remove(channel);
             ChannelGrid.Children.Remove(channel);
             mainVm.ChannelCount--;
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            string port = await SqliteHelper.GetSettings("PortName");
+            string baudrate = await SqliteHelper.GetSettings("BaudRate");
+            string waitTime = await SqliteHelper.GetSettings("WaitTime");
+            string seriesPointNumber = await SqliteHelper.GetSettings("SeriesPointNumber");
+
+            if (!string.IsNullOrEmpty(port))
+            {
+                ViewModelLocator.SetSerialViewModel.PortName = port;
+            }
+            ViewModelLocator.SetSerialViewModel.BaudRate = string.IsNullOrEmpty(baudrate) ? 9600 : int.Parse(baudrate);
+            ViewModelLocator.SetSerialViewModel.WaitTime = string.IsNullOrEmpty(waitTime) ? 100 : int.Parse(waitTime);
+            ViewModelLocator.SetSerialViewModel.SeriesPointNumber = string.IsNullOrEmpty(seriesPointNumber) ? 50 : int.Parse(seriesPointNumber);
+        }
+
+        private async void Window_Closed(object sender, EventArgs e)
+        {
+            _cancel.Cancel();
+            ChannelGrid.Children.Clear();
+            controlList.Clear();
+
+            await SqliteHelper.UpdateSettings("PortName", ViewModelLocator.SetSerialViewModel.PortName);
+            await SqliteHelper.UpdateSettings("BaudRate", ViewModelLocator.SetSerialViewModel.BaudRate.ToString());
+            await SqliteHelper.UpdateSettings("WaitTime", ViewModelLocator.SetSerialViewModel.WaitTime.ToString());
+            await SqliteHelper.UpdateSettings("SeriesPointNumber", ViewModelLocator.SetSerialViewModel.SeriesPointNumber.ToString());
         }
     }
 }

@@ -39,12 +39,12 @@ namespace MFCSoftware.ViewModels
         }
 
         #region view model properties
-        public MainWindowViewModel MainViewModel => _container.Resolve<MainWindowViewModel>();
+        public static MainWindowViewModel MainViewModel => _container.Resolve<MainWindowViewModel>();
         public ChannelUserControlViewModel ChannelViewModel => _container.Resolve<ChannelUserControlViewModel>();
-        public AddChannelWindowViewModel AddChannelViewModel => _container.Resolve<AddChannelWindowViewModel>();
-        public ExportSelectWindowViewModel ExportSelectViewModel => _container.Resolve<ExportSelectWindowViewModel>();
-        public SetAddressWindowViewModel SetAddressViewModel => _container.Resolve<SetAddressWindowViewModel>();
-        public SetSerialPortWindowViewModel SetSerialViewModel => _container.Resolve<SetSerialPortWindowViewModel>();
+        public static AddChannelWindowViewModel AddChannelViewModel => _container.Resolve<AddChannelWindowViewModel>();
+        public static ExportSelectWindowViewModel ExportSelectViewModel => _container.Resolve<ExportSelectWindowViewModel>();
+        public static SetAddressWindowViewModel SetAddressViewModel => _container.Resolve<SetAddressWindowViewModel>();
+        public static SetSerialPortWindowViewModel SetSerialViewModel => _container.Resolve<SetSerialPortWindowViewModel>();
         #endregion
 
         public static void Cleanup()

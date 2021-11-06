@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using MFCSoftware.ViewModels;
 
 namespace MFCSoftware.Views
 {
@@ -8,26 +7,14 @@ namespace MFCSoftware.Views
     /// </summary>
     public partial class SetSerialPortWindow : Window
     {
-        private readonly SetSerialPortWindowViewModel viewModel;
         public SetSerialPortWindow()
         {
             InitializeComponent();
-            viewModel = this.DataContext as SetSerialPortWindowViewModel;
         }
 
-        private void SetSerialPort(object sender, RoutedEventArgs e)
+        private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(viewModel.PortName)) return;
-            if (viewModel.BaudRate == 0) return;
-            try
-            {
-                viewModel.SetSerialPort();
-                this.Close();
-            }
-            catch
-            {
-                MessageBox.Show("串口连接失败，请检查线缆连接情况或重新插拔USB并重启软件。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            Close();
         }
     }
 }
