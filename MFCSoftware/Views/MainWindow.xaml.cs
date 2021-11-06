@@ -108,7 +108,6 @@ namespace MFCSoftware.Views
                 await SerialPortInstance.SendAsync(command);
                 LoggerHelper.WriteLog("[Send]" + command.Command.ToHexString());
                 byte[] data = await SerialPortInstance.GetResponseBytesAsync();
-                LoggerHelper.WriteLog("[Received]" + data.ToHexString());
                 channel.ResolveData(data, command.Type);
             }
             catch (TimeoutException)
