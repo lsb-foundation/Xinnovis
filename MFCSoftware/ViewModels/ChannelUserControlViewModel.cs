@@ -8,6 +8,7 @@ using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
 using MFCSoftware.Utils;
+using System.Configuration;
 
 namespace MFCSoftware.ViewModels
 {
@@ -94,6 +95,8 @@ namespace MFCSoftware.ViewModels
             }
         }
 
+        public Visibility TemperetureVisibility => _mainVm.ReadTemperature? Visibility.Visible : Visibility.Collapsed;
+
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
@@ -105,7 +108,13 @@ namespace MFCSoftware.ViewModels
         private void SetCommands()
         {
             byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-            ReadFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ReadFlow, 27);
+            int responseLength = 27;
+            if (_mainVm.ReadTemperature)
+            {
+                bytes = new byte[] { 0x03, 0x00, 0x15, 0x00, 0x0C };
+                responseLength = 29;
+            }
+            ReadFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ReadFlow, responseLength);
 
             bytes = new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 };
             ReadBaseInfoBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.BaseInfoData, 37);
@@ -165,6 +174,7 @@ namespace MFCSoftware.ViewModels
             Flow.Hours = flow.Hours;
             Flow.Minutes = flow.Minutes;
             Flow.Seconds = flow.Seconds;
+            Flow.Temperature = flow.Temperature;
 
             RaisePropertyChanged(nameof(Flow));
             WhenSuccess();
@@ -217,9 +227,9 @@ namespace MFCSoftware.ViewModels
 
             var line = new OxyPlot.Series.LineSeries
             {
-                StrokeThickness = 2,
-                MarkerType = MarkerType.Circle,
-                MarkerStrokeThickness = 2.5,
+                StrokeThickness = 1,
+                MarkerType = MarkerType.None,
+                MarkerStrokeThickness = 1,
                 InterpolationAlgorithm = InterpolationAlgorithms.CatmullRomSpline
             };
             SeriesPlotModel.Series.Add(line);

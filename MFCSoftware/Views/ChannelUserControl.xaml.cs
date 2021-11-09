@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using Microsoft.Win32;
 using System.Globalization;
 using System.Windows.Media;
@@ -23,12 +24,14 @@ namespace MFCSoftware.Views
     public partial class ChannelUserControl : UserControl
     {
         private readonly ChannelUserControlViewModel _viewModel;
+        private readonly MainWindowViewModel _mainViewModel;
         private readonly FlowDataSaver _flowDataSaver;
 
         public ChannelUserControl(int address)
         {
             InitializeComponent();
             _viewModel = this.DataContext as ChannelUserControlViewModel;
+            _mainViewModel = ViewModelLocator.MainViewModel;
             _flowDataSaver = new FlowDataSaver((int)_viewModel.InsertInterval);
             _viewModel.Address = address;
             _viewModel.InsertIntervalChanged += seconds => _flowDataSaver.SetInterval((int)seconds);
@@ -63,7 +66,7 @@ namespace MFCSoftware.Views
                             ResolveBaseInfoData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            var flow = FlowData.ResolveFromBytes(data);
+                            var flow = FlowData.ResolveFromBytes(data, readTemperature: _mainViewModel.ReadTemperature);
                             flow.Address = Address;
                             flow.Unit = _viewModel.BaseInfo?.Unit?.Unit;
                             _viewModel.SetFlow(flow);
@@ -231,6 +234,12 @@ namespace MFCSoftware.Views
         {
             var buttonText = (sender as Button).Content as string;
             return MessageBox.Show($"{buttonText}确认?", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK;
+        }
+
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            ControlButton_Clicked(sender, e);
         }
     }
 

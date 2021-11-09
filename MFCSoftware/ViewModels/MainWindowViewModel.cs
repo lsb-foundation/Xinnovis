@@ -25,8 +25,16 @@ namespace MFCSoftware.ViewModels
 
         public string AppName
         {
-            get => ConfigurationManager.AppSettings["AppName"] + "-青岛芯笙";
+            get
+            {
+                var version = App.ResourceAssembly.GetName().Version;
+                string appVersion = $" v{version}";
+                return ConfigurationManager.AppSettings["AppName"] + appVersion;
+            }
         }
+
+        private readonly bool _readTemperature = ConfigurationManager.AppSettings["ReadTemperature"].Trim().ToLower() == "true";
+        public bool ReadTemperature => _readTemperature;
 
         private string _appMessage;
         public string AppMessage

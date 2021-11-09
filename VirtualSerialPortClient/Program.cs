@@ -42,7 +42,7 @@ namespace VirtualSerialPortClient
 
         private static void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int count = 0;
+            int count;
             List<byte> bufferList = new List<byte>();
             while ((count = port.BytesToRead) > 0)
             {
@@ -60,6 +60,8 @@ namespace VirtualSerialPortClient
             byte[] dataToSend;
             if (buffer[3] == 0x16 && buffer[4] == 0x00 && buffer[5] == 0x0B)
                 dataToSend = GetFlow(buffer[0]);
+            else if (buffer[3] == 0x15 && buffer[4] == 0x00 && buffer[5] == 0x0C)
+                dataToSend = GetFlowWithTemperature(buffer[0]);
             else if (buffer[3] == 0x03 && buffer[4] == 0x00 && buffer[5] == 0x10)
                 dataToSend = GetBaseInfo(buffer[0]);
             else if (Encoding.Default.GetString(buffer) == "DEBUG!")
@@ -127,6 +129,39 @@ namespace VirtualSerialPortClient
             byte[] crc = ret.GetCRC16(ret.Length - 2);
             ret[25] = crc[0];
             ret[26] = crc[1];
+            return ret;
+        }
+
+        private static byte[] GetFlowWithTemperature(byte addr)
+        {
+            byte[] ret = new byte[29];
+            ret[0] = addr;
+            ret[1] = 0x03;
+            ret[2] = 0x16;
+            ret[3] = 0x00;
+            ret[4] = 0xFD;
+            Random random = new Random();
+            float flow = ((float)random.NextDouble() * 50 + 400) * 100;
+            byte[] flowBytes = BitConverter.GetBytes((int)flow);
+            //52.32 * 100 = 5232 = 0x1600
+            ret[5] = flowBytes[3];
+            ret[6] = flowBytes[2];
+            ret[7] = flowBytes[1];
+            ret[8] = flowBytes[0];
+            //52.32 * 1000 = 52320 = 0xDC00
+            for (int i = 9; i <= 14; i++)
+                ret[i] = 0x00;
+            ret[15] = 0xDC;
+            ret[16] = 0x00;
+
+            ret[17] = 0x00;
+            ret[18] = 0x01;
+
+            for (int i = 19; i <= 26; i++)
+                ret[i] = 0x00;
+            byte[] crc = ret.GetCRC16(ret.Length - 2);
+            ret[27] = crc[0];
+            ret[28] = crc[1];
             return ret;
         }
 

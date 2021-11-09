@@ -98,7 +98,7 @@
                                      >流量</RadioButton>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
                             <TextBox Width="100"
-                                     md:HintAssist.Hint="流量值"
+                                     md:HintAssist.Hint="流量值" KeyDown="TextBox_KeyDown"
                                      Text="{Binding FlowValue}"></TextBox>
                             <Label Content="{Binding BaseInfo.Unit.Unit, Mode=OneWay}"></Label>
                         </StackPanel>
@@ -106,8 +106,8 @@
                                      IsChecked="{Binding Path=Selector, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=ValveOpenValue}"
                                      >阀门开度</RadioButton>
                         <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                            <TextBox Width="100" 
-                                     md:HintAssist.Hint="开度值"
+                            <TextBox Width="100"
+                                     md:HintAssist.Hint="开度值" KeyDown="TextBox_KeyDown"
                                      Text="{Binding ValveOpenValue}"></TextBox>
                             <Label>%</Label>
                         </StackPanel>
@@ -155,6 +155,10 @@
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>累积时间</TextBlock>
                         <TextBlock Text="{Binding Flow, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}" Style="{StaticResource ValueTextStyle}"/>
+                    </StackPanel>
+                    <StackPanel Margin="16,8,0,0" Visibility="{Binding TemperetureVisibility}">
+                        <TextBlock>温度</TextBlock>
+                        <TextBlock Text="{Binding Flow.Temperature, Mode=OneWay}" Style="{StaticResource ValueTextStyle}"/>
                     </StackPanel>
                 </StackPanel>
 

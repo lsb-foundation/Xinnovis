@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Data.SQLite;
-using System.Collections.Concurrent;
 using System.Threading;
 using CommonLib.Extensions;
 using CommonLib.Utils;
+using System.Threading.Channels;
 
 namespace MFCSoftware.Utils
 {
@@ -15,14 +15,14 @@ namespace MFCSoftware.Utils
     {
         private const string dbFile = "db.sqlite";
         private static readonly string _connectionString;
-        private static readonly ConcurrentQueue<FlowData> _queue;
+        private static readonly Channel<FlowData> _channel;
         private static readonly CancellationTokenSource _cancel;
 
         static SqliteHelper()
         {
             string dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
             _connectionString = string.Format("data source = {0}", dbFilePath);
-            _queue = new ConcurrentQueue<FlowData>();
+            _channel = Channel.CreateBounded<FlowData>(32);
             _cancel = new CancellationTokenSource();
             CreateTable();
             StartInsertFlowTask();
@@ -32,7 +32,8 @@ namespace MFCSoftware.Utils
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
-                _ = await connection.ExecuteAsync("create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8));");
+                _ = await connection.ExecuteAsync(
+                    "create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8), temperature float);");
                 _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_addr on tb_flow(address);");
                 _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
                 _ = await connection.ExecuteAsync("create table if not exists tb_password(password varchar(64));");
@@ -56,25 +57,24 @@ namespace MFCSoftware.Utils
                 {
                     try
                     {
-                        if (_queue.TryDequeue(out FlowData flow))
+                        await _channel.Reader.WaitToReadAsync(_cancel.Token);
+                        var flow = await _channel.Reader.ReadAsync(_cancel.Token);
+                        using (var connection = new SQLiteConnection(_connectionString))
                         {
-                            using (var connection = new SQLiteConnection(_connectionString))
-                            {
-                                _ = await connection.ExecuteAsync(
-                                    @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit) 
-                              values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit);",
-                                      new
-                                      {
-                                          flow.Address,
-                                          CollectTime = DateTime.Now,
-                                          flow.CurrentFlow,
-                                          Unit = flow.Unit ?? string.Empty,
-                                          flow.AccuFlow,
-                                          flow.AccuFlowUnit
-                                      });
-                            }
+                            _ = await connection.ExecuteAsync(
+                                @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit, temperature) 
+                              values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit, @Temperature);",
+                                  new
+                                  {
+                                      flow.Address,
+                                      CollectTime = DateTime.Now,
+                                      flow.CurrentFlow,
+                                      Unit = flow.Unit ?? string.Empty,
+                                      flow.AccuFlow,
+                                      flow.AccuFlowUnit,
+                                      flow.Temperature
+                                  });
                         }
-                        Thread.Sleep(5);
                     }
                     catch (SQLiteException e) //客户反馈此处发生SqliteException异常(经核实，偶尔会出现attempt to write a readonly database异常，频率较低)
                     {
@@ -85,14 +85,18 @@ namespace MFCSoftware.Utils
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        public static void InsertFlowData(FlowData data) => _queue.Enqueue(data);
+        public static async void InsertFlowData(FlowData data)
+        {
+            await _channel.Writer.WaitToWriteAsync(_cancel.Token);
+            await _channel.Writer.WriteAsync(data, _cancel.Token);
+        }
 
         public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 var flows = await connection.QueryAsync<FlowData>(
-                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit
+                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit, temperature as Temperature
                       from tb_flow where address = @address and collect_time between @fromTime and @toTime order by collect_time;",
                       new
                       {
@@ -109,7 +113,7 @@ namespace MFCSoftware.Utils
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 var flows = await connection.QueryAsync<FlowData>(
-                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit
+                    @"select collect_time as CollectTime, curr_flow as CurrentFlow, unit as Unit, accu_flow as AccuFlow, accu_unit as AccuFlowUnit, temperature as Temperature
                       from tb_flow where address = @address",
                     new { address });
                 return flows.AsList();
