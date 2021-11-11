@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
              xmlns:local="clr-namespace:MFCSoftwareForCUP.Views"
              mc:Ignorable="d" Margin="4"
              d:DesignHeight="200" d:DesignWidth="300"
@@ -19,7 +20,7 @@
             <Setter Property="Foreground" Value="Green"/>
         </Style>
     </UserControl.Resources>
-    <metro:MetroBorder CornerRadius="5" BorderThickness="1" BorderBrush="Black">
+    <metro:MetroBorder CornerRadius="5" BorderThickness="1" BorderBrush="Green">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -51,12 +52,20 @@
             </Border>
 
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,4,4,0">
-                <Label>楼层</Label>
-                <metro:MetroTextBox Width="50" Text="{Binding Floor}"/>
-                <Label>房间号</Label>
-                <metro:MetroTextBox Width="50" Text="{Binding Room}"/>
-                <Label>气体类型</Label>
-                <metro:MetroTextBox Width="50" Text="{Binding GasType}"/>
+                <Label>楼层:</Label>
+                <Label Width="50" Content="{Binding Floor}"/>
+                <Label>房间号:</Label>
+                <Label Width="50" Content="{Binding Room}"/>
+                <Label>气体类型:</Label>
+                <Label Width="50" Content="{Binding GasType}"/>
+                <metro:AduFlatButton 
+                    Click="EditButton_Click"
+                    Width="16" Height="16"
+                    Background="Transparent">
+                    <Viewbox>
+                        <fa:ImageAwesome Icon="Edit" Width="16" Foreground="#3399ff"/>
+                    </Viewbox>
+                </metro:AduFlatButton>
             </StackPanel>
 
             <Grid Grid.Row="2" Margin="4,4,4,0">

@@ -1,4 +1,6 @@
-﻿using GalaSoft.MvvmLight;
+﻿using CommonLib.Utils;
+using GalaSoft.MvvmLight;
+using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,14 +61,22 @@ namespace MFCSoftware.ViewModels
                 cts = new CancellationTokenSource();
                 showMessageTask = Task.Run(() =>
                 {
-                    App.Current.Dispatcher.Invoke(() => AppMessage = message);
-                    for (int i = 0; i < 20; i++)
+                    try
                     {
-                        if (cts.Token.IsCancellationRequested)
-                            break;
-                        Thread.Sleep(100);
+                        App.Current.Dispatcher.Invoke(() => AppMessage = message);
+                        for (int i = 0; i < 20; i++)
+                        {
+                            if (cts.Token.IsCancellationRequested)
+                                break;
+                            Thread.Sleep(100);
+                        }
+                        App.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
                     }
-                    App.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
+                    catch (Exception e)
+                    {
+                        LoggerHelper.WriteLog(e.Message, e);
+                        throw e;
+                    }
                 }, cts.Token);
             }
         }

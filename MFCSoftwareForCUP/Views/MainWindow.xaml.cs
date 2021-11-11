@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace MFCSoftwareForCUP.Views
 {
@@ -24,7 +25,7 @@ namespace MFCSoftwareForCUP.Views
         private readonly MainViewModel _main;
         private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
         private readonly byte[] _readFlowBytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
 
         public MainWindow()
         {
@@ -86,31 +87,36 @@ namespace MFCSoftwareForCUP.Views
                 .ToSerialCommand(7);
         }
 
-        private async void LoopToSend()
+        private void StartLoopToSend()
         {
-            int address = 1;
-            while (true)
+            Task.Factory.StartNew(async () =>
             {
-                LoggerHelper.WriteLog("轮询地址： " + address);
-                if (_tokenSource.IsCancellationRequested)
+                int address = 1;
+                while (!_cancel.IsCancellationRequested)
                 {
-                    return;
-                }
+                    LoggerHelper.WriteLog("轮询地址： " + address);
 
-                if (address <= _main.MaxDeviceCount)
-                {
-                    await _main.Semaphore.WaitAsync();
-                    SerialCommand<byte[]> command = BuildReadFlowCommand(address);
-                    ChannelUserControl channel = await Dispatcher.InvokeAsync(() => ContentWrapPanel.Children.OfType<ChannelUserControl>().FirstOrDefault(uc => uc.Address == address));
-                    await SendAsync(command, channel);
-                    _ = _main.Semaphore.Release();
-                }
+                    if (address <= _main.MaxDeviceCount)
+                    {
+                        await _main.Semaphore.WaitAsync(_cancel.Token);
 
-                address = address < _main.MaxDeviceCount ? address + 1 : 1;
-                Thread.Sleep(5);
-            }
+                        var command = BuildReadFlowCommand(address);
+
+                        var channel = await Dispatcher.InvokeAsync(
+                            callback: () => ContentWrapPanel.Children.OfType<ChannelUserControl>().FirstOrDefault(uc => uc.Address == address),
+                            priority: DispatcherPriority.Normal,
+                            cancellationToken: _cancel.Token);
+
+                        await SendAsync(command, channel);
+                        _ = _main.Semaphore.Release();
+                    }
+
+                    address = address < _main.MaxDeviceCount ? address + 1 : 1;
+                    Thread.Sleep(5);
+                }
+            }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
-
+            
         private async Task SendAsync(SerialCommand<byte[]> command, ChannelUserControl channel)
         {
             try
@@ -133,12 +139,6 @@ namespace MFCSoftwareForCUP.Views
                     channel.SetFlow(flow);
                     channel.WhenSuccess();
                 }
-                //else if (command.Type == SerialCommandType.ClearAccuFlowData)
-                //{
-                //    _ = ResolveActionAttribute.CheckAutomatically(data, command.Type);  //测试解析，不进行其他操作
-                //}
-
-                //channel?.WhenSuccess();
             }
             catch (TimeoutException)
             {
@@ -153,7 +153,7 @@ namespace MFCSoftwareForCUP.Views
 
         private void AppClosed(object sender, EventArgs e)
         {
-            _tokenSource.Cancel();
+            _cancel.Cancel();
             AppJsonModel model = new AppJsonModel
             {
                 PortName = _main.PortName,
@@ -187,7 +187,7 @@ namespace MFCSoftwareForCUP.Views
                     _ = ContentWrapPanel.Children.Add(channel);
                 }
             }
-            _ = Task.Run(() => LoopToSend());
+            StartLoopToSend();
         }
 
         private void ResetPasswordButtonClick(object sender, RoutedEventArgs e)

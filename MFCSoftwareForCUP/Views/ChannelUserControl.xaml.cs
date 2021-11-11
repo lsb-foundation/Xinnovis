@@ -89,5 +89,28 @@ namespace MFCSoftwareForCUP.Views
                 FlowData.ExportFlowDatas(dialog.FileName, datas);
             });
         }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_channel.Floor) ||
+                !string.IsNullOrEmpty(_channel.Room) ||
+                !string.IsNullOrEmpty(_channel.GasType))
+            {   //第一次编辑不需要确认密码，修改需要确认密码
+                var confirm = new ConfirmPasswordWindow
+                {
+                    Owner = this.GetParentWindow() as Window
+                };
+                _ = confirm.ShowDialog();
+                if (!confirm.PasswordConfirmed)
+                {
+                    return;
+                }
+            }
+            var editor = new ChannelEditor(_channel)
+            {
+                Owner = this.GetParentWindow() as Window
+            };
+            _ = editor.ShowDialog();
+        }
     }
 }
