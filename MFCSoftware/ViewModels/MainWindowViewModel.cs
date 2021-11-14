@@ -4,6 +4,7 @@ using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace MFCSoftware.ViewModels
 {
@@ -45,40 +46,19 @@ namespace MFCSoftware.ViewModels
             set => Set(ref _appMessage, value);
         }
 
-        private Task showMessageTask;
-        private readonly object syncObject = new object();
         private CancellationTokenSource cts;
         public async void ShowMessage(string message)
         {
-            if (showMessageTask != null && !showMessageTask.IsCompleted)
-            {
-                cts?.Cancel();
-                await showMessageTask;
-            }
+            cts?.Cancel();
+            cts = new CancellationTokenSource();
 
-            lock (syncObject)
+            try
             {
-                cts = new CancellationTokenSource();
-                showMessageTask = Task.Run(() =>
-                {
-                    try
-                    {
-                        App.Current.Dispatcher.Invoke(() => AppMessage = message);
-                        for (int i = 0; i < 20; i++)
-                        {
-                            if (cts.Token.IsCancellationRequested)
-                                break;
-                            Thread.Sleep(100);
-                        }
-                        App.Current.Dispatcher.Invoke(() => AppMessage = string.Empty);
-                    }
-                    catch (Exception e)
-                    {
-                        LoggerHelper.WriteLog(e.Message, e);
-                        throw e;
-                    }
-                }, cts.Token);
+                await App.Current.Dispatcher.InvokeAsync(() => AppMessage = message, DispatcherPriority.Normal, cts.Token);
+                await Task.Delay(2000, cts.Token);
+                await App.Current.Dispatcher.InvokeAsync(() => AppMessage = string.Empty, DispatcherPriority.Normal, cts.Token);
             }
+            catch (TaskCanceledException) { }
         }
     }
 }

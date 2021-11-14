@@ -53,7 +53,7 @@ namespace MFCSoftware.Views
 
         private void StartLoopTask()
         {
-            Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(() =>
             {
                 LinkedListNode<ChannelUserControl> currentNode = null;
                 while (!_cancel.IsCancellationRequested)
@@ -65,14 +65,14 @@ namespace MFCSoftware.Views
                     if (currentNode?.Value != null)
                     {
                         var channel = currentNode.Value;
-                        await SendResolveAsync(channel, channel.ReadFlowBytes);
+                        SendResolveAsync(channel, channel.ReadFlowBytes);
                     }
                     Thread.Sleep(10);
                 }
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        private async void AddChannelButton_Click(object sender, RoutedEventArgs e)
+        private void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
             AddChannelWindow window = new AddChannelWindow
             {
@@ -90,17 +90,17 @@ namespace MFCSoftware.Views
             {
                 ChannelUserControl channel = new ChannelUserControl(window.Address);
                 channel.ChannelClosed += ChannelControl_ControlWasRemoved;
-                channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
+                channel.SingleCommandSended += (chn, cmd) => SendResolveAsync(chn, cmd);
 
                 ChannelGrid.Children.Add(channel);
                 controlList.AddLast(channel);
-                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
+                SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
                 mainVm.ChannelCount++;
             }
             else mainVm.ShowMessage("地址重复，请重新添加。");
         }
 
-        private async Task SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
+        private async void SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
         {
             try
             {
