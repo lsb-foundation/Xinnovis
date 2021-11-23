@@ -25,12 +25,15 @@ namespace MFCSoftware.ViewModels
             get => _serialPort.PortName;
             set
             {
-                if (_serialPort.IsOpen)
-                {
-                    _serialPort.Close();
+                if (PortNames.Contains(value))
+                {   //从数据库中读取的串口号可能在本机已经改变
+                    if (_serialPort.IsOpen)
+                    {
+                        _serialPort.Close();
+                    }
+                    _serialPort.PortName = value;
+                    RaisePropertyChanged();
                 }
-                _serialPort.PortName = value;
-                RaisePropertyChanged();
             }
         }
 
@@ -42,12 +45,6 @@ namespace MFCSoftware.ViewModels
                 _serialPort.BaudRate = value;
                 RaisePropertyChanged();
             }
-        }
-
-        public int WaitTime
-        {
-            get => SerialPortInstance.WaitTime;
-            set => Set(ref SerialPortInstance.WaitTime, value);
         }
 
         public int SeriesPointNumber

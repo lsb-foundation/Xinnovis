@@ -19,10 +19,6 @@
                   Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                   ItemsSource="{Binding BaudRates, Mode=OneWay}" SelectedItem="{Binding BaudRate}"></ComboBox>
         <TextBox Width="150" Margin="4"
-                 md:HintAssist.Hint="等待超时时长(ms)"
-                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                 Text="{Binding WaitTime}"/>
-        <TextBox Width="150" Margin="4"
                  md:HintAssist.Hint="曲线显示点数"
                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                  Text="{Binding SeriesPointNumber}"/>

@@ -137,11 +137,12 @@ namespace MFCSoftware.Views
             }
             catch (TimeoutException)
             {
-                MessageBox.Show("接收数据超时。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                ViewModelLocator.MainViewModel.ShowMessage("接收数据超时");
             }
-            catch
+            catch (Exception e)
             {
-                MessageBox.Show("串口可能被其他程序占用，请检查", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                LoggerHelper.WriteLog(e.Message, e);
+                ViewModelLocator.MainViewModel.ShowMessage("串口可能被其他程序占用，请检查!");
             }
         }
     }

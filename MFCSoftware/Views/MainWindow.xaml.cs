@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Configuration;
 
 namespace MFCSoftware.Views
 {
@@ -18,7 +19,7 @@ namespace MFCSoftware.Views
     {
         private readonly MainWindowViewModel mainVm;
         private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
-        private readonly LinkedList<ChannelUserControl> controlList = new LinkedList<ChannelUserControl>();
+        private readonly LinkedList<ChannelUserControl> _controlList = new LinkedList<ChannelUserControl>();
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         
         public MainWindow()
@@ -53,26 +54,29 @@ namespace MFCSoftware.Views
 
         private void StartLoopTask()
         {
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 LinkedListNode<ChannelUserControl> currentNode = null;
                 while (!_cancel.IsCancellationRequested)
                 {
-                    if (controlList.Count == 0) continue;
-
-                    currentNode = currentNode is null || currentNode == controlList.Last ?
-                        controlList.First : currentNode.Next;
-                    if (currentNode?.Value != null)
+                    if (_controlList.Count > 0)
                     {
-                        var channel = currentNode.Value;
-                        SendResolveAsync(channel, channel.ReadFlowBytes);
+                        if (currentNode is null) currentNode = _controlList.First;
+                        else if (currentNode == _controlList.Last) currentNode = _controlList.First;
+                        else currentNode = currentNode.Next;
+
+                        if (currentNode?.Value != null)
+                        {
+                            var channel = currentNode.Value;
+                            await SendResolveAsync(channel, channel.ReadFlowBytes);
+                        }
                     }
                     Thread.Sleep(10);
                 }
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        private void AddChannelButton_Click(object sender, RoutedEventArgs e)
+        private async void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
             AddChannelWindow window = new AddChannelWindow
             {
@@ -85,22 +89,22 @@ namespace MFCSoftware.Views
 
             if (!window.IsAddressSetted) return;
 
-            bool addrExists = controlList.Any(c => c.Address == window.Address);
+            bool addrExists = _controlList.Any(c => c.Address == window.Address);
             if (!addrExists)
             {
                 ChannelUserControl channel = new ChannelUserControl(window.Address);
                 channel.ChannelClosed += ChannelControl_ControlWasRemoved;
-                channel.SingleCommandSended += (chn, cmd) => SendResolveAsync(chn, cmd);
+                channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
 
                 ChannelGrid.Children.Add(channel);
-                controlList.AddLast(channel);
-                SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
+                _controlList.AddLast(channel);
+                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
                 mainVm.ChannelCount++;
             }
             else mainVm.ShowMessage("地址重复，请重新添加。");
         }
 
-        private async void SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
+        private async Task SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
         {
             try
             {
@@ -127,7 +131,7 @@ namespace MFCSoftware.Views
 
         private void ChannelControl_ControlWasRemoved(ChannelUserControl channel)
         {
-            controlList.Remove(channel);
+            _controlList.Remove(channel);
             ChannelGrid.Children.Remove(channel);
             mainVm.ChannelCount--;
         }
@@ -136,7 +140,6 @@ namespace MFCSoftware.Views
         {
             string port = await SqliteHelper.GetSettings("PortName");
             string baudrate = await SqliteHelper.GetSettings("BaudRate");
-            string waitTime = await SqliteHelper.GetSettings("WaitTime");
             string seriesPointNumber = await SqliteHelper.GetSettings("SeriesPointNumber");
 
             if (!string.IsNullOrEmpty(port))
@@ -144,19 +147,18 @@ namespace MFCSoftware.Views
                 ViewModelLocator.SetSerialViewModel.PortName = port;
             }
             ViewModelLocator.SetSerialViewModel.BaudRate = string.IsNullOrEmpty(baudrate) ? 9600 : int.Parse(baudrate);
-            ViewModelLocator.SetSerialViewModel.WaitTime = string.IsNullOrEmpty(waitTime) ? 100 : int.Parse(waitTime);
             ViewModelLocator.SetSerialViewModel.SeriesPointNumber = string.IsNullOrEmpty(seriesPointNumber) ? 50 : int.Parse(seriesPointNumber);
+            int.TryParse(ConfigurationManager.AppSettings["ComInterval"], out SerialPortInstance.WaitTime);
         }
 
         private async void Window_Closed(object sender, EventArgs e)
         {
             _cancel.Cancel();
             ChannelGrid.Children.Clear();
-            controlList.Clear();
+            _controlList.Clear();
 
             await SqliteHelper.UpdateSettings("PortName", ViewModelLocator.SetSerialViewModel.PortName);
             await SqliteHelper.UpdateSettings("BaudRate", ViewModelLocator.SetSerialViewModel.BaudRate.ToString());
-            await SqliteHelper.UpdateSettings("WaitTime", ViewModelLocator.SetSerialViewModel.WaitTime.ToString());
             await SqliteHelper.UpdateSettings("SeriesPointNumber", ViewModelLocator.SetSerialViewModel.SeriesPointNumber.ToString());
         }
     }
