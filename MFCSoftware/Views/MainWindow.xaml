@@ -6,7 +6,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:MFCSoftware"
         mc:Ignorable="d" Icon="../Images/icon.ico"
-        Title="{Binding AppName, Mode=OneTime}" Height="800" Width="1200" WindowState="Maximized"
+        Title="{Binding AppName, Mode=OneTime}" Height="600" Width="900"
         DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
         Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
@@ -26,6 +26,7 @@
                 <Button Click="OpenSetSerialPortWindow" IsEnabled="{Binding Enable, Mode=OneWay}">串口设置</Button>
                 <Button Click="OpenSetAddressWindow" IsEnabled="{Binding Enable, Mode=OneWay}">设置地址</Button>
                 <Button Click="AddChannelButton_Click">添加通道</Button>
+                <Button Click="PauseButton_Click" IsEnabled="{Binding PauseButtonEnable}">暂停</Button>
             </StackPanel>
         </md:ColorZone>
 

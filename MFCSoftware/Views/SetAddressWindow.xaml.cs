@@ -16,33 +16,15 @@ namespace MFCSoftware.Views
     public partial class SetAddressWindow : Window
     {
         private readonly SetAddressWindowViewModel viewModel;
-        private Timer timer;
 
         public SetAddressWindow()
         {
             InitializeComponent();
-            InitializeWindow();
             viewModel = this.DataContext as SetAddressWindowViewModel;
-        }
-
-        private void InitializeWindow()
-        {
-            timer = new Timer(1000);
-            timer.Elapsed += Timer_Elapsed;
-        }
-
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            viewModel.Enable = true;
-            timer.Stop();
         }
 
         private void ResolveData(byte[] data, SerialCommandType type)
         {
-            if (timer.Enabled) timer.Stop();
-            
-            viewModel.Enable = true;
-
             try
             {
                 bool result = data.CheckCRC16ByDefault();
@@ -129,11 +111,12 @@ namespace MFCSoftware.Views
         {
             try
             {
-                await SerialPortInstance.SendAsync(command);
+                //await SerialPortInstance.SendAsync(command);
                 viewModel.Enable = false;
-                timer.Start();
-                var data = await SerialPortInstance.GetResponseBytesAsync();
+                //var data = await SerialPortInstance.GetResponseBytesAsync();
+                var data = await SerialPortInstance.GetResponseAsync(command);
                 ResolveData(data, command.Type);
+                viewModel.Enable = true;
             }
             catch (TimeoutException)
             {

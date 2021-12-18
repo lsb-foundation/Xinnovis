@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Configuration;
+using System.Windows.Controls;
 
 namespace MFCSoftware.Views
 {
@@ -18,21 +19,22 @@ namespace MFCSoftware.Views
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel mainVm;
-        private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
-        private readonly LinkedList<ChannelUserControl> _controlList = new LinkedList<ChannelUserControl>();
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private readonly CancellationTokenSource _cancel = new();
+        private readonly LinkedList<ChannelUserControl> _controlList = new();
+
+        private bool _isSending = true;
         
         public MainWindow()
         {
             InitializeComponent();
             mainVm = DataContext as MainWindowViewModel;
-
+            
             StartLoopTask();
         }
 
         private void OpenSetSerialPortWindow(object sender, EventArgs e)
         {
-            SetSerialPortWindow window = new SetSerialPortWindow
+            SetSerialPortWindow window = new()
             {
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = this,
@@ -43,7 +45,7 @@ namespace MFCSoftware.Views
 
         private void OpenSetAddressWindow(object sender, EventArgs e)
         {
-            SetAddressWindow window = new SetAddressWindow
+            SetAddressWindow window = new()
             {
                 Owner = this,
                 ShowInTaskbar = false,
@@ -78,7 +80,7 @@ namespace MFCSoftware.Views
 
         private async void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
-            AddChannelWindow window = new AddChannelWindow
+            AddChannelWindow window = new()
             {
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = this,
@@ -92,14 +94,14 @@ namespace MFCSoftware.Views
             bool addrExists = _controlList.Any(c => c.Address == window.Address);
             if (!addrExists)
             {
-                ChannelUserControl channel = new ChannelUserControl(window.Address);
+                ChannelUserControl channel = new(window.Address);
                 channel.ChannelClosed += ChannelControl_ControlWasRemoved;
                 channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
 
                 ChannelGrid.Children.Add(channel);
                 _controlList.AddLast(channel);
-                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
                 mainVm.ChannelCount++;
+                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
             }
             else mainVm.ShowMessage("地址重复，请重新添加。");
         }
@@ -108,10 +110,8 @@ namespace MFCSoftware.Views
         {
             try
             {
-                await _semaphore.WaitAsync();
-                await SerialPortInstance.SendAsync(command);
                 LoggerHelper.WriteLog("[Send]" + command.Command.ToHexString());
-                byte[] data = await SerialPortInstance.GetResponseBytesAsync();
+                var data = await SerialPortInstance.GetResponseAsync(command);
                 channel.ResolveData(data, command.Type);
             }
             catch (TimeoutException)
@@ -122,10 +122,6 @@ namespace MFCSoftware.Views
             {
                 mainVm.ShowMessage("发生异常: " + e.Message);
                 LoggerHelper.WriteLog(e.Message, e);
-            }
-            finally
-            {
-                _semaphore.Release();
             }
         }
 
@@ -160,6 +156,26 @@ namespace MFCSoftware.Views
             await SqliteHelper.UpdateSettings("PortName", ViewModelLocator.SetSerialViewModel.PortName);
             await SqliteHelper.UpdateSettings("BaudRate", ViewModelLocator.SetSerialViewModel.BaudRate.ToString());
             await SqliteHelper.UpdateSettings("SeriesPointNumber", ViewModelLocator.SetSerialViewModel.SeriesPointNumber.ToString());
+        }
+
+        private async void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isSending)
+            {
+                await ComSharingService.Semaphore.WaitAsync();
+                var comInstance = SerialPortInstance.GetSerialPortInstance();
+                if (comInstance.IsOpen)
+                {
+                    comInstance.Close();
+                }
+            }
+            else
+            {
+                ComSharingService.Semaphore.Release();
+            }
+            
+            _isSending = !_isSending;
+            (sender as Button).Content = _isSending ? "暂停" : "开始";
         }
     }
 }

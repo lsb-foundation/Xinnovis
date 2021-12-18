@@ -1,6 +1,5 @@
 ﻿using CommonLib.Utils;
 using GalaSoft.MvvmLight;
-using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,10 +9,9 @@ namespace MFCSoftware.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public bool Enable
-        {
-            get => _channelCount <= 0;
-        }
+        public bool Enable => _channelCount <= 0;
+
+        public bool PauseButtonEnable => _channelCount > 0;
 
         private int _channelCount;
         public int ChannelCount
@@ -23,6 +21,7 @@ namespace MFCSoftware.ViewModels
             {
                 _channelCount = value;
                 RaisePropertyChanged(nameof(Enable));
+                RaisePropertyChanged(nameof(PauseButtonEnable));
             }
         }
 

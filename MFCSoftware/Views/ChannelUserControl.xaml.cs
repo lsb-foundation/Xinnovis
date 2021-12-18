@@ -98,7 +98,7 @@ namespace MFCSoftware.Views
             int unit = data.SubArray(7, 2).ToInt32(0, 2);
             string sn = data.SubArray(23, 12).ToHexString();
 
-            BaseInformation info = new BaseInformation()
+            BaseInformation info = new()
             {
                 SN = sn,
                 Range = range,
@@ -271,7 +271,7 @@ namespace MFCSoftware.Views
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(parameter is string parameterString))
+            if (parameter is not string parameterString)
                 return DependencyProperty.UnsetValue;
 
             if (Enum.IsDefined(value.GetType(), value) == false)
@@ -283,7 +283,7 @@ namespace MFCSoftware.Views
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(parameter is string parameterString))
+            if (parameter is not string parameterString)
                 return DependencyProperty.UnsetValue;
 
             return Enum.Parse(targetType, parameterString);

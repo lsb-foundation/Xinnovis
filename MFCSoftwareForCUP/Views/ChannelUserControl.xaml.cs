@@ -61,7 +61,7 @@ namespace MFCSoftwareForCUP.Views
 
         private async void ExportButtonClick(object sender, RoutedEventArgs e)
         {
-            ConfirmPasswordWindow confirm = new ConfirmPasswordWindow
+            ConfirmPasswordWindow confirm = new()
             {
                 Owner = this.GetParentWindow() as Window
             };
@@ -71,7 +71,7 @@ namespace MFCSoftwareForCUP.Views
                 return;
             }
 
-            SaveFileDialog dialog = new SaveFileDialog()
+            SaveFileDialog dialog = new()
             {
                 Filter = "Excel文件|*.xlsx;*.xls",
                 Title = "导出数据"

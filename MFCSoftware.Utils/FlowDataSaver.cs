@@ -12,18 +12,18 @@ namespace MFCSoftware.Utils
 
         public FlowData Flow { get; set; }
 
-        public FlowDataSaver(int intervalSeconds)
+        public FlowDataSaver(int interval)
         {
-            _timer = new Timer(TimeSpan.FromSeconds(intervalSeconds).TotalMilliseconds) { AutoReset = false };
+            _timer = new Timer(TimeSpan.FromMilliseconds(interval).TotalMilliseconds) { AutoReset = false };
             _timer.Elapsed += Timer_Elapsed;
             _timer.Start();
         }
 
-        public void SetInterval(int seconds)
+        public void SetInterval(int milliSeconds)
         {
-            if (seconds > 0)
+            if (milliSeconds > 0)
             {
-                _timer.Interval = TimeSpan.FromSeconds(seconds).TotalMilliseconds;
+                _timer.Interval = TimeSpan.FromMilliseconds(milliSeconds).TotalMilliseconds;
             }
         }
 

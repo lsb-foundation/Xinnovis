@@ -25,7 +25,7 @@ namespace MFCSoftwareForCUP.Views
         private readonly MainViewModel _main;
         private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
         private readonly byte[] _readFlowBytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-        private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cancel = new();
 
         public MainWindow()
         {
@@ -39,7 +39,7 @@ namespace MFCSoftwareForCUP.Views
                 && _main.AddressToAdd <= _main.MaxDeviceCount
                 && ContentWrapPanel.Children.OfType<ChannelUserControl>().All(uc => uc.Address != _main.AddressToAdd))
             {
-                ChannelUserControl channel = new ChannelUserControl
+                ChannelUserControl channel = new()
                 {
                     Address = _main.AddressToAdd
                 };
@@ -121,10 +121,8 @@ namespace MFCSoftwareForCUP.Views
         {
             try
             {
-                await SerialPortInstance.SendAsync(command);
                 LoggerHelper.WriteLog($"Send: {command}");
-
-                byte[] data = await SerialPortInstance.GetResponseBytesAsync();
+                var data = await SerialPortInstance.GetResponseAsync(command);
                 LoggerHelper.WriteLog($"Received: {data.ToHexString()}");
 
                 if (!data.CheckCRC16ByDefault())
@@ -154,7 +152,7 @@ namespace MFCSoftwareForCUP.Views
         private void AppClosed(object sender, EventArgs e)
         {
             _cancel.Cancel();
-            AppJsonModel model = new AppJsonModel
+            AppJsonModel model = new()
             {
                 PortName = _main.PortName,
                 DeviceMaxCount = _main.MaxDeviceCount,
@@ -177,7 +175,7 @@ namespace MFCSoftwareForCUP.Views
                 _main.AddressToAdd = model.AddressToAdd;
                 foreach (DeviceExtras extras in model.Devices)
                 {
-                    ChannelUserControl channel = new ChannelUserControl
+                    ChannelUserControl channel = new()
                     {
                         Address = extras.Address
                     };
@@ -192,7 +190,7 @@ namespace MFCSoftwareForCUP.Views
 
         private void ResetPasswordButtonClick(object sender, RoutedEventArgs e)
         {
-            ResetPasswordWindow reset = new ResetPasswordWindow { Owner = this };
+            ResetPasswordWindow reset = new() { Owner = this };
             _ = reset.ShowDialog();
         }
 
@@ -203,7 +201,7 @@ namespace MFCSoftwareForCUP.Views
                 return;
             }
 
-            SaveFileDialog dialog = new SaveFileDialog()
+            SaveFileDialog dialog = new()
             {
                 Filter = "Excel文件|*.xlsx;*.xls",
                 Title = "导出数据"
@@ -215,7 +213,7 @@ namespace MFCSoftwareForCUP.Views
             }
 
             string file = dialog.FileName;
-            List<DeviceExtras> extras = new List<DeviceExtras>();
+            List<DeviceExtras> extras = new();
             foreach (ChannelUserControl channel in ContentWrapPanel.Children)
             {
                 extras.Add(channel.DeviceExtras);
@@ -226,46 +224,44 @@ namespace MFCSoftwareForCUP.Views
         private async void ExportSummary(List<DeviceExtras> extras, string file)
         {
             List<FlowData> flows = await SqliteHelper.QueryLatestAccumulateFlowDatasAsync();
-            using (FileStream stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using FileStream stream = new(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            IWorkbook workbook = new XSSFWorkbook();
+            ISheet sheet = workbook.CreateSheet("流量汇总");
+
+            ICellStyle headerStyle = workbook.HeaderStyle();
+            sheet.SetCellValue(0, 0, "楼层号", headerStyle);
+            sheet.SetCellValue(0, 1, "房间号", headerStyle);
+            sheet.SetCellValue(0, 2, "气体类型", headerStyle);
+            sheet.SetCellValue(0, 3, "累积流量", headerStyle);
+            sheet.SetCellValue(0, 4, "单位", headerStyle);
+            sheet.SetCellValue(0, 5, "采集时间", headerStyle);
+
+            ICellStyle basicStyle = workbook.BasicStyle();
+            ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/dd HH:mm:ss");
+
+            DeviceExtras[] orderExtras = extras.OrderBy(e => e.Floor).ThenBy(e => e.Room).ToArray();
+            for (int index = 0; index < orderExtras.Length; ++index)
             {
-                IWorkbook workbook = new XSSFWorkbook();
-                ISheet sheet = workbook.CreateSheet("流量汇总");
-
-                ICellStyle headerStyle = workbook.HeaderStyle();
-                sheet.SetCellValue(0, 0, "楼层号", headerStyle);
-                sheet.SetCellValue(0, 1, "房间号", headerStyle);
-                sheet.SetCellValue(0, 2, "气体类型", headerStyle);
-                sheet.SetCellValue(0, 3, "累积流量", headerStyle);
-                sheet.SetCellValue(0, 4, "单位", headerStyle);
-                sheet.SetCellValue(0, 5, "采集时间", headerStyle);
-
-                ICellStyle basicStyle = workbook.BasicStyle();
-                ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/dd HH:mm:ss");
-
-                DeviceExtras[] orderExtras = extras.OrderBy(e => e.Floor).ThenBy(e => e.Room).ToArray();
-                for (int index = 0; index < orderExtras.Length; ++index)
+                DeviceExtras extra = orderExtras[index];
+                if (flows.FirstOrDefault(f => f.Address == extra.Address) is FlowData flow)
                 {
-                    DeviceExtras extra = orderExtras[index];
-                    if (flows.FirstOrDefault(f => f.Address == extra.Address) is FlowData flow)
-                    {
-                        int row = index + 1;
-                        sheet.SetCellValue(row, 0, extra.Floor, basicStyle);
-                        sheet.SetCellValue(row, 1, extra.Room, basicStyle);
-                        sheet.SetCellValue(row, 2, extra.GasType, basicStyle);
-                        sheet.SetCellValue(row, 3, flow.AccuFlow, basicStyle);
-                        sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
-                        sheet.SetCellValue(row, 5, flow.CollectTime, dateStyle);
-                    }
+                    int row = index + 1;
+                    sheet.SetCellValue(row, 0, extra.Floor, basicStyle);
+                    sheet.SetCellValue(row, 1, extra.Room, basicStyle);
+                    sheet.SetCellValue(row, 2, extra.GasType, basicStyle);
+                    sheet.SetCellValue(row, 3, flow.AccuFlow, basicStyle);
+                    sheet.SetCellValue(row, 4, flow.AccuFlowUnit, basicStyle);
+                    sheet.SetCellValue(row, 5, flow.CollectTime, dateStyle);
                 }
-                sheet.AutoSizeColumns(0, 5);
-                workbook.Write(stream);
-                workbook.Close();
             }
+            sheet.AutoSizeColumns(0, 5);
+            workbook.Write(stream);
+            workbook.Close();
         }
 
         private bool ConfirmPassword()
         {
-            ConfirmPasswordWindow confirm = new ConfirmPasswordWindow { Owner = this };
+            ConfirmPasswordWindow confirm = new() { Owner = this };
             _ = confirm.ShowDialog();
             return confirm.PasswordConfirmed;
         }

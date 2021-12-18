@@ -55,7 +55,7 @@ namespace MFCSoftware.ViewModels
             get => _insertInterval;
             set
             {
-                if(value > 0)
+                if (value >= 20)    //最小可以设置20毫秒
                 {
                     Set(ref _insertInterval, value);
                     InsertIntervalChanged?.Invoke(value);

@@ -35,7 +35,7 @@ namespace MFCSoftware.Utils
             return comInstance;
         }
 
-        public static Task SendAsync(SerialCommand<byte[]> command)
+        private static Task SendAsync(SerialCommand<byte[]> command)
         {
             if (!comInstance.IsOpen)
             {
@@ -53,11 +53,7 @@ namespace MFCSoftware.Utils
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// 异步获取数据。在确定的等待时间内，如果获取到的数据长度不足，抛出TimeoutException异常。
-        /// </summary>
-        /// <returns></returns>
-        public async static Task<byte[]> GetResponseBytesAsync()
+        private async static Task<byte[]> GetResponseBytesAsync()
         {
             await Task.Delay(WaitTime);
             if (comInstance.BytesToRead < currentCommand.ResponseLength)
@@ -68,6 +64,25 @@ namespace MFCSoftware.Utils
             byte[] rets = new byte[count];
             _ = comInstance.Read(rets, 0, count);
             return rets;
+        }
+
+        /// <summary>
+        /// 异步获取数据。在确定的等待时间内，如果获取到的数据长度不足，抛出TimeoutException异常。
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<byte[]> GetResponseAsync(SerialCommand<byte[]> command)
+        {
+            try
+            {
+                await ComSharingService.Semaphore.WaitAsync();
+                await SendAsync(command);
+                var bytes = await GetResponseBytesAsync();
+                return bytes;
+            }
+            finally
+            {
+                ComSharingService.Semaphore.Release();
+            }
         }
     }
 }
