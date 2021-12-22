@@ -12,14 +12,29 @@ namespace MFCSoftware.Utils
     /// </summary>
     public class FlowDataSaver
     {
-        private readonly Channel<FlowData> _channel;
-        private readonly CancellationTokenSource _cancel;
-        private readonly List<FlowData> _flowBuffers;
-
-        private DateTime _lastUpdateTime = DateTime.Now;
         private DateTime _lastInsertTime = DateTime.Now;
 
-        public FlowDataSaver()
+        public uint Interval { get; set; }
+
+        public async Task InsertFlowAsync(FlowData flow)
+        {
+            if (DateTime.Now - _lastInsertTime >= TimeSpan.FromMilliseconds(Interval))
+            {
+                await FlowDataPersistenceTask.InsertFlowAsync(flow);
+                _lastInsertTime = DateTime.Now;
+            }
+        }
+    }
+
+    class FlowDataPersistenceTask
+    {
+        private static readonly Channel<FlowData> _channel;
+        private static readonly CancellationTokenSource _cancel;
+        private static readonly List<FlowData> _flowBuffers;
+
+        private static DateTime _lastUpdateTime = DateTime.Now;
+
+        static FlowDataPersistenceTask()
         {
             _channel = Channel.CreateBounded<FlowData>(32);
             _flowBuffers = new List<FlowData>();
@@ -28,9 +43,16 @@ namespace MFCSoftware.Utils
             StartInsertFlowTask();
         }
 
-        public uint Interval { get; set; }
+        public static bool IsRunning => !_cancel.IsCancellationRequested;
 
-        private void StartInsertFlowTask()
+        public static async Task InsertFlowAsync(FlowData flow)
+        {
+            await _channel.Writer.WaitToWriteAsync();
+            //LoggerHelper.WriteLog($"[QueueAdd]{flow.Address} {flow.CurrentFlow}");
+            await _channel.Writer.WriteAsync(flow);
+        }
+
+        private static void StartInsertFlowTask()
         {
             Task.Factory.StartNew(async () =>
             {
@@ -52,17 +74,6 @@ namespace MFCSoftware.Utils
                     }
                 }
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        }
-
-        public async Task InsertFlowAsync(FlowData flow)
-        {
-            if (DateTime.Now - _lastInsertTime >= TimeSpan.FromMilliseconds(Interval))
-            {
-                await _channel.Writer.WaitToWriteAsync();
-                //LoggerHelper.WriteLog($"[QueueAdd]{flow.Address} {flow.CurrentFlow}");
-                await _channel.Writer.WriteAsync(flow);
-                _lastInsertTime = DateTime.Now;
-            }
         }
     }
 }
