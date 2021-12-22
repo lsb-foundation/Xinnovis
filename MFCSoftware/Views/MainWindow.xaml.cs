@@ -73,7 +73,6 @@ namespace MFCSoftware.Views
                             await SendResolveAsync(channel, channel.ReadFlowBytes);
                         }
                     }
-                    Thread.Sleep(10);
                 }
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

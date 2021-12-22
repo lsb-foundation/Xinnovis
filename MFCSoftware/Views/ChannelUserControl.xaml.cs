@@ -32,9 +32,9 @@ namespace MFCSoftware.Views
             InitializeComponent();
             _viewModel = this.DataContext as ChannelUserControlViewModel;
             _mainViewModel = ViewModelLocator.MainViewModel;
-            _flowDataSaver = new FlowDataSaver((int)_viewModel.InsertInterval);
+            _flowDataSaver = new FlowDataSaver { Interval = _viewModel.InsertInterval };
             _viewModel.Address = address;
-            _viewModel.InsertIntervalChanged += seconds => _flowDataSaver.SetInterval((int)seconds);
+            _viewModel.InsertIntervalChanged += interval => _flowDataSaver.Interval = interval;
         }
 
         public event Action<ChannelUserControl> ChannelClosed; //控件被移除
@@ -51,7 +51,7 @@ namespace MFCSoftware.Views
 
         public void ResolveData(byte[] data, SerialCommandType type)
         {
-            this.Dispatcher.Invoke(() =>
+            this.Dispatcher.Invoke(async () =>
             {
                 try
                 {
@@ -71,7 +71,7 @@ namespace MFCSoftware.Views
                             flow.Unit = _viewModel.BaseInfo?.Unit?.Unit;
                             _viewModel.SetFlow(flow);
                             _viewModel.UpdateSeries();
-                            _flowDataSaver.Flow = flow;
+                            await _flowDataSaver.InsertFlowAsync(flow);
                             break;
                         case SerialCommandType.ClearAccuFlowData:
                         case SerialCommandType.SetFlow:

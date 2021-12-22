@@ -55,7 +55,8 @@ namespace MFCSoftware.Utils
 
         private async static Task<byte[]> GetResponseBytesAsync()
         {
-            await Task.Delay(WaitTime);
+            await Task.Yield();
+            Thread.Sleep(WaitTime);
             if (comInstance.BytesToRead < currentCommand.ResponseLength)
             {
                 throw new TimeoutException();

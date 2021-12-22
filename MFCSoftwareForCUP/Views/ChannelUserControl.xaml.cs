@@ -24,7 +24,7 @@ namespace MFCSoftwareForCUP.Views
         {
             InitializeComponent();
             _channel = DataContext as ChannelViewModel;
-            _saver = new FlowDataSaver(30);
+            _saver = new FlowDataSaver { Interval = 30 };
         }
 
         public event Action<ChannelUserControl> ControlRemoved;
@@ -38,13 +38,13 @@ namespace MFCSoftwareForCUP.Views
 
         public DeviceExtras DeviceExtras => _channel.DeviceExtras;
 
-        public void SetFlow(FlowData flow)
+        public async void SetFlow(FlowData flow)
         {
             _channel.AccumulateFlow = flow.AccuFlow;
             _channel.AccumulateFlowUnit = flow.AccuFlowUnit;
             _channel.CurrentFlow = flow.CurrentFlow;
-            _saver.Flow = flow;
-            _saver.Flow.Unit = _channel.CurrentFlowUnit;
+            flow.Unit = _channel.CurrentFlowUnit;
+            await _saver.InsertFlowAsync(flow);
         }
 
         public void SetDeviceExtras(DeviceExtras extras) => _channel.SetExtras(extras);

@@ -21,7 +21,7 @@ namespace MFCSoftware.Utils
         public int Hours { get; set; }
         public int Minutes { get; set; }
         public int Seconds { get; set; }
-        public DateTime CollectTime { get; set; }   //导出数据时用到该属性
+        public DateTime CollectTime { get; set; }
         #endregion
 
         #region Methods
@@ -53,6 +53,7 @@ namespace MFCSoftware.Utils
 
             FlowData flowData = new()
             {
+                CollectTime = DateTime.Now,
                 CurrentFlow = flow,
                 AccuFlow = accuFlow,
                 Temperature = temperature,
@@ -81,7 +82,7 @@ namespace MFCSoftware.Utils
             sheet.SetCellValue(0, 5, "温度", headerStyle);
 
             ICellStyle basicStyle = workbook.BasicStyle();
-            ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/DD HH:mm:ss");
+            ICellStyle dateStyle = workbook.FormattedStyle("yyyy/MM/DD HH:mm:ss.000");
             ICellStyle currFlowStyle = workbook.FormattedStyle("#,##0.00");
             ICellStyle accuFlowStyle = workbook.FormattedStyle("#,###0.000");
 

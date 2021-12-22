@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Data.SQLite;
-using System.Threading;
 using CommonLib.Extensions;
 using CommonLib.Utils;
-using System.Threading.Channels;
 
 namespace MFCSoftware.Utils
 {
@@ -15,80 +13,83 @@ namespace MFCSoftware.Utils
     {
         private const string dbFile = "db.sqlite";
         private static readonly string _connectionString;
-        private static readonly Channel<FlowData> _channel;
-        private static readonly CancellationTokenSource _cancel;
 
         static SqliteHelper()
         {
             string dbFilePath = Path.Combine(Environment.CurrentDirectory, dbFile);
             _connectionString = string.Format("data source = {0}", dbFilePath);
-            _channel = Channel.CreateBounded<FlowData>(32);
-            _cancel = new CancellationTokenSource();
-            CreateTable();
-            StartInsertFlowTask();
+            CreateTables();
         }
 
-        private async static void CreateTable()
+        private static void CreateTables()
         {
-            using (var connection = new SQLiteConnection(_connectionString))
+            CreateFlowTable();
+            CreatePasswordTable();
+            CreateSettingsTable();
+        }
+
+        private async static void CreateFlowTable()
+        {
+            using var connection = new SQLiteConnection(_connectionString);
+            await connection.ExecuteAsync(
+                "create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8), temperature float);");
+            await connection.ExecuteAsync("create index if not exists idx_tb_flow_addr on tb_flow(address);");
+            await connection.ExecuteAsync("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
+        }
+
+        private async static void CreatePasswordTable()
+        {
+            using var connection = new SQLiteConnection(_connectionString);
+            await connection.ExecuteAsync("create table if not exists tb_password(password varchar(64));");
+            if ((await connection.QuerySingleAsync<int>("select count(1) from tb_password")) == 0)
             {
-                _ = await connection.ExecuteAsync(
-                    "create table if not exists tb_flow(address int, collect_time datetime, curr_flow float, unit varchar(8), accu_flow float, accu_unit varchar(8), temperature float);");
-                _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_addr on tb_flow(address);");
-                _ = await connection.ExecuteAsync("create index if not exists idx_tb_flow_time on tb_flow(collect_time);");
-                _ = await connection.ExecuteAsync("create table if not exists tb_password(password varchar(64));");
-                _ = await connection.ExecuteAsync("create table if not exists tb_settings(s_key varchar(32), s_value varchar(32));");
-                if ((await connection.QueryFirstAsync<int>("select count(1) from tb_password")) == 0)
+                string defaultPassword = "123456".MD5HashString();
+                _ = await connection.ExecuteAsync("insert into tb_password(password) values(@password);", new
                 {
-                    string defaultPassword = "123456".MD5HashString();
-                    _ = await connection.ExecuteAsync("insert into tb_password(password) values(@password);", new
-                    {
-                        password = defaultPassword
-                    });
-                }
+                    password = defaultPassword
+                });
             }
         }
 
-        private static void StartInsertFlowTask()
+        private async static void CreateSettingsTable()
         {
-            Task.Factory.StartNew(async () =>
-            {
-                while (!_cancel.IsCancellationRequested)
-                {
-                    try
-                    {
-                        await _channel.Reader.WaitToReadAsync(_cancel.Token);
-                        var flow = await _channel.Reader.ReadAsync(_cancel.Token);
-                        using (var connection = new SQLiteConnection(_connectionString))
-                        {
-                            _ = await connection.ExecuteAsync(
-                                @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit, temperature) 
-                              values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit, @Temperature);",
-                                  new
-                                  {
-                                      flow.Address,
-                                      CollectTime = DateTime.Now,
-                                      flow.CurrentFlow,
-                                      Unit = flow.Unit ?? string.Empty,
-                                      flow.AccuFlow,
-                                      flow.AccuFlowUnit,
-                                      flow.Temperature
-                                  });
-                        }
-                    }
-                    catch (SQLiteException e) //客户反馈此处发生SqliteException异常(经核实，偶尔会出现attempt to write a readonly database异常，频率较低)
-                    {
-                        LoggerHelper.WriteLog(e.Message, e);
-                        continue;
-                    }
-                }
-            }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            using var connection = new SQLiteConnection(_connectionString);
+            await connection.ExecuteAsync("create table if not exists tb_settings(s_key varchar(32), s_value varchar(32));");
         }
 
-        public static async void InsertFlowData(FlowData data)
+        public static async Task<bool> InsertFlowsBatchAsync(List<FlowData> flows)
         {
-            await _channel.Writer.WaitToWriteAsync(_cancel.Token);
-            await _channel.Writer.WriteAsync(data, _cancel.Token);
+            using var connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            using var trans = connection.BeginTransaction();
+            try
+            {
+                foreach (var flow in flows)
+                {
+                    await connection.ExecuteAsync(
+                        @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit, temperature) 
+                              values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit, @Temperature);",
+                          new
+                          {
+                              flow.Address,
+                              flow.CollectTime,
+                              flow.CurrentFlow,
+                              Unit = flow.Unit ?? string.Empty,
+                              flow.AccuFlow,
+                              flow.AccuFlowUnit,
+                              flow.Temperature
+                          });
+                    //LoggerHelper.WriteLog($"[DatabaseInsert]{flow.Address} {flow.CurrentFlow}");
+                }
+                trans.Commit();
+                return true;
+            }
+            catch (SQLiteException e) //客户反馈此处发生SqliteException异常(经核实，偶尔会出现attempt to write a readonly database异常，频率较低)
+            {
+                trans.Rollback();
+                LoggerHelper.WriteLog(e.Message, e);
+                return false;
+            }
         }
 
         public static async Task<List<FlowData>> QueryFlowDatasByTimeAsync(DateTime fromTime, DateTime toTime, int address)

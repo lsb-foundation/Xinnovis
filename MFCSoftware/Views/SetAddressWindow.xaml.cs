@@ -111,12 +111,9 @@ namespace MFCSoftware.Views
         {
             try
             {
-                //await SerialPortInstance.SendAsync(command);
                 viewModel.Enable = false;
-                //var data = await SerialPortInstance.GetResponseBytesAsync();
                 var data = await SerialPortInstance.GetResponseAsync(command);
                 ResolveData(data, command.Type);
-                viewModel.Enable = true;
             }
             catch (TimeoutException)
             {
@@ -126,6 +123,10 @@ namespace MFCSoftware.Views
             {
                 LoggerHelper.WriteLog(e.Message, e);
                 ViewModelLocator.MainViewModel.ShowMessage("串口可能被其他程序占用，请检查!");
+            }
+            finally
+            {
+                viewModel.Enable = true;
             }
         }
     }

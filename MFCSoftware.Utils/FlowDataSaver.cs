@@ -1,5 +1,9 @@
-﻿using System;
-using System.Timers;
+﻿using CommonLib.Utils;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace MFCSoftware.Utils
 {
@@ -8,32 +12,57 @@ namespace MFCSoftware.Utils
     /// </summary>
     public class FlowDataSaver
     {
-        private readonly Timer _timer;
+        private readonly Channel<FlowData> _channel;
+        private readonly CancellationTokenSource _cancel;
+        private readonly List<FlowData> _flowBuffers;
 
-        public FlowData Flow { get; set; }
+        private DateTime _lastUpdateTime = DateTime.Now;
+        private DateTime _lastInsertTime = DateTime.Now;
 
-        public FlowDataSaver(int interval)
+        public FlowDataSaver()
         {
-            _timer = new Timer(TimeSpan.FromMilliseconds(interval).TotalMilliseconds) { AutoReset = false };
-            _timer.Elapsed += Timer_Elapsed;
-            _timer.Start();
+            _channel = Channel.CreateBounded<FlowData>(32);
+            _flowBuffers = new List<FlowData>();
+            _cancel = new CancellationTokenSource();
+
+            StartInsertFlowTask();
         }
 
-        public void SetInterval(int milliSeconds)
+        public uint Interval { get; set; }
+
+        private void StartInsertFlowTask()
         {
-            if (milliSeconds > 0)
+            Task.Factory.StartNew(async () =>
             {
-                _timer.Interval = TimeSpan.FromMilliseconds(milliSeconds).TotalMilliseconds;
-            }
+                while (!_cancel.IsCancellationRequested &&
+                    await _channel.Reader.WaitToReadAsync())
+                {
+                    var flow = await _channel.Reader.ReadAsync();
+                    _flowBuffers.Add(flow);
+
+                    //修改为500毫秒执行一次写入，使用事务提升写入速度
+                    if (DateTime.Now - _lastUpdateTime > TimeSpan.FromMilliseconds(500) &&
+                        _flowBuffers.Count > 0)
+                    {
+                        if (await SqliteHelper.InsertFlowsBatchAsync(_flowBuffers))
+                        {
+                            _flowBuffers.Clear();
+                            _lastUpdateTime = DateTime.Now;
+                        }
+                    }
+                }
+            }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        public async Task InsertFlowAsync(FlowData flow)
         {
-            if (Flow != null)
+            if (DateTime.Now - _lastInsertTime >= TimeSpan.FromMilliseconds(Interval))
             {
-                SqliteHelper.InsertFlowData(Flow);
+                await _channel.Writer.WaitToWriteAsync();
+                //LoggerHelper.WriteLog($"[QueueAdd]{flow.Address} {flow.CurrentFlow}");
+                await _channel.Writer.WriteAsync(flow);
+                _lastInsertTime = DateTime.Now;
             }
-            _timer.Start();
         }
     }
 }
