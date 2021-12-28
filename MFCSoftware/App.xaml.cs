@@ -25,6 +25,7 @@ namespace MFCSoftware
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppCenter.Start("ead83755-b5d7-474e-961f-a5e3aba6fabf", typeof(Analytics), typeof(Crashes));
             base.OnStartup(e);
