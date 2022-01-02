@@ -8,6 +8,7 @@ using AutoCommander.UIModels;
 using AutoCommander.ViewModels;
 using CommonLib.Extensions;
 using System.Windows.Threading;
+using System.Linq;
 
 namespace AutoCommander.Views
 {
@@ -19,6 +20,8 @@ namespace AutoCommander.Views
         private readonly MainViewModel _main;
         private readonly DispatcherTimer _dispatcherTimer;  //更新UI的Timer
         private readonly StringBuilder _builder;
+
+        private IActionHandler _actionHandler;
 
         public MainWindow()
         {
@@ -53,25 +56,44 @@ namespace AutoCommander.Views
             SerialPort port = _main.Instance.Port;
             byte[] buffer = new byte[port.BytesToRead];
             _ = port.Read(buffer, 0, buffer.Length);
-            string chars = Encoding.Default.GetString(buffer);
+            string text = Encoding.Default.GetString(buffer);
+
+            _actionHandler?.Receive(text);
 
             lock (_builder)
             {
-                _ = _builder.Append(chars);
+                _builder.Append(text);
             }
-            //await Task.Run(() => LoggerHelper.WriteLog($"Received: {chars}"));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             InitializePassword();
-            string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./autoui.xml");
-            if (!File.Exists(file))
+
+            var files = SettingViewModel.LoadAutoUiFiles();
+            string file = Settings.Default.AutoUiFile;
+            file = files.Contains(file) ? file : files.FirstOrDefault();
+            if (!string.IsNullOrEmpty(file))
             {
-                _ = MessageBox.Show("丢失文件autoui.xml！");
-                return;
+                LoadAutoUi(file);
             }
-            AutoUI autoUI = AutoUI.GetUIAuto(file);
+            else
+            {
+                _ = MessageBox.Show("缺失autoui文件！");
+            }
+        }
+
+        public void LoadAutoUi(string file)
+        {
+            var config = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./autoui", file);
+            _main.SetAppTitleForConfig(file);
+
+            Settings.Default.AutoUiFile = file;
+            Settings.Default.Save();
+            Settings.Default.Reload();
+
+            AutoUIGrid.Children.Clear();
+            AutoUI autoUI = AutoUI.GetUIAuto(config);
             autoUI.Executed += AutoUI_Executed;
             _ = AutoUIGrid.Children.Add(autoUI.Build());
         }
@@ -80,16 +102,22 @@ namespace AutoCommander.Views
         {
             if (build is UIAction action)
             {
-                (bool success, string message) = action.TryParse(out string command);
+                (bool success, string message) = action.TryParse();
                 if (!success)
                 {
                     _ = MessageBox.Show(message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
+                if (action.IsConfirmed
+                    && MessageBox.Show($"确定要发送吗?\n{action.Command}", "确认", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
                 if (action.IsAuthorized)
                 {
-                    ConfirmPasswordDialog dialog = new ConfirmPasswordDialog
+                    ConfirmPasswordDialog dialog = new()
                     {
                         ShowInTaskbar = false,
                         Owner = this
@@ -100,13 +128,26 @@ namespace AutoCommander.Views
                         return;
                     }
                 }
-
-                if (action.IsConfirmed
-                    && MessageBox.Show($"确定要发送吗?\n{command}", "确认", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                
+                if (!string.IsNullOrWhiteSpace(action.Handler))
                 {
-                    return;
+                    _actionHandler = action.CreateHandler();
+                    if (_actionHandler != null)
+                    {
+                        _actionHandler.Completed += () => _actionHandler = null;
+                        _actionHandler.Initialize();
+                        _main.Instance.Send(action.Command);
+                        _actionHandler.Execute();
+                    }
+                    else
+                    {
+                        _ = MessageBox.Show("Handler配置错误，请检查！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
-                _main.Instance.Send(command);
+                else
+                {
+                    _main.Instance.Send(action.Command);
+                }
             }
         }
 

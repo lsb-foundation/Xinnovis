@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner"
-        Title="设置" Height="400" Width="300" Background="#f0f0f0"
+        Title="设置" Height="400" Width="350" Background="#f0f0f0"
         ResizeMode="NoResize"
         DataContext="{Binding Source={StaticResource Locator}, Path=Setting}">
     <TabControl Margin="8">
@@ -128,6 +128,15 @@
                     <TextBlock FontSize="9" Margin="4,0" Foreground="DarkGray">默认密码为123456</TextBlock>
                 </StackPanel>
             </Grid>
+        </TabItem>
+
+        <TabItem Header="配置">
+            <StackPanel Margin="4">
+                <Label>选择配置文件</Label>
+                <ComboBox ItemsSource="{Binding AutoUiFiles}" 
+                          SelectedItem="{Binding SelectedAutoUiFile}"
+                          SelectionChanged="AutoUiComboBox_SelectionChanged"/>
+            </StackPanel>
         </TabItem>
     </TabControl>
 </Window>

@@ -15,6 +15,7 @@ namespace VirtualSerialPortClient
     {
         private static SerialPort port;
         private static string portName = "COM2";
+        private static Random _random = new Random(Guid.NewGuid().GetHashCode());
 
         static void Main(string[] args)
         {
@@ -70,9 +71,26 @@ namespace VirtualSerialPortClient
 
             if (dataToSend != null)
             {
-                port.Write(dataToSend, 0, dataToSend.Length);
-                Console.WriteLine($"{portName} send: {dataToSend.ToHexString()}");
+                Send(dataToSend);
             }
+
+            if (Encoding.Default.GetString(buffer) == "EXPORT!")
+            {
+                for(int index = 0; index < 100; ++index)
+                {
+                    dataToSend = GetHandHeldMeterExporterData();
+                    Send(dataToSend);
+                    Thread.Sleep(100);
+                }
+                dataToSend = Encoding.Default.GetBytes("Export complete\r\n");
+                Send(dataToSend);
+            }
+        }
+
+        private static void Send(byte[] dataToSend)
+        {
+            port.Write(dataToSend, 0, dataToSend.Length);
+            Console.WriteLine($"{portName} send: {dataToSend.ToHexString()}");
         }
 
         private static byte[] GetBaseInfo(byte addr)
@@ -107,8 +125,7 @@ namespace VirtualSerialPortClient
             ret[0] = addr;
             ret[1] = 0x03;
             ret[2] = 0x16;
-            Random random = new Random();
-            float flow = ((float)random.NextDouble() * 50 + 400) * 100;
+            float flow = ((float)_random.NextDouble() * 50 + 400) * 100;
             byte[] flowBytes = BitConverter.GetBytes((int)flow);
             //52.32 * 100 = 5232 = 0x1600
             ret[3] = flowBytes[3];
@@ -186,6 +203,22 @@ namespace VirtualSerialPortClient
                 .Append($"D:6.54\r\n")
                 .Append($"Zero:7.34\r\n");
             return Encoding.Default.GetBytes(builder.ToString());
+        }
+
+        private static byte[] GetHandHeldMeterExporterData()
+        {
+            int floor = _random.Next(1, 10);
+            int department = _random.Next(1, 10);
+            int room = _random.Next(1, 50);
+            int bedNumber = _random.Next(1, 5);
+            float flow = 20.0f + (float)_random.NextDouble() * 10;
+            float pressure = 50.0f + (float)_random.NextDouble() * 20;
+            float temperature = 20.0f + (float)_random.NextDouble() * 10;
+            float humidity = 10.0f + (float)_random.NextDouble() * 5;
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            string time = DateTime.Now.ToString("HH:mm:ss");
+            string text = $"A{floor};B{department};C{room};D{bedNumber};E{flow};F{pressure};G{temperature};H{humidity};{date},{time}\n";
+            return Encoding.Default.GetBytes(text);
         }
     }
 }

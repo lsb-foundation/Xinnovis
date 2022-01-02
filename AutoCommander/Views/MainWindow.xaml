@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d" Background="#f0f0f0"
-        Title="AutoCommander" Height="600" Width="800"
+        Title="{Binding AppTitle}" Height="600" Width="800"
         Loaded="Window_Loaded"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
     <Grid>
@@ -45,13 +45,13 @@
                 Margin="0 0 0 2"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
-                <Button Width="60" Click="ClearButton_Click" Margin="4,0">
+                <Button Width="80" Click="ClearButton_Click" Margin="4,0">
                     <StackPanel Orientation="Horizontal">
                         <fa:ImageAwesome Width="14" Icon="Recycle" Foreground="#1296db"/>
                         <TextBlock VerticalAlignment="Center" Margin="4,0">清空</TextBlock>
                     </StackPanel>
                 </Button>
-                <Button Width="60" Click="SettingButton_Click">
+                <Button Width="80" Click="SettingButton_Click">
                     <StackPanel Orientation="Horizontal">
                         <fa:ImageAwesome Width="14" Icon="Gear" Foreground="#1296db"/>
                         <TextBlock VerticalAlignment="Center" Margin="4,0">设置</TextBlock>

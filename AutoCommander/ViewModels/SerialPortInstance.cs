@@ -13,6 +13,7 @@ namespace AutoCommander.ViewModels
         public SerialPortInstance()
         {
             _port = new SerialPort();
+            _port.WriteTimeout = 500;
             _syncRoot = new object();
             string port = Settings.Default.PortName;
             if (SerialPort.GetPortNames().Any(pn => pn == port))

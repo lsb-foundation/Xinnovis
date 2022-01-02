@@ -59,23 +59,21 @@ namespace AutoCommander.UIModels
                     {
                         if (parameter.Type.ToLower() == "excel")
                         {
-                            using (FileStream fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            using FileStream fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                            IWorkbook workbook = WorkbookFactory.Create(fs);
+                            AreaReference area = new AreaReference(parameter.DataRange, NPOI.SS.SpreadsheetVersion.EXCEL2007);
+                            ISheet sheet = workbook.GetSheet(area.FirstCell.SheetName);
+                            List<string> values = new List<string>();
+                            foreach (CellReference cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
                             {
-                                IWorkbook workbook = WorkbookFactory.Create(fs);
-                                AreaReference area = new AreaReference(parameter.DataRange, NPOI.SS.SpreadsheetVersion.EXCEL2007);
-                                ISheet sheet = workbook.GetSheet(area.FirstCell.SheetName);
-                                List<string> values = new List<string>();
-                                foreach (CellReference cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
+                                string value = sheet?.GetCell(cref.Row, cref.Col).GetValue()?.ToString();
+                                if (!string.IsNullOrEmpty(value))
                                 {
-                                    string value = sheet?.GetCell(cref.Row, cref.Col).GetValue()?.ToString();
-                                    if (!string.IsNullOrEmpty(value))
-                                    {
-                                        values.Add(value);
-                                    }
+                                    values.Add(value);
                                 }
-                                parameter.Value = string.Join(parameter.Seperator, values);
-                                workbook.Close();
                             }
+                            parameter.Value = string.Join(parameter.Seperator, values);
+                            workbook.Close();
                         }
                     }
                 }

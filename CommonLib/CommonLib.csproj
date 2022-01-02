@@ -95,6 +95,7 @@
     <Compile Include="Extensions\ByteExtension.cs" />
     <Compile Include="Extensions\ConfigurationExtension.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NPOIExtensions.cs" />
     <Compile Include="Extensions\StringExtension.cs" />
     <Compile Include="Models\GasTypeCode.cs" />

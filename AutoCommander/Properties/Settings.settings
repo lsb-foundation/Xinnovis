@@ -8,5 +8,8 @@
     <Setting Name="PortName" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM1</Value>
     </Setting>
+    <Setting Name="AutoUiFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

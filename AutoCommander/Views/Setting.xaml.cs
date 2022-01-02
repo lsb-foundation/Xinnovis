@@ -2,6 +2,7 @@
 using CommonLib.Extensions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace AutoCommander.Views
@@ -38,11 +39,21 @@ namespace AutoCommander.Views
 
         private async void SetTips(string tips, Color color)
         {
-            SolidColorBrush brush = new SolidColorBrush(color);
+            SolidColorBrush brush = new(color);
             TipsLabel.Foreground = brush;
             TipsLabel.Content = tips;
             await Task.Delay(1000);
             TipsLabel.Content = null;
+        }
+
+        private void AutoUiComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox control)
+            {
+                var file = control.SelectedItem as string;
+                var main = Application.Current.MainWindow as MainWindow;
+                main.LoadAutoUi(file);
+            }
         }
     }
 }

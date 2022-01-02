@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
@@ -23,10 +25,16 @@ namespace AutoCommander.UIModels
         [XmlAttribute]
         public bool IsConfirmed { get; set; }
 
+        [XmlAttribute]
+        public string Handler { get; set; }
+
         [XmlIgnore]
         public Command Parent { get; set; }
 
         public event Action<IAutoBuilder> Executed;
+
+        private string _command;
+        public string Command => _command;
 
         public Button Build()
         {
@@ -35,9 +43,9 @@ namespace AutoCommander.UIModels
             return button;
         }
 
-        public (bool, string) TryParse(out string cmd)
+        public (bool, string) TryParse()
         {
-            cmd = Format;
+            string cmd = Format;
             MatchCollection matches = Regex.Matches(Format, @"{\w+}");
             foreach (Match match in matches)
             {
@@ -63,7 +71,29 @@ namespace AutoCommander.UIModels
                     return (false, $"参数缺失: {pName}");
                 }
             }
+            _command = cmd;
             return (true, null);
+        }
+
+        public IActionHandler CreateHandler()
+        {
+            if (string.IsNullOrWhiteSpace(Handler)) return null;
+
+            var handlerType =
+                        Assembly.GetEntryAssembly()
+                            .GetTypes()
+                            .Where(t => t.GetInterface("IActionHandler") != null)
+                            .FirstOrDefault(t => t.FullName.ToUpper().EndsWith(Handler.ToUpper()));
+
+            if (handlerType is null)
+            {
+                MessageBox.Show($"Action {Name}的Handler属性配置错误！未找到{Handler}处理程序。", "配置错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+
+            var handler = Assembly.GetEntryAssembly().CreateInstance(handlerType.FullName) as IActionHandler;
+            handler.Command = this.Command;
+            return handler;
         }
     }
 }

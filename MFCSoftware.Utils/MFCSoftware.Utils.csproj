@@ -91,7 +91,6 @@
     <Compile Include="SqliteHelper.cs" />
     <Compile Include="FlowData.cs" />
     <Compile Include="FlowDataSaver.cs" />
-    <Compile Include="NPOIExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceivedStatus.cs" />
     <Compile Include="SerialCommand.cs" />

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AutoUI xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Tabs>
+		<Tab Header="手持仪表">
+			<Groups>
+				<Group Header="数据导出">
+					<Commands>
+						<Command Name="Commands" Description="导出指令">
+							<Actions>
+								<Action Name="HandHeldMeterExport" Description="导出" Format="EXPORT!" Handler="HandHeldMeterExporter"></Action>
+							</Actions>
+						</Command>
+					</Commands>
+				</Group>
+			</Groups>
+		</Tab>
+	</Tabs>
+</AutoUI>

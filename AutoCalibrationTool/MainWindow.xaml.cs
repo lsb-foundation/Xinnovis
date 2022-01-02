@@ -192,10 +192,10 @@ namespace AutoCalibrationTool
 
             ISheet sheet = workbook.CreateSheet(sheetName);
             ICellStyle headerStyle = workbook.HeaderStyle();
-            ICellStyle basicNumericStyle = workbook.BasicNumericStyle();
-            ICellStyle temperatureStyle = workbook.BasicNumericStyle(formatter: "0.0", isBold: true, fontSize: 14.0);
-            ICellStyle averageStyle = workbook.BasicNumericStyle(isBold: true);
-            ICellStyle flowStyle = workbook.BasicNumericStyle(formatter: "0.0", isBold: true, fontSize: 11.0);
+            ICellStyle basicNumericStyle = workbook.FormattedStyle();
+            ICellStyle temperatureStyle = workbook.FormattedStyle(formatter: "0.0", isBold: true, fontSize: 14.0);
+            ICellStyle averageStyle = workbook.FormattedStyle(isBold: true);
+            ICellStyle flowStyle = workbook.FormattedStyle(formatter: "0.0", isBold: true, fontSize: 11.0);
 
             int row = 0;
             foreach (IEnumerable<DeviceData> datas in orderedDeviceDatas)

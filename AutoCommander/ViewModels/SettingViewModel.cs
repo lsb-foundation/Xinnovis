@@ -1,8 +1,12 @@
-﻿using CommonLib.Communication.Serial;
+﻿using AutoCommander.Properties;
+using CommonLib.Communication.Serial;
 using GalaSoft.MvvmLight;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.IO.Ports;
+using System.Linq;
 
 namespace AutoCommander.ViewModels
 {
@@ -22,6 +26,7 @@ namespace AutoCommander.ViewModels
             {
                 _instance.Port.PortName = SerialPortNames[0];
             }
+            LoadSettings();
         }
 
         public string PortName
@@ -74,10 +79,40 @@ namespace AutoCommander.ViewModels
             }
         }
 
+        public List<string> AutoUiFiles { get; } = LoadAutoUiFiles();
+
+        public string SelectedAutoUiFile { get; set; }
+
         public ObservableCollection<string> SerialPortNames { get; }
         public List<int> SerialBaudRates { get; } = BaudRateCode.GetBaudRates();
         public List<int> SerialDataBits { get; } = new List<int>() { 5, 6, 7, 8 };
         public List<Parity> SerialParities { get; } = AdvancedSerialPort.GetParities();
         public List<StopBits> SerialStopBits { get; } = AdvancedSerialPort.GetStopBits();
+
+        private void LoadSettings()
+        {
+            string file = Settings.Default.AutoUiFile;
+            if (AutoUiFiles.Contains(file))
+            {
+                SelectedAutoUiFile = file;
+            }
+        }
+
+        public static List<string> LoadAutoUiFiles()
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./autoui");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            string[] files = Directory.GetFiles(path);
+
+            return files
+                .Select(f => new FileInfo(f))
+                .Where(f => f.Extension.ToLower() == ".xml")
+                .OrderBy(f => f.Name)
+                .Select(f => f.Name)
+                .ToList();
+        }
     }
 }
