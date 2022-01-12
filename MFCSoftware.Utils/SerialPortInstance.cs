@@ -19,7 +19,8 @@ namespace MFCSoftware.Utils
         {
             comInstance = new SerialPort
             {
-                DtrEnable = true
+                DtrEnable = true,
+                WriteTimeout = 500
             };
         }
 
@@ -29,7 +30,8 @@ namespace MFCSoftware.Utils
             {
                 comInstance = new SerialPort
                 {
-                    DtrEnable = true
+                    DtrEnable = true,
+                    WriteTimeout = 500
                 };
             }
             return comInstance;
