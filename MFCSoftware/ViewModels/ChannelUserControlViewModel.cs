@@ -9,6 +9,7 @@ using OxyPlot;
 using OxyPlot.Axes;
 using MFCSoftware.Utils;
 using System.Configuration;
+using MFCSoftware.Common;
 
 namespace MFCSoftware.ViewModels
 {
@@ -95,7 +96,7 @@ namespace MFCSoftware.ViewModels
             }
         }
 
-        public Visibility TemperetureVisibility => _mainVm.ReadTemperature? Visibility.Visible : Visibility.Collapsed;
+        public Visibility TemperetureVisibility => AppSettings.ReadTemperature? Visibility.Visible : Visibility.Collapsed;
 
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
@@ -109,7 +110,7 @@ namespace MFCSoftware.ViewModels
         {
             byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
             int responseLength = 27;
-            if (_mainVm.ReadTemperature)
+            if (AppSettings.ReadTemperature)
             {
                 bytes = new byte[] { 0x03, 0x00, 0x15, 0x00, 0x0C };
                 responseLength = 29;
@@ -141,7 +142,7 @@ namespace MFCSoftware.ViewModels
             BaseInfo.GasType = info.GasType;
             BaseInfo.Unit = info.Unit;
             DisplayUnit = info.Unit?.Unit;
-            UpdateYAxisMaxValue(info.Range);
+            UpdateYAxisMaxValue(info.Range * 1.1D);
 
             RaisePropertyChanged(nameof(BaseInfo));
             WhenSuccess();

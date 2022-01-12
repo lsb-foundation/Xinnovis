@@ -66,7 +66,7 @@ namespace MFCSoftware.Views
                             ResolveBaseInfoData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            var flow = FlowData.ResolveFromBytes(data, readTemperature: _mainViewModel.ReadTemperature);
+                            var flow = FlowData.ResolveFromBytes(data, readTemperature: AppSettings.ReadTemperature);
                             flow.Address = Address;
                             flow.Unit = _viewModel.BaseInfo?.Unit?.Unit;
                             _viewModel.SetFlow(flow);
@@ -190,6 +190,11 @@ namespace MFCSoftware.Views
             if (_viewModel.FlowValue < 0 || _viewModel.FlowValue > _viewModel.BaseInfo.Range)
             {
                 _viewModel.ShowMessage("流量数据必须大于等于0，小于等于量程。");
+                return;
+            }
+            if (!AppSettings.AllowLowerFlowValue && _viewModel.FlowValue < _viewModel.BaseInfo.Range * 0.01F)
+            {
+                _viewModel.ShowMessage("设定值不能小于满量程的1%");
                 return;
             }
             _viewModel.SetWriteFlowBytes();

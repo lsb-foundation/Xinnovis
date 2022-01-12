@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Configuration;
 using System.Windows.Controls;
+using MFCSoftware.Models;
+using System.IO;
 
 namespace MFCSoftware.Views
 {
@@ -77,7 +79,7 @@ namespace MFCSoftware.Views
             }, _cancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        private async void AddChannelButton_Click(object sender, RoutedEventArgs e)
+        private void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
             AddChannelWindow window = new()
             {
@@ -93,16 +95,21 @@ namespace MFCSoftware.Views
             bool addrExists = _controlList.Any(c => c.Address == window.Address);
             if (!addrExists)
             {
-                ChannelUserControl channel = new(window.Address);
-                channel.ChannelClosed += ChannelControl_ControlWasRemoved;
-                channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
-
-                ChannelGrid.Children.Add(channel);
-                _controlList.AddLast(channel);
-                mainVm.ChannelCount++;
-                await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
+                AddChannel(window.Address);
             }
             else mainVm.ShowMessage("地址重复，请重新添加。");
+        }
+
+        private async void AddChannel(int address)
+        {
+            ChannelUserControl channel = new(address);
+            channel.ChannelClosed += ChannelControl_ControlWasRemoved;
+            channel.SingleCommandSended += async (chn, cmd) => await SendResolveAsync(chn, cmd);
+
+            ChannelGrid.Children.Add(channel);
+            _controlList.AddLast(channel);
+            mainVm.ChannelCount++;
+            await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
         }
 
         private async Task SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)
@@ -144,10 +151,14 @@ namespace MFCSoftware.Views
             ViewModelLocator.SetSerialViewModel.BaudRate = string.IsNullOrEmpty(baudrate) ? 9600 : int.Parse(baudrate);
             ViewModelLocator.SetSerialViewModel.SeriesPointNumber = string.IsNullOrEmpty(seriesPointNumber) ? 50 : int.Parse(seriesPointNumber);
             int.TryParse(ConfigurationManager.AppSettings["ComInterval"], out SerialPortInstance.WaitTime);
+
+            LoadChannels();
         }
 
         private async void Window_Closed(object sender, EventArgs e)
         {
+            SaveChannels();
+
             _cancel.Cancel();
             ChannelGrid.Children.Clear();
             _controlList.Clear();
@@ -175,6 +186,42 @@ namespace MFCSoftware.Views
             
             _isSending = !_isSending;
             (sender as Button).Content = _isSending ? "暂停" : "开始";
+        }
+
+        private async void SaveChannels()
+        {
+            ChannelSaveModel model = new() { Channels = new List<int>() };
+            foreach (var control in _controlList)
+            {
+                model.Channels.Add(control.Address);
+            }
+
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./channels.json");
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(model);
+            using var stream = new FileStream(file, FileMode.Create, FileAccess.Write);
+            using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(json);
+        }
+
+        private async void LoadChannels()
+        {
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./channels.json");
+            if (!File.Exists(file)) return;
+
+            using var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
+            using var reader = new StreamReader(stream);
+            string json = await reader.ReadToEndAsync();
+            ChannelSaveModel model = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelSaveModel>(json);
+
+            foreach (int address in model.Channels)
+            {
+                AddChannel(address);
+            }
         }
     }
 }

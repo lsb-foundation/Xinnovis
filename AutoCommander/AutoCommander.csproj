@@ -253,9 +253,9 @@
     <Resource Include="UIXmls\手持仪表数据导出.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="更新日志.txt">
+    <None Include="更新日志.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

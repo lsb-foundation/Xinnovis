@@ -1,5 +1,6 @@
 ﻿using CommonLib.Utils;
 using GalaSoft.MvvmLight;
+using MFCSoftware.Common;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,12 +32,9 @@ namespace MFCSoftware.ViewModels
             {
                 var version = App.ResourceAssembly.GetName().Version;
                 string appVersion = $" v{version}";
-                return ConfigurationManager.AppSettings["AppName"] + appVersion;
+                return AppSettings.AppName + appVersion;
             }
         }
-
-        private readonly bool _readTemperature = ConfigurationManager.AppSettings["ReadTemperature"].Trim().ToLower() == "true";
-        public bool ReadTemperature => _readTemperature;
 
         private string _appMessage;
         public string AppMessage
