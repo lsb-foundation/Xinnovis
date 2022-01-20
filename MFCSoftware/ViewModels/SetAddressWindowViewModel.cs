@@ -63,7 +63,8 @@ namespace MFCSoftware.ViewModels
                     .AppendBytes(header)
                     .AppendBytes(addr)
                     .AppendCrc16()
-                    .ToSerialCommand(8);
+                    .WithResponseLength(8)
+                    .Build();
             }
         }
 
@@ -77,7 +78,8 @@ namespace MFCSoftware.ViewModels
                     .AppendBytes(header)
                     .AppendBytes(baudcode)
                     .AppendCrc16()
-                    .ToSerialCommand(8);
+                    .WithResponseLength(8)
+                    .Build();
             }
         }
     }

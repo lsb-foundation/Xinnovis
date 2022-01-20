@@ -75,7 +75,8 @@ namespace MFCSoftwareForCUP.Views
                 .AppendAddress(address)
                 .AppendBytes(_readFlowBytes)
                 .AppendCrc16()
-                .ToSerialCommand(27);
+                .WithResponseLength(27)
+                .Build();
         }
 
         private SerialCommand<byte[]> BuildClearAccumulateFlowCommand(int address)
@@ -84,7 +85,8 @@ namespace MFCSoftwareForCUP.Views
                 .AppendAddress(address)
                 .AppendBytes(_clearFlowBytes)
                 .AppendCrc16()
-                .ToSerialCommand(7);
+                .WithResponseLength(7)
+                .Build();
         }
 
         private void StartLoopToSend()

@@ -312,7 +312,8 @@ namespace MFCSoftware.ViewModels
                 .AppendBytes(flowIntValue.ToHex())
                 //.AppendBytes(new byte[] { 0x00, 0x00 }) //针对客户的修改 2021.08.17
                 .AppendCrc16()
-                .ToSerialCommand(8); //修改为标准modbus协议，响应长度为8 2021.09.01
+                .WithResponseLength(8)
+                .Build(); //修改为标准modbus协议，响应长度为8 2021.09.01
         }
 
         public void SetWriteValveBytes()
@@ -326,7 +327,8 @@ namespace MFCSoftware.ViewModels
                 .AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00 })
                 .AppendBytes(openIntValue.ToHex().SubArray(2, 2))
                 .AppendCrc16()
-                .ToSerialCommand(8);
+                .WithResponseLength(8)
+                .Build();
         }
 
         public void ShowMessage(string message) => _mainVm.ShowMessage(message);
@@ -344,7 +346,8 @@ namespace MFCSoftware.ViewModels
                 .AppendAddress(Address)
                 .AppendBytes(bytes)
                 .AppendCrc16()
-                .ToSerialCommand(responseLength);
+                .WithResponseLength(responseLength)
+                .Build();
         }
 
         //private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList ,SerialCommandType type, int responseLength = 7)

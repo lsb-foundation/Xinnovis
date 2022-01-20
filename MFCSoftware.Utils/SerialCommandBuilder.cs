@@ -8,6 +8,7 @@ namespace MFCSoftware.Utils
     {
         private readonly List<byte> serialBytes = new List<byte>();
         private readonly bool typeIsSetted;
+        private int responseLength;
 
         public SerialCommandType Type { get; }  //可以不需要
 
@@ -47,12 +48,18 @@ namespace MFCSoftware.Utils
             return this;
         }
 
+        public SerialCommandBuilder WithResponseLength(int len)
+        {
+            responseLength = len;
+            return this;
+        }
+
         public byte[] ToArray()
         {
             return serialBytes.ToArray();
         }
 
-        public SerialCommand<byte[]> ToSerialCommand(int responseLength)
+        public SerialCommand<byte[]> Build()
         {
             if(typeIsSetted)
                 return new SerialCommand<byte[]>(serialBytes.ToArray(), Type, responseLength);
