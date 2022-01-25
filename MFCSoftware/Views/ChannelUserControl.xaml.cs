@@ -24,14 +24,12 @@ namespace MFCSoftware.Views
     public partial class ChannelUserControl : UserControl
     {
         private readonly ChannelUserControlViewModel _viewModel;
-        private readonly MainWindowViewModel _mainViewModel;
         private readonly FlowDataSaver _flowDataSaver;
 
         public ChannelUserControl(int address)
         {
             InitializeComponent();
             _viewModel = this.DataContext as ChannelUserControlViewModel;
-            _mainViewModel = ViewModelLocator.MainViewModel;
             _flowDataSaver = new FlowDataSaver { Interval = _viewModel.InsertInterval };
             _viewModel.Address = address;
             _viewModel.InsertIntervalChanged += interval => _flowDataSaver.Interval = interval;
@@ -192,10 +190,14 @@ namespace MFCSoftware.Views
                 _viewModel.ShowMessage("流量数据必须大于等于0，小于等于量程。");
                 return;
             }
-            if (!AppSettings.AllowLowerFlowValue && _viewModel.FlowValue < _viewModel.BaseInfo.Range * 0.01F)
+            if (!AppSettings.AllowLowerFlowValue)
             {
-                _viewModel.ShowMessage("设定值不能小于满量程的1%");
-                return;
+                if (_viewModel.FlowValue < _viewModel.BaseInfo.Range * 0.01F &&
+                    _viewModel.FlowValue != 0)  //允许等于0
+                {
+                    _viewModel.ShowMessage("设定值不能小于满量程的1%");
+                    return;
+                }
             }
             _viewModel.SetWriteFlowBytes();
             SingleCommandSended?.Invoke(this, _viewModel.WriteFlowBytes);
