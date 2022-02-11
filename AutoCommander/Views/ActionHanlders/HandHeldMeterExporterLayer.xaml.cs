@@ -124,7 +124,7 @@ namespace AutoCommander.Views.ActionHandlers
         class HandHeldMeterData
         {
             public int Floor { get; set; }
-            public int Department { get; set; }
+            public string Department { get; set; }
             public int Room { get; set; }
             public int BedNumber { get; set; }
             public float Flow { get; set; }
@@ -140,7 +140,7 @@ namespace AutoCommander.Views.ActionHandlers
                 var data = new HandHeldMeterData
                 {
                     Floor = int.Parse(parts[0].Substring(1)),
-                    Department = int.Parse(parts[1].Substring(1)),
+                    Department = parts[1].Substring(1),
                     Room = int.Parse(parts[2].Substring(1)),
                     BedNumber = int.Parse(parts[3].Substring(1)),
                     Flow = float.Parse(parts[4].Substring(1)),
