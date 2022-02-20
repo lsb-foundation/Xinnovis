@@ -83,7 +83,7 @@ namespace AutoCalibrationTool
                     if (datas.Length == 5)
                     {
                         TemperatureType tempType = datas[0].ToTemperatureType();
-                        int address = int.Parse(datas[1]);
+                        string address = datas[1];
                         float flow = float.Parse(datas[2]);
                         Models.ValueType valueType = datas[3].ToValueType(); //T or V
                         float value = float.Parse(datas[4]);
@@ -290,7 +290,7 @@ namespace AutoCalibrationTool
 
             for (int index = 0; index < 15; ++index)
             {
-                var data = new DeviceData { DeviceCode = index + 2 };
+                var data = new DeviceData { DeviceCode = (index + 2).ToString() };
                 data.FlowDatas = deviceDatas.FirstOrDefault()?.FlowDatas;
                 deviceDatas.Add(data);
             }

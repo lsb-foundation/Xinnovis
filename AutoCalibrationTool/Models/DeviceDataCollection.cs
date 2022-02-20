@@ -39,7 +39,7 @@ namespace AutoCalibrationTool.Models
                 this.LowTemperatureDatas.Sum(ltd => ltd.FlowDatas.Count);
         }
 
-        public void SetValue(TemperatureType tempType, ValueType valueType, int deviceCode, float flow, float value)
+        public void SetValue(TemperatureType tempType, ValueType valueType, string deviceCode, float flow, float value)
         {
             var deviceDatas = tempType == TemperatureType.High ? this.HighTemperatureDatas :
                 (tempType == TemperatureType.Mid ? this.MidTemperatureDatas :
