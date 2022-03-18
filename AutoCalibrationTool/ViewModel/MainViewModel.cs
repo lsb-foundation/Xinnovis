@@ -42,20 +42,22 @@ namespace AutoCalibrationTool.ViewModel
         #endregion
 
         #region Properties
-        public bool CommandButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Stop;
-        public bool IncubeStopButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Incube;
-        public bool RoomStopButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.Room;
-        public bool TestLeakageOffButtonEnabled => ViewModelLocator.Port.IsOpen && Mode == CalibrationMode.TestLeakage;
+        public bool CommandButtonEnabled => ViewModelLocator.Port.IsOpen;
+
         public bool SendButtonEnabled => ViewModelLocator.Port.IsOpen;
-        public CalibrationMode Mode { get; private set; } = CalibrationMode.Stop;
+
         public int DeviceDataCount { get; private set; }
+
         public int FlowDataCount { get; private set; }
+
         public string Command
         {
             get => command;
             set => Set(ref command, value);
         }
+
         public ObservableCollection<string> HistoryCommands { get; set; } = new ObservableCollection<string>();
+
         public string SelectedCommand
         {
             get => selectedCommand;
@@ -81,9 +83,6 @@ namespace AutoCalibrationTool.ViewModel
         public void UpdateButtonEnableStatus()
         {
             RaisePropertyChanged(nameof(CommandButtonEnabled));
-            RaisePropertyChanged(nameof(IncubeStopButtonEnabled));
-            RaisePropertyChanged(nameof(RoomStopButtonEnabled));
-            RaisePropertyChanged(nameof(TestLeakageOffButtonEnabled));
             RaisePropertyChanged(nameof(SendButtonEnabled));
         }
 
@@ -98,25 +97,7 @@ namespace AutoCalibrationTool.ViewModel
         private void Send(string content, CommandType type)
         {
             ViewModelLocator.Port.Send(content);
-            switch (type)
-            {
-                case CommandType.IncubeStart:
-                    Mode = CalibrationMode.Incube;
-                    break;
-                case CommandType.RoomStart:
-                    Mode = CalibrationMode.Room;
-                    break;
-                case CommandType.TestLeakageOn:
-                    Mode = CalibrationMode.TestLeakage;
-                    break;
-                case CommandType.CustomCommand:
-                    break;
-                default:
-                    Mode = CalibrationMode.Stop;
-                    break;
-            }
             UpdateButtonEnableStatus();
-            ViewModelLocator.Port.UpdatePortButtonStatus();
             ViewModelLocator.Storage.UpdateButtonStatus();
         }
 

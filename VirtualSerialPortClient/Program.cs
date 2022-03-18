@@ -67,6 +67,8 @@ namespace VirtualSerialPortClient
                 dataToSend = GetBaseInfo(buffer[0]);
             else if (Encoding.Default.GetString(buffer) == "DEBUG!")
                 dataToSend = GetDebugData();
+            else if (Encoding.Default.GetString(buffer) == "INCUBE_START!")
+                dataToSend = IncubeStart();
             else dataToSend = null;
 
             if (dataToSend != null)
@@ -219,6 +221,12 @@ namespace VirtualSerialPortClient
             string time = DateTime.Now.ToString("HH:mm:ss");
             string text = $"A{floor};B{department};C{room};D{bedNumber};E{flow};F{pressure};G{temperature};H{humidity};{date},{time}\n";
             return Encoding.Default.GetBytes(text);
+        }
+
+        private static byte[] IncubeStart()
+        {
+            string command = "MID:1:0:V:-1957.902\r\n";
+            return Encoding.Default.GetBytes(command);
         }
     }
 }

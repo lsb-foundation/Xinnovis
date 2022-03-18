@@ -23,7 +23,7 @@
                 <Label>串口:</Label>
                 <ComboBox Width="100" ItemsSource="{Binding SerialPortNames}"
                           SelectedItem="{Binding PortName}" IsEnabled="{Binding IsClosed}"/>
-                <Button Margin="4,0,0,0" Width="50" Command="{Binding OpenOrClosePortCommand}" IsEnabled="{Binding PortButtonEnabled}">
+                <Button Margin="4,0,0,0" Width="50" Command="{Binding OpenOrClosePortCommand}">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Style.Triggers>
@@ -65,7 +65,7 @@
                 </TextBox>
                 <Button Width="30" Click="OnDirectoryPickerClick">...</Button>
                 <Button Width="80" Click="OnExport" IsEnabled="{Binding ExportButtonEnabled}">导出数据</Button>
-                <Button Width="80" Click="OnReset" IsEnabled="{Binding ResetButtonEnabled}">重置存储区</Button>
+                <Button Width="80" Click="OnReset">重置存储区</Button>
                 <Button Width="80" Click="OnReadTestFile" Visibility="{Binding TestButtonVisible}">读取测试文件</Button>
                 <Button Width="80" Click="OnTestExport" Visibility="{Binding TestButtonVisible}">测试导出</Button>
             </StackPanel>
@@ -85,12 +85,12 @@
                         <Setter Property="Margin" Value="4"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">恒温标定开始</Button>
-                <Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>
-                <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">室温标定开始</Button>
-                <Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>
-                <Button Command="{Binding TestLeakageOnCommand}" IsEnabled="{Binding CommandButtonEnabled}">漏气检测开始</Button>
-                <Button Command="{Binding TestLeakageOffCommand}" IsEnabled="{Binding TestLeakageOffButtonEnabled}">漏气检测结束</Button>
+                <Button Command="{Binding IncubeStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">恒温标定</Button>
+                <!--<Button Command="{Binding IncubeStopCommand}" IsEnabled="{Binding IncubeStopButtonEnabled}">恒温标定结束</Button>-->
+                <Button Command="{Binding RoomStartCommand}" IsEnabled="{Binding CommandButtonEnabled}">室温标定</Button>
+                <!--<Button Command="{Binding RoomStopCommand}" IsEnabled="{Binding RoomStopButtonEnabled}">室温标定结束</Button>-->
+                <Button Command="{Binding TestLeakageOnCommand}" IsEnabled="{Binding CommandButtonEnabled}">漏气检测</Button>
+                <!--<Button Command="{Binding TestLeakageOffCommand}" IsEnabled="{Binding TestLeakageOffButtonEnabled}">漏气检测结束</Button>-->
             </StackPanel>
 
             <StackPanel Grid.Row="1" Orientation="Vertical">

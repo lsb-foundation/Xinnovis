@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,8 +35,8 @@ namespace AutoCalibrationTool
             _incubeCollection = new DeviceDataCollection();
             _roomCollection = new DeviceDataCollection();
             ViewModelLocator.Port.OnDataReceived += Port_OnDataReceived;
-            Task.Run(() => GetDataLinesFromOrigin());   //后台处理收到的字符串序列
-            Task.Run(() => ResolveData());              //后台解析处理过的字符串序列
+            Task.Run(GetDataLinesFromOrigin);   //后台处理收到的字符串序列
+            Task.Run(ResolveData);              //后台解析处理过的字符串序列
         }
 
         private void Port_OnDataReceived(byte[] obj)
@@ -76,7 +75,7 @@ namespace AutoCalibrationTool
             {
                 Task.Run(() => LoggerHelper.WriteLog($"Resolved: {line}"));
 
-                CalibrationMode currentMode = ViewModelLocator.Main.Mode;
+                //CalibrationMode currentMode = ViewModelLocator.Main.Mode;
                 if (line.StartsWith("MID") || line.StartsWith("HIGH") || line.StartsWith("LOW"))
                 {
                     string[] datas = line.Split(':');
@@ -88,12 +87,14 @@ namespace AutoCalibrationTool
                         Models.ValueType valueType = datas[3].ToValueType(); //T or V
                         float value = float.Parse(datas[4]);
 
-                        if (currentMode == CalibrationMode.Incube)
+                        //if (currentMode == CalibrationMode.Incube)
+                        if (!line.StartsWith("MID"))    //LOW和HIGH是高低温，MID是室温 2022.03.07
                         {
                             _incubeCollection.SetValue(tempType, valueType, address, flow, value);
                             SetDataCount();
                         }
-                        else if (currentMode == CalibrationMode.Room)
+                        //else if (currentMode == CalibrationMode.Room)
+                        else
                         {
                             _roomCollection.SetValue(tempType, valueType, address, flow, value);
                             SetDataCount();
@@ -149,20 +150,6 @@ namespace AutoCalibrationTool
                 }
                 file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "./ttt.xlsx");
                 Export(_roomCollection, file);
-                //string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testlog.txt");
-                //using (var stream = File.OpenRead(file))
-                //{
-                //    var reader = new StreamReader(stream);
-                //    string line = null;
-                //    while((line = await reader.ReadLineAsync()) != null)
-                //    {
-                //        int idx = line.IndexOf("Received:");
-                //        if (idx == -1) continue;
-                //        var bytes = line.Substring(idx + 10).HexStringToBytes();
-                //        _originDatas.Add(Encoding.Default.GetString(bytes));
-                //        Thread.Sleep(20);
-                //    }
-                //}
             });
         }
 
