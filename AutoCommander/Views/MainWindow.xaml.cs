@@ -185,7 +185,6 @@ public partial class MainWindow : Window
             actionHandler.Initialize();
             _locator.Serial.TrySend(linkerItem.Command);
             _main.SetAppStatus($"{linkerItem.Display()}");
-            actionHandler.Execute();
         }
         else
         {

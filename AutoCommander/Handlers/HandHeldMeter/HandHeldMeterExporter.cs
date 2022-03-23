@@ -8,11 +8,7 @@ public class HandHeldMeterExporter : IActionHandler
 {
     private HandHeldMeterDataCollector collector;
 
-    public string Command { get; set; }
-
     public event Action Completed;
-
-    public void Execute() { }
 
     public void Initialize()
     {

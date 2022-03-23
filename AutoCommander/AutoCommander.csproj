@@ -176,10 +176,12 @@
     <Compile Include="Converters\EnumToBooleanConverter.cs" />
     <Compile Include="Common\SettingsUtils.cs" />
     <Compile Include="Handlers\AutoCalibration\AutoCalibrationCollector.cs" />
-    <Compile Include="Handlers\AutoCalibration\AutoCalibrationExporter.cs" />
     <Compile Include="Handlers\AutoCalibration\Extensions\EnumsExtensions.cs" />
     <Compile Include="Handlers\AutoCalibration\Models\CalibrationDataHolder.cs" />
     <Compile Include="Handlers\AutoCalibration\Models\CalibrationValueType.cs" />
+    <Compile Include="Handlers\AutoCalibration\Views\AutoCalibrationExporter.xaml.cs">
+      <DependentUpon>AutoCalibrationExporter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Handlers\Collector.cs" />
     <Compile Include="Handlers\HandHeldMeter\HandHeldMeterData.cs" />
     <Compile Include="Handlers\HandHeldMeter\HandHeldMeterDataCollector.cs" />
@@ -213,6 +215,10 @@
     <Compile Include="AutoUI\Models\Parameter.cs" />
     <Compile Include="AutoUI\Models\Tab.cs" />
     <Compile Include="AutoUI\Models\AutoUI.cs" />
+    <Page Include="Handlers\AutoCalibration\Views\AutoCalibrationExporter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Handlers\HandHeldMeter\Views\HandHeldMeterExporter.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

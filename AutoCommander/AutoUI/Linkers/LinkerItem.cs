@@ -38,7 +38,6 @@ public class LinkerItem
         }
 
         var handler = Assembly.GetEntryAssembly().CreateInstance(handlerType.FullName) as IActionHandler;
-        handler.Command = this.Command;
         return handler;
     }
 }
