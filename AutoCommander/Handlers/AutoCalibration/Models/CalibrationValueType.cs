@@ -1,6 +1,6 @@
 ﻿namespace AutoCommander.Handlers.AutoCalibration.Models;
 
-public enum ValueType
+public enum CalibrationValueType
 {
     SerialNumber,
     Flow,

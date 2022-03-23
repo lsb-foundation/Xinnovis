@@ -2,12 +2,12 @@
 
 public static class EnumsExtensions
 {
-    public static Models.ValueType ToValueType(this string typeString) =>
+    public static Models.CalibrationValueType CalibrationValueType(this string typeString) =>
         typeString switch
         {
-            "V" => Models.ValueType.Volt,
-            "T" => Models.ValueType.Temperature,
-            "A" => Models.ValueType.Timespan,
-            _ => Models.ValueType.SerialNumber
+            "V" => Models.CalibrationValueType.Volt,
+            "T" => Models.CalibrationValueType.Temperature,
+            "A" => Models.CalibrationValueType.Timespan,
+            _ => Models.CalibrationValueType.SerialNumber
         };
 }

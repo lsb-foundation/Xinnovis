@@ -2,8 +2,8 @@
 
 namespace AutoCommander.Handlers.AutoCalibration.Models;
 
-public class DeviceData
+public class CalibrationData
 {
     public string SerialNumber { get; set; }
-    public List<VoltData> FlowDatas { get; set; } = new List<VoltData>();
+    public List<CalibrationVoltData> FlowDatas { get; set; } = new List<CalibrationVoltData>();
 }

@@ -10,7 +10,7 @@ namespace AutoCommander.Handlers.AutoCalibration;
 
 public class AutoCalibrationExporter
 {
-    public void Export(DeviceDataList list, string file)
+    public void Export(CalibrationDataCollection list, string file)
     {
         using var fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         IWorkbook workbook = new XSSFWorkbook();
@@ -21,7 +21,7 @@ public class AutoCalibrationExporter
         workbook.Close();
     }
 
-    private void BuildSheet(DeviceDataList list, IWorkbook workbook)
+    private void BuildSheet(CalibrationDataCollection list, IWorkbook workbook)
     {
         if (list.Count == 0) return;
 
@@ -38,7 +38,7 @@ public class AutoCalibrationExporter
         ICellStyle flowStyle = workbook.FormattedStyle(formatter: "0.0", isBold: true, fontSize: 11.0);
 
         int row = 0;
-        foreach (IEnumerable<DeviceData> datas in orderedDeviceDatas)
+        foreach (IEnumerable<CalibrationData> datas in orderedDeviceDatas)
         {
             int column = 0;
             int flowCount = datas.Sum(dd => dd.FlowDatas.Count);
@@ -65,7 +65,7 @@ public class AutoCalibrationExporter
 
                 sheet.MergeRegion(deviceCodeRow, deviceCodeRow, column, column + deviceData.FlowDatas.Count - 1, deviceData.SerialNumber, headerStyle);   //写入设备号
 
-                foreach (VoltData flowData in deviceData.FlowDatas.OrderBy(ftd => ftd.Flow))
+                foreach (CalibrationVoltData flowData in deviceData.FlowDatas.OrderBy(ftd => ftd.Flow))
                 {
                     row = deviceCodeRow;
 

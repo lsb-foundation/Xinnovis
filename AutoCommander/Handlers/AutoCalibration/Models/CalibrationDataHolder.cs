@@ -1,30 +1,30 @@
 ﻿namespace AutoCommander.Handlers.AutoCalibration.Models;
 
-public class DataHolder
+public class CalibrationDataHolder
 {
-    public string Device { get; set; }
+    public string SerialNumber { get; set; }
     public float Flow { get; set; }
     public float Temperature { get; set; }
     public float Volt { get; set; }
     public int TimespanSeconds { get; set; }
 
-    public void SetValueForType(ValueType type, string textValue)
+    public void SetValueForType(CalibrationValueType type, string textValue)
     {
         switch (type)
         {
-            case ValueType.SerialNumber:
-                Device = textValue;
+            case CalibrationValueType.SerialNumber:
+                SerialNumber = textValue;
                 break;
-            case ValueType.Flow:
+            case CalibrationValueType.Flow:
                 Flow = float.Parse(textValue);
                 break;
-            case ValueType.Volt:
+            case CalibrationValueType.Volt:
                 Volt = float.Parse(textValue);
                 break;
-            case ValueType.Temperature:
+            case CalibrationValueType.Temperature:
                 Temperature = float.Parse(textValue);
                 break;
-            case ValueType.Timespan:
+            case CalibrationValueType.Timespan:
                 TimespanSeconds = int.Parse(textValue);
                 break;
         }

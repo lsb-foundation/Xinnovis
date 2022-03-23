@@ -6,11 +6,11 @@ namespace AutoCommander.Handlers.AutoCalibration;
 
 public class AutoCalibrationCollector
 {
-    private readonly Collector<DataHolder> _collector;
-    private readonly DeviceDataList _collection = new();
+    private readonly Collector<CalibrationDataHolder> _collector;
+    private readonly CalibrationDataCollection _collection = new();
 
     public event Action Completed;
-    public DeviceDataList Collection => _collection;
+    public CalibrationDataCollection Collection => _collection;
 
     public AutoCalibrationCollector()
     {
@@ -24,16 +24,16 @@ public class AutoCalibrationCollector
 
     public void Insert(string text) => _collector.Insert(text);
 
-    private DataHolder ParseText(string text)
+    private CalibrationDataHolder ParseText(string text)
     {
         if (text.StartsWith("MID") || text.StartsWith("HIGH") || text.StartsWith("LOW"))
         {
-            DataHolder holder = new();
+            CalibrationDataHolder holder = new();
             foreach (string kvPair in text.Split(';'))
             {
                 string[] kv = kvPair.Split(':');
                 if (kv.Length != 2) continue;
-                holder.SetValueForType(kv[0].ToValueType(), kv[1]);
+                holder.SetValueForType(kv[0].CalibrationValueType(), kv[1]);
             }
             return holder;
         }

@@ -2,7 +2,7 @@
 
 namespace AutoCommander.Handlers.AutoCalibration.Models;
 
-public class VoltData
+public class CalibrationVoltData
 {
     /// <summary>
     /// 流量
