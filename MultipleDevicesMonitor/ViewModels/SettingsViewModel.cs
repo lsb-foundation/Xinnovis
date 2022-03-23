@@ -1,9 +1,9 @@
 ﻿using MultipleDevicesMonitor.Properties;
-using GalaSoft.MvvmLight;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class SettingsViewModel : ViewModelBase
+    public class SettingsViewModel : ObservableObject
     {
         private readonly MainViewModel _mainVm;
 
@@ -20,7 +20,7 @@ namespace MultipleDevicesMonitor.ViewModels
                 Settings.Default.YAxisTitle = value;
                 SaveSettings();
                 _mainVm.UpdateAxisTitle();
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -32,7 +32,7 @@ namespace MultipleDevicesMonitor.ViewModels
                 Settings.Default.TimerInterval = value;
                 SaveSettings();
                 _mainVm.UpdateTimerInterval(value);
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -43,7 +43,7 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 Settings.Default.DisplayPointsNumber = value;
                 SaveSettings();
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 

@@ -12,7 +12,9 @@
   See http://www.galasoft.ch/mvvm
 */
 
-using Autofac;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 namespace MFCSoftware.ViewModels
 {
@@ -22,35 +24,29 @@ namespace MFCSoftware.ViewModels
     /// </summary>
     public class ViewModelLocator
     {
-        private static readonly IContainer _container;
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         static ViewModelLocator()
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<MainWindowViewModel>().SingleInstance().AsSelf();
-            builder.RegisterType<ChannelUserControlViewModel>().InstancePerDependency().AsSelf();
-            builder.RegisterType<ExportSelectWindowViewModel>().SingleInstance().AsSelf();
-            builder.RegisterType<SetAddressWindowViewModel>().SingleInstance().AsSelf();
-            builder.RegisterType<SetSerialPortWindowViewModel>().SingleInstance().AsSelf();
-            builder.RegisterType<AddChannelWindowViewModel>().SingleInstance().AsSelf();
-            _container = builder.Build();
+            var services = new ServiceCollection()
+                .AddSingleton<MainWindowViewModel>()
+                .AddTransient<ChannelUserControlViewModel>()
+                .AddSingleton<ExportSelectWindowViewModel>()
+                .AddSingleton<SetAddressWindowViewModel>()
+                .AddSingleton<SetSerialPortWindowViewModel>()
+                .AddSingleton<AddChannelWindowViewModel>();
+
+            Ioc.Default.ConfigureServices(services.BuildServiceProvider());
         }
 
         #region view model properties
-        public static MainWindowViewModel MainViewModel => _container.Resolve<MainWindowViewModel>();
-        public ChannelUserControlViewModel ChannelViewModel => _container.Resolve<ChannelUserControlViewModel>();
-        public static AddChannelWindowViewModel AddChannelViewModel => _container.Resolve<AddChannelWindowViewModel>();
-        public static ExportSelectWindowViewModel ExportSelectViewModel => _container.Resolve<ExportSelectWindowViewModel>();
-        public static SetAddressWindowViewModel SetAddressViewModel => _container.Resolve<SetAddressWindowViewModel>();
-        public static SetSerialPortWindowViewModel SetSerialViewModel => _container.Resolve<SetSerialPortWindowViewModel>();
+        public static MainWindowViewModel MainViewModel => Ioc.Default.GetService<MainWindowViewModel>();
+        public ChannelUserControlViewModel ChannelViewModel => Ioc.Default.GetService<ChannelUserControlViewModel>();
+        public static AddChannelWindowViewModel AddChannelViewModel => Ioc.Default.GetService<AddChannelWindowViewModel>();
+        public static ExportSelectWindowViewModel ExportSelectViewModel => Ioc.Default.GetService<ExportSelectWindowViewModel>();
+        public static SetAddressWindowViewModel SetAddressViewModel => Ioc.Default.GetService<SetAddressWindowViewModel>();
+        public static SetSerialPortWindowViewModel SetSerialViewModel => Ioc.Default.GetService<SetSerialPortWindowViewModel>();
         #endregion
-
-        public static void Cleanup()
-        {
-            // TODO Clear the ViewModels
-            _container.Dispose();
-        }
     }
 }

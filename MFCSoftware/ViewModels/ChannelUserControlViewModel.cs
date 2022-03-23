@@ -1,5 +1,4 @@
 ﻿using CommonLib.Extensions;
-using GalaSoft.MvvmLight;
 using System;
 using MFCSoftware.Models;
 using System.Text;
@@ -8,12 +7,12 @@ using System.Windows;
 using OxyPlot;
 using OxyPlot.Axes;
 using MFCSoftware.Utils;
-using System.Configuration;
 using MFCSoftware.Common;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftware.ViewModels
 {
-    public class ChannelUserControlViewModel : ViewModelBase
+    public class ChannelUserControlViewModel : ObservableObject
     {
         private readonly MainWindowViewModel _mainVm;
         public static int SeriesPointNumber = 100;  //曲线显示点数
@@ -31,7 +30,7 @@ namespace MFCSoftware.ViewModels
             get => _address;
             set
             {
-                Set(ref _address, value);
+                SetProperty(ref _address, value);
                 SetCommands();
             }
         }
@@ -42,7 +41,7 @@ namespace MFCSoftware.ViewModels
         public string DisplayUnit
         {
             get => _displayUnit;
-            set => Set(ref _displayUnit, value);
+            set => SetProperty(ref _displayUnit, value);
         }
 
         public SolidColorBrush StatusColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
@@ -58,7 +57,7 @@ namespace MFCSoftware.ViewModels
             {
                 if (value >= 20)    //最小可以设置20毫秒
                 {
-                    Set(ref _insertInterval, value);
+                    SetProperty(ref _insertInterval, value);
                     InsertIntervalChanged?.Invoke(value);
                 }
             }
@@ -70,21 +69,21 @@ namespace MFCSoftware.ViewModels
         public float FlowValue
         {
             get => _flowValue;
-            set => Set(ref _flowValue, value);
+            set => SetProperty(ref _flowValue, value);
         }
 
         private float _valveOpenValue;
         public float ValveOpenValue
         {
             get => _valveOpenValue;
-            set => Set(ref _valveOpenValue, value);
+            set => SetProperty(ref _valveOpenValue, value);
         }
 
         private ControlSelector _selector = ControlSelector.FlowValue;
         public ControlSelector Selector
         {
             get => _selector;
-            set => Set(ref _selector, value);
+            set => SetProperty(ref _selector, value);
         }
 
         public Visibility ControlVisibility
@@ -144,7 +143,7 @@ namespace MFCSoftware.ViewModels
             DisplayUnit = info.Unit?.Unit;
             UpdateYAxisMaxValue(info.Range * 1.1D);
 
-            RaisePropertyChanged(nameof(BaseInfo));
+            OnPropertyChanged(nameof(BaseInfo));
             WhenSuccess();
         }
 
@@ -177,7 +176,7 @@ namespace MFCSoftware.ViewModels
             Flow.Seconds = flow.Seconds;
             Flow.Temperature = flow.Temperature;
 
-            RaisePropertyChanged(nameof(Flow));
+            OnPropertyChanged(nameof(Flow));
             WhenSuccess();
         }
 
@@ -234,7 +233,7 @@ namespace MFCSoftware.ViewModels
                 InterpolationAlgorithm = InterpolationAlgorithms.CatmullRomSpline
             };
             SeriesPlotModel.Series.Add(line);
-            RaisePropertyChanged(nameof(SeriesPlotModel));
+            OnPropertyChanged(nameof(SeriesPlotModel));
         }
 
         public void UpdateYAxisMaxValue(double yMax)
@@ -298,7 +297,7 @@ namespace MFCSoftware.ViewModels
                 StatusColor.Color = Colors.Red;
             }
 
-            RaisePropertyChanged(nameof(StatusColor));
+            OnPropertyChanged(nameof(StatusColor));
         }
 
         public void SetWriteFlowBytes()

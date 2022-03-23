@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using GalaSoft.MvvmLight;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class AboutViewModel : ViewModelBase
+    public class AboutViewModel : ObservableObject
     {
         public string Version 
         {

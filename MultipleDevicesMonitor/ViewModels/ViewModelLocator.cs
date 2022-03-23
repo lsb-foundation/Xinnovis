@@ -12,8 +12,9 @@
   See http://www.galasoft.ch/mvvm
 */
 
-using GalaSoft.MvvmLight.Ioc;
-using CommonServiceLocator;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
@@ -28,22 +29,17 @@ namespace MultipleDevicesMonitor.ViewModels
         /// </summary>
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
-            SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<SerialViewModel>();
-            SimpleIoc.Default.Register<SettingsViewModel>();
-            SimpleIoc.Default.Register<AboutViewModel>();
+            var services = new ServiceCollection()
+                .AddSingleton<MainViewModel>()
+                .AddSingleton<SerialViewModel>()
+                .AddSingleton<SettingsViewModel>()
+                .AddSingleton<AboutViewModel>();
+            Ioc.Default.ConfigureServices(services.BuildServiceProvider());
         }
 
-        public MainViewModel Main => ServiceLocator.Current.GetInstance<MainViewModel>();
-        public SerialViewModel Serial => ServiceLocator.Current.GetInstance<SerialViewModel>();
-        public SettingsViewModel Settings => ServiceLocator.Current.GetInstance<SettingsViewModel>();
-        public AboutViewModel About => ServiceLocator.Current.GetInstance<AboutViewModel>();
-        
-        public static void Cleanup()
-        {
-            SimpleIoc.Default.Reset();
-        }
+        public MainViewModel Main => Ioc.Default.GetService<MainViewModel>();
+        public SerialViewModel Serial => Ioc.Default.GetService<SerialViewModel>();
+        public SettingsViewModel Settings => Ioc.Default.GetService<SettingsViewModel>();
+        public AboutViewModel About => Ioc.Default.GetService<AboutViewModel>();
     }
 }

@@ -1,24 +1,24 @@
-﻿using Autofac;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
     public class ViewModelLocator
     {
-        private readonly IContainer _container;
-
         public ViewModelLocator()
         {
-            var builder = new ContainerBuilder();
-            _ = builder.RegisterInstance(new MainViewModel()).SingleInstance().AsSelf();
-            _ = builder.Register(context => new ChannelViewModel()).AsSelf();
-            _ = builder.Register(context => new ConfirmPasswordViewModel()).AsSelf();
-            _ = builder.Register(context => new ResetPasswordViewModel()).AsSelf();
-            _container = builder.Build();
+            var services = new ServiceCollection()
+                .AddSingleton<MainViewModel>()
+                .AddTransient<ChannelViewModel>()
+                .AddTransient<ConfirmPasswordViewModel>()
+                .AddTransient<ResetPasswordViewModel>();
+
+            Ioc.Default.ConfigureServices(services.BuildServiceProvider());
         }
 
-        public MainViewModel Main => _container.Resolve<MainViewModel>();
-        public ChannelViewModel Channel => _container.Resolve<ChannelViewModel>();
-        public ConfirmPasswordViewModel Confirm => _container.Resolve<ConfirmPasswordViewModel>();
-        public ResetPasswordViewModel Reset => _container.Resolve<ResetPasswordViewModel>();
+        public MainViewModel Main => Ioc.Default.GetService<MainViewModel>();
+        public ChannelViewModel Channel => Ioc.Default.GetService<ChannelViewModel>();
+        public ConfirmPasswordViewModel Confirm => Ioc.Default.GetService<ConfirmPasswordViewModel>();
+        public ResetPasswordViewModel Reset => Ioc.Default.GetService<ResetPasswordViewModel>();
     }
 }

@@ -1,14 +1,14 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftware.ViewModels
 {
-    public class AddChannelWindowViewModel : ViewModelBase
+    public class AddChannelWindowViewModel : ObservableObject
     {
         private int _address;
         public int Address 
         {
             get => _address;
-            set => Set(ref _address, value);
+            set => SetProperty(ref _address, value);
         }
     }
 }

@@ -12,8 +12,8 @@
   See http://www.galasoft.ch/mvvm
 */
 
-using GalaSoft.MvvmLight.Ioc;
-using CommonServiceLocator;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SerialDataDisplay.ViewModels
 {
@@ -28,16 +28,11 @@ namespace SerialDataDisplay.ViewModels
         /// </summary>
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
-            SimpleIoc.Default.Register<MainWindowViewModel>();
+            Ioc.Default.ConfigureServices(new ServiceCollection()
+                .AddSingleton<MainWindowViewModel>()
+                .BuildServiceProvider());
         }
 
-        public MainWindowViewModel Main => ServiceLocator.Current.GetInstance<MainWindowViewModel>();
-        
-        public static void Cleanup()
-        {
-            SimpleIoc.Default.Reset();
-        }
+        public MainWindowViewModel Main => Ioc.Default.GetService<MainWindowViewModel>();
     }
 }

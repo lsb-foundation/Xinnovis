@@ -1,7 +1,7 @@
 ﻿using AutoCommander.Common;
 using CommonLib.Communication.Serial;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;

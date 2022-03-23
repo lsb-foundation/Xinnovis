@@ -4,11 +4,11 @@ using System.IO.Ports;
 using System.Threading;
 using CommonLib.Communication.Serial;
 using MultipleDevicesMonitor.Properties;
-using GalaSoft.MvvmLight;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class SerialViewModel : ViewModelBase
+    public class SerialViewModel : ObservableObject
     {
         private readonly SerialPort com;
         private readonly object syncObject = new object();
@@ -66,7 +66,7 @@ namespace MultipleDevicesMonitor.ViewModels
                     com.PortName = value;
                     Settings.Default.Serial_PortName = value;
                     SaveSettings();
-                    RaisePropertyChanged();
+                    OnPropertyChanged();
                 }
                 catch { }
             }
@@ -84,7 +84,7 @@ namespace MultipleDevicesMonitor.ViewModels
                 com.BaudRate = value;
                 Settings.Default.Serial_BaudRate = value;
                 SaveSettings();
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 

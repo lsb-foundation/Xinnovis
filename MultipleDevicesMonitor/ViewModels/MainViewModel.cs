@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using MultipleDevicesMonitor.Properties;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace MultipleDevicesMonitor.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ObservableObject
     {
         private readonly Timer timer;
         private readonly List<int> addrList = new List<int>();
@@ -37,7 +37,7 @@ namespace MultipleDevicesMonitor.ViewModels
         public int Address
         {
             get => _addr;
-            set => Set(ref _addr, value);
+            set => SetProperty(ref _addr, value);
         }
 
         private bool _isStopped;
@@ -48,7 +48,7 @@ namespace MultipleDevicesMonitor.ViewModels
             {
                 if (value) timer.Stop();
                 else timer.Start();
-                Set(ref _isStopped, value);
+                SetProperty(ref _isStopped, value);
             }
         }
 
@@ -110,7 +110,7 @@ namespace MultipleDevicesMonitor.ViewModels
             };
             SeriesPlotModel.Axes.Add(valueAxis);
 
-            RaisePropertyChanged(nameof(SeriesPlotModel));
+            OnPropertyChanged(nameof(SeriesPlotModel));
             timer.Start();
         }
 

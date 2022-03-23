@@ -1,12 +1,12 @@
-﻿using GalaSoft.MvvmLight;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CommonLib.Communication.Serial;
 using System.IO.Ports;
 using MFCSoftware.Utils;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftware.ViewModels
 {
-    public class SetSerialPortWindowViewModel : ViewModelBase
+    public class SetSerialPortWindowViewModel : ObservableObject
     {
         private readonly SerialPort _serialPort;
         public SetSerialPortWindowViewModel()
@@ -32,7 +32,7 @@ namespace MFCSoftware.ViewModels
                         _serialPort.Close();
                     }
                     _serialPort.PortName = value;
-                    RaisePropertyChanged();
+                    OnPropertyChanged();
                 }
             }
         }
@@ -43,14 +43,14 @@ namespace MFCSoftware.ViewModels
             set
             {
                 _serialPort.BaudRate = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
         public int SeriesPointNumber
         {
             get => ChannelUserControlViewModel.SeriesPointNumber;
-            set => Set(ref ChannelUserControlViewModel.SeriesPointNumber, value);
+            set => SetProperty(ref ChannelUserControlViewModel.SeriesPointNumber, value);
         }
     }
 }

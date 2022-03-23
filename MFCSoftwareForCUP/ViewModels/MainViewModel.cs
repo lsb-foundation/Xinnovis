@@ -1,13 +1,13 @@
 ﻿using MFCSoftware.Utils;
-using GalaSoft.MvvmLight;
 using System;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ObservableObject
     {
         #region Fields
         private readonly DateTime _startTime = DateTime.Now;
@@ -34,13 +34,13 @@ namespace MFCSoftwareForCUP.ViewModels
         public int MaxDeviceCount
         {
             get => maxDeviceCount;
-            set => Set(ref maxDeviceCount, value);
+            set => SetProperty(ref maxDeviceCount, value);
         }
 
         public int AddressToAdd
         {
             get => addressToAdd;
-            set => Set(ref addressToAdd, value);
+            set => SetProperty(ref addressToAdd, value);
         }
 
         public string[] PortNames => SerialPort.GetPortNames();
@@ -58,7 +58,7 @@ namespace MFCSoftwareForCUP.ViewModels
                 }
                 _serialPort.PortName = port;
                 _ = _semaphore.Release();
-                RaisePropertyChanged(nameof(PortName));
+                OnPropertyChanged(nameof(PortName));
             }
         }
     }

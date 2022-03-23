@@ -1,13 +1,13 @@
 ﻿using MFCSoftware.Utils;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
-    public class ResetPasswordViewModel : ViewModelBase
+    public class ResetPasswordViewModel : ObservableObject
     {
         public ResetPasswordViewModel()
         {
@@ -24,19 +24,19 @@ namespace MFCSoftwareForCUP.ViewModels
         public string OldPassword
         {
             get => oldPassword;
-            set => Set(ref oldPassword, value);
+            set => SetProperty(ref oldPassword, value);
         }
 
         public string NewPassword
         {
             get => newPassword;
-            set => Set(ref newPassword, value);
+            set => SetProperty(ref newPassword, value);
         }
 
         public string LabelMessage
         {
             get => labelMessage;
-            set => Set(ref labelMessage, value);
+            set => SetProperty(ref labelMessage, value);
         }
 
         public ICommand UpdatePasswordCommand { get; }

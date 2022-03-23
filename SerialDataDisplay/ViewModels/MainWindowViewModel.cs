@@ -1,5 +1,4 @@
 ﻿using CommonLib.Communication.Serial;
-using GalaSoft.MvvmLight;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -12,10 +11,11 @@ using LiveCharts.Defaults;
 using System.IO;
 using System.Data;
 using System.Data.SQLite;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace SerialDataDisplay
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ObservableObject
     {
         private readonly string _connectionString;
         private readonly string dbFile = "db.sqlite";
@@ -72,7 +72,7 @@ namespace SerialDataDisplay
                     Serial.Close();
 
                 Serial.PortName = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -82,7 +82,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.BaudRate = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -92,7 +92,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.DataBits = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -102,7 +102,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.Parity = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -112,7 +112,7 @@ namespace SerialDataDisplay
             set
             {
                 Serial.StopBits = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -120,14 +120,14 @@ namespace SerialDataDisplay
         public bool ControlEnabled
         {
             get => _controlEnable;
-            set => Set(ref _controlEnable, value);
+            set => SetProperty(ref _controlEnable, value);
         }
 
         private SerialCommand _serialCommand;
         public SerialCommand CurrentCommand
         {
             get => _serialCommand;
-            set => Set(ref _serialCommand, value);
+            set => SetProperty(ref _serialCommand, value);
         }
 
         public SeriesCollection SeriesCollection { get; set; }
@@ -136,7 +136,7 @@ namespace SerialDataDisplay
         public float CurrentValue
         {
             get => _currentValue;
-            set => Set(ref _currentValue, value);
+            set => SetProperty(ref _currentValue, value);
         }
 
         public DateTime LastestStartTime { get; set; }

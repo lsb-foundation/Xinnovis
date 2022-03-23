@@ -1,9 +1,9 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 
 namespace MFCSoftware.ViewModels
 {
-    public class ExportSelectWindowViewModel : ViewModelBase
+    public class ExportSelectWindowViewModel : ObservableObject
     {
         public ExportSelectWindowViewModel()
         {
@@ -24,7 +24,7 @@ namespace MFCSoftware.ViewModels
             {
                 if (value >= 0 && value < 24)
                 {
-                    Set(ref _fromHour, value);
+                    SetProperty(ref _fromHour, value);
                 }
             }
         }
@@ -36,7 +36,7 @@ namespace MFCSoftware.ViewModels
             {
                 if (value >= 0 && value < 24)
                 {
-                    Set(ref _toHour, value);
+                    SetProperty(ref _toHour, value);
                 }
             }
         }

@@ -1,6 +1,6 @@
 ﻿using AutoCommander.Common;
 using AutoCommander.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

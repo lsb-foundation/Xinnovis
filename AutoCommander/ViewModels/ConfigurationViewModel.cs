@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
 using AutoCommander.AutoUI.Linkers;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace AutoCommander.ViewModels;
 

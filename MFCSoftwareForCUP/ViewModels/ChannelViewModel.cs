@@ -1,11 +1,11 @@
-﻿using GalaSoft.MvvmLight;
-using MFCSoftwareForCUP.Models;
+﻿using MFCSoftwareForCUP.Models;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Configuration;
 using System.Windows.Media;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
-    public class ChannelViewModel : ViewModelBase
+    public class ChannelViewModel : ObservableObject
     {
         #region Fields
         private float accuFlow;
@@ -21,7 +21,7 @@ namespace MFCSoftwareForCUP.ViewModels
             set
             {
                 _deviceExtras.Address = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -31,7 +31,7 @@ namespace MFCSoftwareForCUP.ViewModels
             set
             {
                 _deviceExtras.Floor = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -41,7 +41,7 @@ namespace MFCSoftwareForCUP.ViewModels
             set
             {
                 _deviceExtras.Room = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -51,26 +51,26 @@ namespace MFCSoftwareForCUP.ViewModels
             set
             {
                 _deviceExtras.GasType = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
         public float AccumulateFlow
         {
             get => accuFlow;
-            set => Set(ref accuFlow, value);
+            set => SetProperty(ref accuFlow, value);
         }
 
         public string AccumulateFlowUnit
         {
             get => accuFlowUnit;
-            set => Set(ref accuFlowUnit, value);
+            set => SetProperty(ref accuFlowUnit, value);
         }
 
         public float CurrentFlow
         {
             get => currFlow;
-            set => Set(ref currFlow, value);
+            set => SetProperty(ref currFlow, value);
         }
 
         public string CurrentFlowUnit { get; } = ConfigurationManager.AppSettings["瞬时流量单位"];
@@ -83,9 +83,9 @@ namespace MFCSoftwareForCUP.ViewModels
         public void SetExtras(DeviceExtras extras)
         {
             _deviceExtras = extras;
-            RaisePropertyChanged(nameof(Floor));
-            RaisePropertyChanged(nameof(Room));
-            RaisePropertyChanged(nameof(GasType));
+            OnPropertyChanged(nameof(Floor));
+            OnPropertyChanged(nameof(Room));
+            OnPropertyChanged(nameof(GasType));
         }
     }
 }

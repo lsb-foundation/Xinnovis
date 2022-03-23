@@ -1,14 +1,12 @@
-﻿using CommonLib.Utils;
-using GalaSoft.MvvmLight;
-using MFCSoftware.Common;
-using System.Configuration;
+﻿using MFCSoftware.Common;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace MFCSoftware.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ObservableObject
     {
         public bool Enable => _channelCount <= 0;
 
@@ -21,8 +19,8 @@ namespace MFCSoftware.ViewModels
             set
             {
                 _channelCount = value;
-                RaisePropertyChanged(nameof(Enable));
-                RaisePropertyChanged(nameof(PauseButtonEnable));
+                OnPropertyChanged(nameof(Enable));
+                OnPropertyChanged(nameof(PauseButtonEnable));
             }
         }
 
@@ -40,7 +38,7 @@ namespace MFCSoftware.ViewModels
         public string AppMessage
         {
             get => _appMessage;
-            set => Set(ref _appMessage, value);
+            set => SetProperty(ref _appMessage, value);
         }
 
         private CancellationTokenSource cts;

@@ -1,10 +1,10 @@
 ﻿using MFCSoftware.Utils;
-using GalaSoft.MvvmLight;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftwareForCUP.ViewModels
 {
-    public class ConfirmPasswordViewModel : ViewModelBase
+    public class ConfirmPasswordViewModel : ObservableObject
     {
         #region Fields
         private string password;
@@ -15,13 +15,13 @@ namespace MFCSoftwareForCUP.ViewModels
         public string Password
         {
             get => password;
-            set => Set(ref password, value);
+            set => SetProperty(ref password, value);
         }
 
         public string LabelMessage
         {
             get => labelMessage;
-            set => Set(ref labelMessage, value);
+            set => SetProperty(ref labelMessage, value);
         }
 
         public bool PasswordConfirmed { get; private set; }
