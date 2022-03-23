@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Linker xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Items>
+        <!-- 手持仪表导出 -->
+        <LinkerItem Command="EXPORT!" Handler="HandHeldMeterExporter" Description="手持仪表导出"/>
+        <!-- 自动标定 -->
+        <LinkerItem Command="INCUBE_START!" Handler="AutoCalibrationHandler" Description="恒温标定"/>
+        <LinkerItem Command="ONLY_HIGH_TEMP!" Handler="AutoCalibrationHandler" Description="高温标定"/>
+        <LinkerItem Command="OBLY_LOW_TEMP!" Handler="AutoCalibrationHandler" Description="低温标定"/>
+        <LinkerItem Command="ROOM_START!" Handler="AutoCalibrationHandler" Description="室温标定"/>
+    </Items>
+</Linker>

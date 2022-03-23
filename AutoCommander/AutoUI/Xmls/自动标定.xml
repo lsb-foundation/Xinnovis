@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AutoUI xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Tabs>
+		<Tab Header="自动标定">
+			<Groups>
+				<Group Header="设定气体类型">
+					<Commands>
+						<Command Name="SelectGasType" Description="选择气体类型">
+							<Parameters>
+								<!--下面这个气体类型参数是个下拉框 Parameter的Type值为select，
+								下面的Options就是下拉列表内容，DefaultValue默认值需要和Option中的Value匹配-->
+								<Parameter Name="Gas" Description="气体类型" Type="select" DefaultValue="8">
+									<Options>
+										<Option Name="空气(Air)" Value="8"/>
+										<Option Name="氩气(Ar)" Value="4"/>
+										<Option Name="二氧化碳(CO2)" Value="25"/>
+										<Option Name="氦气(He)" Value="1"/>
+										<Option Name="氢气(H2)" Value="7"/>
+										<Option Name="甲烷(CH4)" Value="28"/>
+										<Option Name="氮气(N2)" Value="13"/>
+										<Option Name="氧气(O2)" Value="15"/>
+										<Option Name="丙烷(C3H8)" Value="5"/>
+									</Options>
+								</Parameter>
+							</Parameters>
+							<Actions>
+								<Action Name="WriteGasType" Description="写入气体类型" Format="GAS:{Gas}!"></Action>
+							</Actions>
+						</Command>
+					</Commands>
+				</Group>
+				<Group Header="标定">
+					<Commands>
+						<Command Name="Commands" Description="导出指令">
+							<Actions>
+								<Action Name="IncubeStart" Description="恒温标定" Format="INCUBE_START!" Handler="AutoCalibrationHandler"></Action>
+								<Action Name="OnlyHighTemp" Description="高温标定" Format="ONLY_HIGH_TEMP!" Handler="AutoCalibrationHandler"></Action>
+								<Action Name="OnlyLowTemp" Description="低温标定" Format="ONLY_LOW_TEMP!" Handler="AutoCalibrationHandler"></Action>
+								<Action Name="RoomStart" Description="室温标定" Format="ROOM_START!" Handler="AutoCalibrationHandler"></Action>
+							</Actions>
+						</Command>
+					</Commands>
+				</Group>
+			</Groups>
+		</Tab>
+	</Tabs>
+</AutoUI>

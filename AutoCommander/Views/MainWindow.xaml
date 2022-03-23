@@ -3,93 +3,217 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:fa="http://schemas.fontawesome.io/icons/"
-        mc:Ignorable="d" Background="#f0f0f0"
-        Title="{Binding AppTitle}" Height="600" Width="800"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:cv="clr-namespace:AutoCommander.Converters"
+        xmlns:models="clr-namespace:AutoCommander.Models"
+        mc:Ignorable="d" Background="#f3f3f3"
+        Height="600" Width="900"
         Loaded="Window_Loaded"
+        Title="{Binding AppTitle}"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
 
-        <Grid x:Name="AutoUIGrid" Margin="8,8,0,8">
-            <Grid.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="Margin" Value="4"/>
-                </Style>
-                <Style TargetType="TextBox">
-                    <Setter Property="Margin" Value="4"/>
-                </Style>
-                <Style TargetType="Expander">
-                    <Setter Property="Margin" Value="4"/>
-                </Style>
-                <Style TargetType="TabControl">
-                    <Setter Property="Margin" Value="0,0,4,0"/>
-                </Style>
-            </Grid.Resources>
+        <Style TargetType="Button" BasedOn="{StaticResource ButtonPrimary}"></Style>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxExtend}" x:Key="AppTextBoxStyle">
+            <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+
+        <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBoxExtend}" x:Key="AppComboBoxStyle">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource AppTextBoxStyle}"/>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxStyle}"/>
+
+        <cv:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="5" DataContext="{Binding Source={StaticResource Locator}, Path=Serial}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal">
+                <Label>串口</Label>
+                <ComboBox Width="100"
+                          ItemsSource="{Binding SerialPortNames}"
+                          SelectedItem="{Binding PortName}"
+                          IsEnabled="{Binding CanPortModify}"/>
+                <Label>波特率</Label>
+                <ComboBox Width="100"
+                          ItemsSource="{Binding SerialBaudRates}"
+                          SelectedItem="{Binding BaudRate}"
+                          IsEnabled="{Binding CanPortModify}"/>
+                <Button Width="80" Margin="5,0,0,0" Command="{Binding SwitchPortCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ButtonPrimary}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                                    <Setter Property="Content" Value="关闭"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsOpen}" Value="False">
+                                    <Setter Property="Content" Value="打开"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                        DataContext="{Binding Source={StaticResource Locator}, Path=Configuration}">
+                <Label>配置文件</Label>
+                <ComboBox Width="200" 
+                          ItemsSource="{Binding AutoUiFiles}"
+                          SelectedItem="{Binding SelectedAutoUiFile}"
+                          SelectionChanged="Configuration_SelectionChanged"/>
+                <Button Width="80" Margin="5,0,0,0" Click="ShowHandlerButton_Click">处理程序</Button>
+            </StackPanel>
         </Grid>
 
-        <GridSplitter Width="4"/>
-        
-        <Grid Grid.Column="1" Margin="0,8,8,8">
+        <Grid Grid.Row="1" Margin="5,0,5,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <hc:Card hc:BorderElement.CornerRadius="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border CornerRadius="5,0,0,5" BorderThickness="0" Background="#566579">
+                        <ListBox x:Name="MenuContainer" Width="100" Margin="0,5"
+                                 Background="Transparent" BorderThickness="0"
+                                 SelectionChanged="MenuContainer_SelectionChanged">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                                    <Setter Property="Margin" Value="0,0,0,5"/>
+                                    <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                    <Setter Property="Background" Value="#bcc3d6"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </Border>
+
+                    <ScrollViewer Grid.Column="1" x:Name="TabContainer">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource ButtonPrimary}">
+                                <Setter Property="Margin" Value="5,5,5,0"/>
+                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                            </Style>
+                            <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxTab}">
+                                <Setter Property="Margin" Value="5,5,5,0"/>
+                            </Style>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource AppTextBoxStyle}">
+                                <Setter Property="Margin" Value="0,0,5,0"/>
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                            </Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxStyle}">
+                                <Setter Property="Margin" Value="0,0,5,0"/>
+                            </Style>
+                        </ScrollViewer.Resources>
+                    </ScrollViewer>
+                </Grid>
+            </hc:Card>
+            <TextBox x:Name="ResultTextBox" Grid.Column="1" Margin="5,0,0,0"
+                     UndoLimit="0" IsReadOnly="True">
+            </TextBox>
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+                <StackPanel hc:Growl.GrowlParent="True" VerticalAlignment="Top"/>
+            </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+            <Grid Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="5" Background="#e5e4e6" BorderBrush="#eeeeee" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label>常用指令</Label>
+                            <ComboBox Width="150"
+                                  ItemsSource="{Binding LatestCommands}"
+                                  SelectedItem="{Binding SelectedLatestCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                <Border Grid.Column="1" Margin="5,0,5,0" CornerRadius="5" Background="#e5e4e6">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label>工作中:</Label>
+                        <Label Content="{Binding AppStatus, Mode=OneWay}"/>
+                    </StackPanel>
+                </Border>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Border CornerRadius="5" Background="#e5e4e6" BorderBrush="#eeeeee" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label>发送</Label>
+                            <RadioButton Margin="0,0,5,0" GroupName="g1" Content="ASCII" Foreground="{StaticResource PrimaryBrush}"
+                                     IsChecked="{Binding Path=SendDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.ASCII}}"/>
+                            <RadioButton Margin="0,0,5,0" GroupName="g1" Content="Hex" Foreground="{StaticResource PrimaryBrush}"
+                                     IsChecked="{Binding Path=SendDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.Hex}}"/>
+                            <CheckBox Margin="0,0,5,0" Content="自动换行" Foreground="{StaticResource PrimaryBrush}" IsChecked="{Binding AutoSendingNewLine}">
+                                <hc:Poptip.Instance>
+                                    <hc:Poptip Content="勾选将会在输入指令的末尾自动添加\r\n换行符" PlacementType="Top"/>
+                                </hc:Poptip.Instance>
+                            </CheckBox>
+                        </StackPanel>
+                    </Border>
 
-            <StackPanel
-                Margin="0 0 0 2"
-                Orientation="Horizontal"
-                HorizontalAlignment="Right">
-                <Button Width="80" Click="ClearButton_Click" Margin="4,0">
-                    <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Width="14" Icon="Recycle" Foreground="#1296db"/>
-                        <TextBlock VerticalAlignment="Center" Margin="4,0">清空</TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button Width="80" Click="SettingButton_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Width="14" Icon="Gear" Foreground="#1296db"/>
-                        <TextBlock VerticalAlignment="Center" Margin="4,0">设置</TextBlock>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-            <TextBox 
-                Grid.Row="1" UndoLimit="0"
-                x:Name="ResultTextBox" IsReadOnly="True"
-                />
-            <Grid Grid.Row="2" Margin="0,4,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Label Content="常用命令"/>
-                <ComboBox
-                    Grid.Column="1"
-                    ItemsSource="{Binding LatestCommands}"
-                    SelectedItem="{Binding SelectedLatestCommand}"
-                    x:Name="CmdCombox"/>
+                    <Border CornerRadius="5" Background="#e5e4e6" BorderBrush="#eeeeee" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label>接收</Label>
+                            <RadioButton Margin="0,0,5,0" GroupName="g2" Content="ASCII" Foreground="{StaticResource PrimaryBrush}"
+                                     IsChecked="{Binding Path=ReceiveDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.ASCII}}"/>
+                            <RadioButton Margin="0,0,5,0" GroupName="g2" Content="Hex" Foreground="{StaticResource PrimaryBrush}" 
+                                     IsChecked="{Binding Path=ReceiveDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.Hex}}"/>
+                            <CheckBox Margin="0,0,5,0" Content="自动换行" Foreground="{StaticResource PrimaryBrush}" IsChecked="{Binding AutoReceivingNewLine}"/>
+                        </StackPanel>
+                    </Border>
+                    <Button Width="80" Margin="5,0,0,0" Click="ClearButton_Click">清空</Button>
+                </StackPanel>
             </Grid>
-            <Grid Grid.Row="3" Height="50">
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox
-                    Margin="0,4,0,0"
-                    Text="{Binding EditableCommand}"/>
-                <Button
-                    Grid.Column="1"
-                    Width="60" Margin="4,4,0,0"
-                    Command="{Binding SendCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Icon="Send" Width="14" Foreground="#1296db"/>
-                        <TextBlock VerticalAlignment="Center" Margin="4,0">发送</TextBlock>
-                    </StackPanel>
+                <TextBox Text="{Binding EditableCommand}"/>
+                <Button Grid.Row="1" Grid.Column="1" Width="80" Margin="5,0,0,0"
+                    Click="SendButton_Click">
+                    发送
                 </Button>
             </Grid>
         </Grid>

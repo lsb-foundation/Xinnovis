@@ -1,4 +1,15 @@
-﻿ver 1.1.1.0	-2022.02.11
+﻿ver 2.0.0.0	-2022.03.23
+1. 全新的2.0版本，重新设计软件的界面和功能；
+2. 将配置项目转移到目录conf中，其中界面配置位于./conf/autoui目录；
+3. 数据处理程序从按钮移除，现在需要单独配置，配置文件位置：./conf/linker.xml；
+4. 新增一个可复用的高效率字符串解析模块Collector<T>；
+5. 集成自动标定核心功能，新增自动标定数据处理程序AutoCalibrationHandler；
+6. 手持仪表导出数据处理程序HandHeldMeterExporter接入Collector<T>模块，界面适配；
+7. 引入Microsoft AppCenter用于跟踪及报告程序奔溃；
+8. 将MvvmLight组件更换为推荐的ComminityTookit.Mvvm组件；
+9. IOC容器现在使用微软轻量级的ServiceCollection组件。
+
+ver 1.1.1.0	-2022.02.11
 1. 手持仪表导出功能修改：科室类型修改为字符串以支持中文。
 
 ver 1.1.0.0	-2022.01.02

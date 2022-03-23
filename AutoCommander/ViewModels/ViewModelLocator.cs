@@ -1,24 +1,20 @@
-﻿using CommonServiceLocator;
-using GalaSoft.MvvmLight.Ioc;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace AutoCommander.ViewModels
+namespace AutoCommander.ViewModels;
+
+public class ViewModelLocator
 {
-    public class ViewModelLocator
+    public ViewModelLocator()
     {
-        public ViewModelLocator()
-        {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-            SimpleIoc.Default.Register<SerialPortInstance>();
-            SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<SettingViewModel>();
-        }
-
-        public MainViewModel Main => SimpleIoc.Default.GetInstance<MainViewModel>();
-        public SettingViewModel Setting => SimpleIoc.Default.GetInstance<SettingViewModel>();
-
-        public void Dispose()
-        {
-            SimpleIoc.Default.Reset();
-        }
+        Ioc.Default.ConfigureServices(new ServiceCollection()
+            .AddSingleton<MainViewModel>()
+            .AddSingleton<SerialPortViewModel>()
+            .AddSingleton<ConfigurationViewModel>()
+            .BuildServiceProvider());
     }
+
+    public MainViewModel Main => Ioc.Default.GetService<MainViewModel>();
+    public SerialPortViewModel Serial => Ioc.Default.GetService<SerialPortViewModel>();
+    public ConfigurationViewModel Configuration => Ioc.Default.GetService<ConfigurationViewModel>();
 }
