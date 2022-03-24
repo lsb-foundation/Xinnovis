@@ -8,8 +8,8 @@ public class Collector<T> where T : class
     private ReadOnlyMemory<char> splitter = "\n".AsMemory();
     private readonly StringBuilder _container = new();
 
-    public Func<string, T> Parser;
-    public Action<T> Handler;
+    public Func<string, T> Parser { get; set; }
+    public Action<T> Handler { get; set; }
 
     public string Splitter
     {
