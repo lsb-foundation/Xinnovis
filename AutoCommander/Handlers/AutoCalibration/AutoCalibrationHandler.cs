@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoCommander.AutoUI.Linkers;
 using AutoCommander.Handlers.AutoCalibration.Views;
+using CommonLib.Utils;
 
 namespace AutoCommander.Handlers.AutoCalibration;
 
@@ -17,13 +18,13 @@ public class AutoCalibrationHandler : IActionHandler
 
     private void Collector_Completed()
     {
-        System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
         {
             AutoCalibrationExporter exporter = new();
-            exporter.SetCollection(_collector.Collection);
-            HandyControl.Controls.Dialog.Show(exporter);
+            exporter.SetContainer(_collector.Container);
+            HandyControl.Controls.Dialog.Show(exporter, "BEB7FC");
             Completed?.Invoke();
-        }));
+        });
     }
 
     public void Receive(string text)

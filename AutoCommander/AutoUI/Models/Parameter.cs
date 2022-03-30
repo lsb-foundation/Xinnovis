@@ -61,6 +61,13 @@ public class Parameter : IAutoBuild<DependencyObject[]>
         return new DependencyObject[] { label, _control };
     }
 
+    public void SetTextBox(string value)
+    {
+        if (_control is not TextBox tbox) return;
+        Value = value;
+        tbox.Text = value;
+    }
+
     private TextBox CreateTextBox()
     {
         TextBox textBox = new()
@@ -122,24 +129,21 @@ public class Parameter : IAutoBuild<DependencyObject[]>
         return canParse;
     }
 
-    private static void TextBox_TextChanged(object sender, TextChangedEventArgs eventArgs)
+    private static void TextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if (sender is TextBox box
-            && box.Tag is Parameter parameter)
+        if (sender is TextBox { Text: string text, Tag: Parameter parameter })
         {
-            parameter.Value = box.Text;
+            parameter.Value = text;
         }
-        eventArgs.Handled = true;
+        e.Handled = true;
     }
 
-    private static void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs eventArgs)
+    private static void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ComboBox box
-            && box.Tag is Parameter parameter
-            && box.SelectedItem is Option opt)
+        if (sender is ComboBox { SelectedItem: Option opt, Tag: Parameter parameter })
         {
             parameter.Value = opt.Value;
         }
-        eventArgs.Handled = true;
+        e.Handled = true;
     }
 }

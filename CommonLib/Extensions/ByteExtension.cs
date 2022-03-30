@@ -16,7 +16,7 @@ namespace CommonLib.Extensions
         {
             if (length > 4)
             {
-                throw new Exception("length必须小于4");
+                throw new ArgumentException("必须小于4", nameof(length));
             }
 
             byte[] toCopy = new byte[4];

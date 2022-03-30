@@ -17,16 +17,16 @@ namespace AutoCommander.Handlers.AutoCalibration.Views
     /// </summary>
     public partial class AutoCalibrationExporter
     {
-        private CalibrationDataCollection collection;
+        private CollectionContainer container;
 
         public AutoCalibrationExporter()
         {
             InitializeComponent();
         }
 
-        public void SetCollection(CalibrationDataCollection collection)
+        public void SetContainer(CollectionContainer container)
         {
-            this.collection = collection;
+            this.container = container;
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
@@ -37,14 +37,18 @@ namespace AutoCommander.Handlers.AutoCalibration.Views
             string file = Path.Combine(dialog.SelectedPath, $"自动标定-{DateTime.Now:yyyyMMddHHmmss}.xlsx");
             using var fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
             IWorkbook workbook = new XSSFWorkbook();
-            BuildSheet(workbook);
+
+            BuildSheet(workbook, container.LowCollection, "LOW");
+            BuildSheet(workbook, container.MidCollection, "MID");
+            BuildSheet(workbook, container.HighCollection, "HIGH");
+
             workbook.Write(fs);
             workbook.Close();
 
             Process.Start("Explorer.exe", $@"/select,{file}");
         }
 
-        private void BuildSheet(IWorkbook workbook)
+        private void BuildSheet(IWorkbook workbook, List<CalibrationData> collection, string sheetName)
         {
             if (collection.Count == 0) return;
 
@@ -53,7 +57,7 @@ namespace AutoCommander.Handlers.AutoCalibration.Views
                     .GroupBy(t => t.Index / 8)
                     .Select(g => g.Select(t => t.Data).ToList());
 
-            ISheet sheet = workbook.CreateSheet();
+            ISheet sheet = workbook.CreateSheet(sheetName);
             ICellStyle headerStyle = workbook.HeaderStyle();
             ICellStyle basicNumericStyle = workbook.FormattedStyle();
             ICellStyle temperatureStyle = workbook.FormattedStyle(formatter: "0.0", isBold: true, fontSize: 14.0);
@@ -88,16 +92,16 @@ namespace AutoCommander.Handlers.AutoCalibration.Views
 
                     sheet.MergeRegion(deviceCodeRow, deviceCodeRow, column, column + deviceData.FlowDatas.Count - 1, deviceData.SerialNumber, headerStyle);   //写入设备号
 
-                    foreach (CalibrationVoltData flowData in deviceData.FlowDatas.OrderBy(ftd => ftd.Flow))
+                    foreach (CalibrationVolts flowData in deviceData.FlowDatas.OrderBy(ftd => ftd.Flow))
                     {
                         row = deviceCodeRow;
 
                         sheet.SetCellValue(++row, column, flowData.Flow, flowStyle);
                         sheet.SetCellValue(++row, column, flowData.Temperature, temperatureStyle);
-                        sheet.SetCellValue(++row, column, flowData.TimespanSeconds);
+                        sheet.SetCellValue(++row, column, flowData.TimespanSeconds, basicNumericStyle);
 
                         #region 写入公式
-                        string range = $"{sheet.GetCell(row + 6, column).Address}:{sheet.GetCell(row + 6 + flowData.Volts.Count - 1, column).Address}";
+                        string range = $"{sheet.GetCell(row + 5, column).Address}:{sheet.GetCell(row + 5 + flowData.Volts.Count - 1, column).Address}";
 
                         ICell maxCell = sheet.GetCell(++row, column);
                         maxCell.CellFormula = $"MAX({range})";

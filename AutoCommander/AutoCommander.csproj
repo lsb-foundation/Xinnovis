@@ -177,8 +177,10 @@
     <Compile Include="Common\SettingsUtils.cs" />
     <Compile Include="Handlers\AutoCalibration\AutoCalibrationCollector.cs" />
     <Compile Include="Handlers\AutoCalibration\Extensions\EnumsExtensions.cs" />
-    <Compile Include="Handlers\AutoCalibration\Models\CalibrationDataHolder.cs" />
+    <Compile Include="Handlers\AutoCalibration\Models\ContainerValueType.cs" />
+    <Compile Include="Handlers\AutoCalibration\Models\DataContainer.cs" />
     <Compile Include="Handlers\AutoCalibration\Models\CalibrationValueType.cs" />
+    <Compile Include="Handlers\AutoCalibration\Models\TemperatureType.cs" />
     <Compile Include="Handlers\AutoCalibration\Views\AutoCalibrationExporter.xaml.cs">
       <DependentUpon>AutoCalibrationExporter.xaml</DependentUpon>
     </Compile>
@@ -189,8 +191,8 @@
     <Compile Include="Models\DataType.cs" />
     <Compile Include="Handlers\AutoCalibration\AutoCalibrationHandler.cs" />
     <Compile Include="Handlers\AutoCalibration\Models\CalibrationData.cs" />
-    <Compile Include="Handlers\AutoCalibration\Models\CalibrationDataCollection.cs" />
-    <Compile Include="Handlers\AutoCalibration\Models\CalibrationVoltData.cs" />
+    <Compile Include="Handlers\AutoCalibration\Models\CollectionContainer.cs" />
+    <Compile Include="Handlers\AutoCalibration\Models\CalibrationVolts.cs" />
     <Compile Include="Handlers\HandHeldMeter\HandHeldMeterExporter.cs" />
     <Compile Include="AutoUI\Models\FileReader.cs" />
     <Compile Include="AutoUI\Linkers\IActionHandler.cs" />

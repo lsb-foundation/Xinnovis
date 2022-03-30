@@ -5,6 +5,7 @@ using System.Threading;
 using System.Configuration;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 namespace VirtualSerialPortClient
 {
@@ -68,7 +69,10 @@ namespace VirtualSerialPortClient
             else if (Encoding.Default.GetString(buffer) == "DEBUG!")
                 dataToSend = GetDebugData();
             else if (Encoding.Default.GetString(buffer) == "INCUBE_START!")
-                dataToSend = IncubeStart();
+            {
+                IncubeStart();
+                return;
+            }
             else dataToSend = null;
 
             if (dataToSend != null)
@@ -223,10 +227,18 @@ namespace VirtualSerialPortClient
             return Encoding.Default.GetBytes(text);
         }
 
-        private static byte[] IncubeStart()
+        private async static void IncubeStart()
         {
-            string command = "MID:1:0:V:-1957.902\r\n";
-            return Encoding.Default.GetBytes(command);
+            var incubeFile = Path.Combine(AppContext.BaseDirectory, "datas\\室温一次数据.txt");
+            using var stream = new FileStream(incubeFile, FileMode.Open, FileAccess.Read);
+            using var reader = new StreamReader(stream);
+            while (await reader.ReadLineAsync() is string line)
+            {
+                if (!line.EndsWith("\r\n")) line += "\r\n";
+                byte[] data = Encoding.Default.GetBytes(line);
+                Send(data);
+                Thread.Sleep(30);
+            }
         }
     }
 }

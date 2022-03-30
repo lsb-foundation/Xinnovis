@@ -21,17 +21,18 @@ public class HandHeldMeterDataCollector
         };
     }
 
-    public void Insert(string text)
-    {
-        _collector.Insert(text);
-    }
+    public void Insert(string text) => _collector.Insert(text);
 
-    private HandHeldMeterData ParseText(string text)
-    {
-        if (text.StartsWith("Export complete"))
+    private HandHeldMeterData ParseText(string text) =>
+        text switch
         {
-            Completed?.Invoke();
-        }
-        return HandHeldMeterData.Parse(text);
+            string txt when txt.StartsWith("Export complete") => OnExportComplete(),
+            _ => HandHeldMeterData.Parse(text)
+        };
+
+    private HandHeldMeterData OnExportComplete()
+    {
+        Completed?.Invoke();
+        return null;
     }
 }

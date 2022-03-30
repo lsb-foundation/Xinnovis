@@ -15,12 +15,12 @@ public class HandHeldMeterExporter : IActionHandler
         collector = new();
         collector.Completed += () =>
         {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 Views.HandHeldMeterExporter exporter = new();
                 exporter.SetDataRecords(collector.Records);
-                HandyControl.Controls.Dialog.Show(exporter);
-            }));
+                HandyControl.Controls.Dialog.Show(exporter, "BEB7FC");
+            });
             Completed?.Invoke();
         };
     }

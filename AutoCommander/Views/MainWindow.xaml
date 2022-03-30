@@ -8,6 +8,7 @@
         xmlns:models="clr-namespace:AutoCommander.Models"
         mc:Ignorable="d" Background="#f3f3f3"
         Height="600" Width="900"
+        hc:Dialog.Token="BEB7FC"
         Loaded="Window_Loaded"
         Title="{Binding AppTitle}"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
@@ -82,6 +83,7 @@
                           SelectedItem="{Binding SelectedAutoUiFile}"
                           SelectionChanged="Configuration_SelectionChanged"/>
                 <Button Width="80" Margin="5,0,0,0" Click="ShowHandlerButton_Click">处理程序</Button>
+                <Button Width="80" Margin="5,0,0,0" Click="CopyButton_Click">复制</Button>
             </StackPanel>
         </Grid>
 
@@ -199,7 +201,6 @@
                                      IsChecked="{Binding Path=ReceiveDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.ASCII}}"/>
                             <RadioButton Margin="0,0,5,0" GroupName="g2" Content="Hex" Foreground="{StaticResource PrimaryBrush}" 
                                      IsChecked="{Binding Path=ReceiveDataType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static models:DataType.Hex}}"/>
-                            <CheckBox Margin="0,0,5,0" Content="自动换行" Foreground="{StaticResource PrimaryBrush}" IsChecked="{Binding AutoReceivingNewLine}"/>
                         </StackPanel>
                     </Border>
                     <Button Width="80" Margin="5,0,0,0" Click="ClearButton_Click">清空</Button>

@@ -26,21 +26,21 @@ public class FileReader : IAutoBuild<Button>
 
     public Button Build()
     {
-        Button button = new Button { Content = Description };
+        Button button = new() { Content = Description };
         button.Click += Button_Click;
         return button;
     }
 
     private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
     {
-        Dictionary<string, string> filtersMap = new Dictionary<string, string>
+        Dictionary<string, string> filtersMap = new()
         {
             ["excel"] = "Excel|*.xlsx;*.xls",
             ["text"] = "文本|*.txt",
             ["json"] = "Json|*.json",
             ["xml"] = "Xml|*.xml"
         };
-        OpenFileDialog ofd = new OpenFileDialog { Multiselect = false };
+        OpenFileDialog ofd = new() { Multiselect = false };
         if (filtersMap.ContainsKey(Type?.ToLower()))
         {
             ofd.Filter = filtersMap[Type.ToLower()];
@@ -51,32 +51,32 @@ public class FileReader : IAutoBuild<Button>
             return;
         }
 
-        foreach (Group group in Parent.Groups)
+        var parameters = Parent.Groups.SelectMany(g => g.Commands.SelectMany(c => c.Parameters));
+        foreach (Parameter parameter in parameters)
         {
-            foreach (Command command in group.Commands)
+            if (parameter.Type.ToLower() != "excel") continue;
+
+            using FileStream stream = new(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var workbook = WorkbookFactory.Create(stream);
+            var area = new AreaReference(parameter.DataRange, NPOI.SS.SpreadsheetVersion.EXCEL2007);
+            var sheet = workbook.GetSheet(area.FirstCell.SheetName);
+            var values = new List<string>();
+            foreach (var cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
             {
-                foreach (Parameter parameter in command.Parameters)
+                var cell = sheet?.GetCell(cref.Row, cref.Col);
+                var value = cell.GetValue()?.ToString();
+                if (cell.CellType == CellType.Formula)
                 {
-                    if (parameter.Type.ToLower() == "excel")
-                    {
-                        using FileStream fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                        IWorkbook workbook = WorkbookFactory.Create(fs);
-                        AreaReference area = new AreaReference(parameter.DataRange, NPOI.SS.SpreadsheetVersion.EXCEL2007);
-                        ISheet sheet = workbook.GetSheet(area.FirstCell.SheetName);
-                        List<string> values = new List<string>();
-                        foreach (CellReference cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
-                        {
-                            string value = sheet?.GetCell(cref.Row, cref.Col).GetValue()?.ToString();
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                values.Add(value);
-                            }
-                        }
-                        parameter.Value = string.Join(parameter.Seperator, values);
-                        workbook.Close();
-                    }
+                    value = ((float)cell.EvaluateFormula()).ToString();
+                }
+                if (!string.IsNullOrEmpty(value))
+                {
+                    values.Add(value);
                 }
             }
+            string text = string.Join(parameter.Seperator, values);
+            parameter.SetTextBox(text);
+            workbook.Close();
         }
     }
 }

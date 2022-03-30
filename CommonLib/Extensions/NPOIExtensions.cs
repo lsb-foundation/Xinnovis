@@ -21,27 +21,17 @@ namespace CommonLib.Extensions
             return sheet.GetRowEx(row).GetCellEx(column);
         }
 
-        public static object GetValue(this ICell cell)
-        {
-            switch (cell.CellType)
+        public static object GetValue(this ICell cell) =>
+            cell.CellType switch
             {
-                case CellType.Unknown:
-                case CellType.Blank:
-                    return string.Empty;
-                case CellType.Boolean:
-                    return cell.BooleanCellValue;
-                case CellType.Numeric:
-                    return cell.NumericCellValue;
-                case CellType.String:
-                    return cell.StringCellValue;
-                case CellType.Formula:
-                    return cell.CellFormula;
-                case CellType.Error:
-                    return cell.ErrorCellValue;
-                default:
-                    return null;
-            }
-        }
+                CellType.Blank => string.Empty,
+                CellType.Boolean => cell.BooleanCellValue,
+                CellType.Numeric => cell.NumericCellValue,
+                CellType.String => cell.StringCellValue,
+                CellType.Formula => cell.CellFormula,
+                CellType.Error => cell.ErrorCellValue,
+                _ => null
+            };
 
         public static void SetCellValue(this ISheet sheet, int row, int column, object value, ICellStyle style = null)
         {
@@ -51,25 +41,26 @@ namespace CommonLib.Extensions
         public static void SetCellValueEx(this ICell cell, object value, ICellStyle style = null)
         {
             if (value == null) return;
-            switch (value.GetType().FullName)
+            switch (value)
             {
-                case "System.Int16":
-                case "System.Int32":
-                case "System.Int64":
-                case "System.Single":
-                case "System.Double":
-                case "System.Decimal":
+                case short:
+                case int:
+                case long:
+                case float:
+                case double:
+                case decimal:
                     cell.SetCellValue(Convert.ToDouble(value));
                     break;
-                case "System.DateTime":
-                    cell.SetCellValue((DateTime)value);
+                case DateTime dtVal:
+                    cell.SetCellValue(dtVal);
                     break;
-                case "System.Boolean":
-                    cell.SetCellValue((bool)value);
+                case bool bval:
+                    cell.SetCellValue(bval);
                     break;
-                case "System.String":
+                case string sval:
+                    cell.SetCellValue(sval);
+                    break;
                 default:
-                    cell.SetCellValue(value as string);
                     break;
             }
             
@@ -139,6 +130,14 @@ namespace CommonLib.Extensions
             font.IsBold = isBold;
             font.FontHeightInPoints = fontSize;
             return style;
+        }
+
+        public static double EvaluateFormula(this ICell cell)
+        {
+            if (cell.CellType != CellType.Formula) return 0;
+            var evaluator = cell.Sheet.Workbook.GetCreationHelper().CreateFormulaEvaluator();
+            CellType type = evaluator.EvaluateFormulaCell(cell);
+            return type == CellType.Numeric ? cell.NumericCellValue : 0;
         }
     }
 }

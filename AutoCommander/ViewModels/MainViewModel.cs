@@ -28,7 +28,6 @@ public class MainViewModel : ObservableObject
     private DataType sendDataType = DataType.ASCII;
     private DataType receiveDataType = DataType.ASCII;
     private bool autoSendingNewLine = false;
-    private bool autoReceivingNewLine = true;
     #endregion
 
     #region properties
@@ -68,12 +67,6 @@ public class MainViewModel : ObservableObject
     {
         get => autoSendingNewLine;
         set => SetProperty(ref autoSendingNewLine, value);
-    }
-
-    public bool AutoReceivingNewLine
-    {
-        get => autoReceivingNewLine;
-        set => SetProperty(ref autoReceivingNewLine, value);
     }
 
     public string AppStatus { get; private set; }
@@ -133,12 +126,12 @@ public class MainViewModel : ObservableObject
     private async void InitializeLatestCommands()
     {
         var commands = await ReadLatestCommandFileAsync();
-        var orderComamnds = from c in commands
+        var orderCommands = from c in commands
                             group c by c into g
                             select (command: g.Key, count: g.Count()) into cc
                             orderby cc.count descending
                             select cc.command;
-        foreach (string command in orderComamnds.Take(10))
+        foreach (string command in orderCommands.Take(10))
         {
             LatestCommands.Add(command);
         }

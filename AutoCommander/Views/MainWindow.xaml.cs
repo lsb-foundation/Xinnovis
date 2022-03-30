@@ -13,6 +13,7 @@ using CommonLib.Extensions;
 using HandyControls = HandyControl.Controls;
 using AutoCommander.AutoUI.Linkers;
 using AutoCommander.Models;
+using CommonLib.Utils;
 
 namespace AutoCommander.Views;
 
@@ -39,7 +40,7 @@ public partial class MainWindow : Window
         SerialPortInstance.Default.Instance.DataReceived += SerialPort_DataReceived;
 
         _builder = new StringBuilder();
-        _dispatcherTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+        _dispatcherTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
         _dispatcherTimer.Tick += DispatcherTimer_Tick;
         _dispatcherTimer.Start();
     }
@@ -62,24 +63,23 @@ public partial class MainWindow : Window
     private async void SendButton_Click(object sender, RoutedEventArgs e)
     {
         string command = _main.EditableCommand?.Trim();
-        if (!string.IsNullOrWhiteSpace(command))
+        if (string.IsNullOrEmpty(command)) return;
+
+        if (_main.SendDataType == DataType.Hex)
         {
-            if (_main.SendDataType == DataType.Hex)
-            {
-                byte[] binData = command.HexStringToBytes();
-                _locator.Serial.TrySend(binData);
-            }
-            else
-            {
-                if (_main.AutoSendingNewLine) command = $"{command.TrimEnd()}\r\n";
-                SendCommandByASCII(command);
-            }
-            if (!_main.LatestCommands.Contains(command))
-            {
-                _main.LatestCommands.Insert(0, command);
-            }
-            await _main.WriteLatestCommand(command);
+            byte[] binData = command.HexStringToBytes();
+            _locator.Serial.TrySend(binData);
         }
+        else
+        {
+            if (_main.AutoSendingNewLine) command = $"{command.TrimEnd()}\r\n";
+            SendCommandByASCII(command);
+        }
+        if (!_main.LatestCommands.Contains(command))
+        {
+            _main.LatestCommands.Insert(0, command);
+        }
+        await _main.WriteLatestCommand(command);
     }
 
     private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -88,26 +88,23 @@ public partial class MainWindow : Window
         byte[] buffer = new byte[port.BytesToRead];
         _ = port.Read(buffer, 0, buffer.Length);
 
-        string text = null;
         string originText = Encoding.Default.GetString(buffer);
-        switch (_main.ReceiveDataType)
+        string text = _main.ReceiveDataType switch
         {
-            case DataType.ASCII:
-                text = _main.AutoReceivingNewLine ?
-                    $"{originText.Trim()}{Environment.NewLine}" :
-                    originText;
-                break;
-            case DataType.Hex:
-                text = buffer.ToHexString();
-                break;
-        }
+            DataType.ASCII => originText,
+            DataType.Hex => buffer.ToHexString(),
+            _ => null
+        };
 
         actionHandler?.Receive(originText);
 
+        if (text is null) return;
         lock (_builder)
         {
             _builder.Append(text);
         }
+
+        LoggerHelper.WriteLog("[REC]" + text);
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -199,8 +196,7 @@ public partial class MainWindow : Window
 
     private void MenuContainer_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (MenuContainer.SelectedItem is ListBoxItem item
-            && item.Tag is Tab tab
+        if (MenuContainer.SelectedItem is ListBoxItem { Tag: Tab tab }
             && tab.Build() is StackPanel panel
             && TabContainer.Content != panel)
         {
@@ -212,8 +208,7 @@ public partial class MainWindow : Window
 
     private void Configuration_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ComboBox box
-            && box.SelectedItem is string file
+        if (sender is ComboBox { SelectedItem: string file }
             && MenuContainer?.Tag is string oldFile
             && file != oldFile)
         {
@@ -225,6 +220,11 @@ public partial class MainWindow : Window
     private void ShowHandlerButton_Click(object sender, RoutedEventArgs e)
     {
         _locator.Configuration.SetLinker(linker);
-        HandyControls.Dialog.Show<HandlerViewer>();
+        HandyControls.Dialog.Show<HandlerViewer>("BEB7FC");
+    }
+
+    private void CopyButton_Click(object sender, RoutedEventArgs e)
+    {
+        Clipboard.SetText(ResultTextBox.Text);
     }
 }

@@ -20,19 +20,17 @@ public class Collector<T> where T : class
     public void Insert(string text)
     {
         int index;
-        ReadOnlyMemory<char> memory = text.AsMemory();
+        _container.Append(text);
+        ReadOnlyMemory<char> memory = _container.ToString().AsMemory();
         while ((index = memory.Span.IndexOf(splitter.Span)) > -1)
         {
-            _container.Append(memory.Slice(0, index));
-            T data = Parser?.Invoke(_container.ToString());
+            T data = Parser?.Invoke(memory.Slice(0, index).ToString());
             if (data is not null) Handler?.Invoke(data);
 
             int startIndex = index + splitter.Length;
             memory = startIndex < memory.Length ?
                 memory.Slice(startIndex) : ReadOnlyMemory<char>.Empty;
-
-            _container.Clear();
         }
-        _container.Append(memory);
+        _container.Clear().Append(memory);
     }
 }
