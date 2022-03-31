@@ -1,7 +1,9 @@
 ﻿using AutoCommander.Common;
 using CommonLib.Communication.Serial;
+using CommonLib.Utils;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
@@ -28,25 +30,25 @@ public class SerialPortViewModel : ObservableObject
 
     public string PortName
     {
-        get => SerialPortInstance.Default.Instance.PortName;
+        get => SerialInstance.Default.Instance.PortName;
         set
         {
-            SerialPortInstance.Default.SetPortName(value);
+            SerialInstance.Default.SetPortName(value);
             OnPropertyChanged();
         }
     }
 
     public int BaudRate
     {
-        get => SerialPortInstance.Default.Instance.BaudRate;
+        get => SerialInstance.Default.Instance.BaudRate;
         set
         {
-            SerialPortInstance.Default.SetBaudRate(value);
+            SerialInstance.Default.SetBaudRate(value);
             OnPropertyChanged();
         }
     }
 
-    public bool IsOpen => SerialPortInstance.Default.Instance.IsOpen;
+    public bool IsOpen => SerialInstance.Default.Instance.IsOpen;
     public bool CanPortModify => !IsOpen;
 
     public ObservableCollection<string> SerialPortNames { get; }
@@ -54,7 +56,7 @@ public class SerialPortViewModel : ObservableObject
 
     private void SwitchPort()
     {
-        var instance = SerialPortInstance.Default.Instance;
+        var instance = SerialInstance.Default.Instance;
         if (instance.IsOpen) instance.Close();
         else instance.Open();
         OnPropertyChanged(nameof(IsOpen));
@@ -63,10 +65,18 @@ public class SerialPortViewModel : ObservableObject
 
     public void TrySend<T>(T data)
     {
-        var instance = SerialPortInstance.Default.Instance;
-        if (!instance.IsOpen) instance.Open();
-        OnPropertyChanged(nameof(IsOpen));
-        OnPropertyChanged(nameof(CanPortModify));
-        SerialPortInstance.Default.Send(data);
+        try
+        {
+            var instance = SerialInstance.Default.Instance;
+            if (!instance.IsOpen) instance.Open();
+            OnPropertyChanged(nameof(IsOpen));
+            OnPropertyChanged(nameof(CanPortModify));
+            SerialInstance.Default.Send(data);
+        }
+        catch (Exception e)
+        {
+            LoggerHelper.WriteLog(e.Message, e);
+            HandyControl.Controls.Growl.Warning(e.Message);
+        }
     }
 }

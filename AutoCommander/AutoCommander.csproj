@@ -175,6 +175,7 @@
     <Compile Include="Common\PathUtils.cs" />
     <Compile Include="Converters\EnumToBooleanConverter.cs" />
     <Compile Include="Common\SettingsUtils.cs" />
+    <Compile Include="Injection\ServiceInjection.cs" />
     <Compile Include="Handlers\AutoCalibration\AutoCalibrationCollector.cs" />
     <Compile Include="Handlers\AutoCalibration\Extensions\EnumsExtensions.cs" />
     <Compile Include="Handlers\AutoCalibration\Models\ContainerValueType.cs" />
@@ -204,7 +205,7 @@
     </Compile>
     <Compile Include="ViewModels\ConfigurationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="Common\SerialPortInstance.cs" />
+    <Compile Include="Common\SerialInstance.cs" />
     <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Handlers\HandHeldMeter\Views\HandHeldMeterExporter.xaml.cs">
@@ -306,6 +307,7 @@
   <ItemGroup>
     <Resource Include="AutoUI\Xmls\自动标定.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(TargetDir)\bin\" rmdir /s/q "$(TargetDir)\bin\";

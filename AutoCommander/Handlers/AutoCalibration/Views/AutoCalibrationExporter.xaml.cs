@@ -52,10 +52,10 @@ namespace AutoCommander.Handlers.AutoCalibration.Views
         {
             if (collection.Count == 0) return;
 
-            var orderedDeviceDatas = collection.OrderBy(dd => dd.SerialNumber)
-                    .Select((v, i) => (Index: i, Data: v))
-                    .GroupBy(t => t.Index / 8)
-                    .Select(g => g.Select(t => t.Data).ToList());
+            var orderedDeviceDatas = 
+                collection.Select((v, i) => (Index: i, Data: v))
+                          .GroupBy(t => t.Index / 8)
+                          .Select(g => g.Select(t => t.Data).ToList());
 
             ISheet sheet = workbook.CreateSheet(sheetName);
             ICellStyle headerStyle = workbook.HeaderStyle();

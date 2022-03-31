@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace AutoCommander.Common;
 
-public class SerialPortInstance
+public class SerialInstance
 {
-    private static SerialPortInstance _default;
+    private static SerialInstance _default;
     private readonly SerialPort _instance = new() { WriteTimeout = 500 };
 
-    private SerialPortInstance()
+    private SerialInstance()
     {
         string port = Settings.Default.PortName;
         int baudRate = Settings.Default.BaudRate;
@@ -20,7 +20,7 @@ public class SerialPortInstance
         }
     }
 
-    public static SerialPortInstance Default
+    public static SerialInstance Default
     {
         get
         {

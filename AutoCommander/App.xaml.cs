@@ -14,6 +14,7 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        Injection.ServiceInjection.ConfigureServices();
         AppCenter.Start("714179aa-3a75-4b0f-bfb2-0243d9367fdc", typeof(Analytics), typeof(Crashes));
         Current.DispatcherUnhandledException += (s, ex) =>
         {

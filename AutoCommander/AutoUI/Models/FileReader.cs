@@ -5,6 +5,7 @@ using NPOI.SS.Util;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Xml.Serialization;
 
@@ -64,11 +65,12 @@ public class FileReader : IAutoBuild<Button>
             foreach (var cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
             {
                 var cell = sheet?.GetCell(cref.Row, cref.Col);
-                var value = cell.GetValue()?.ToString();
-                if (cell.CellType == CellType.Formula)
+                var value = cell.CellType switch
                 {
-                    value = ((float)cell.EvaluateFormula()).ToString();
-                }
+                    CellType.Numeric => cell.NumericCellValue.ToString("f5"),
+                    CellType.Formula => cell.EvaluateFormula().ToString("f5"),
+                    _ => cell.GetValue().ToString()
+                };
                 if (!string.IsNullOrEmpty(value))
                 {
                     values.Add(value);

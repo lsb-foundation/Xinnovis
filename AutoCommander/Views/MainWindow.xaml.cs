@@ -37,7 +37,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _main = DataContext as MainViewModel;
 
-        SerialPortInstance.Default.Instance.DataReceived += SerialPort_DataReceived;
+        SerialInstance.Default.Instance.DataReceived += SerialPort_DataReceived;
 
         _builder = new StringBuilder();
         _dispatcherTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
@@ -84,7 +84,7 @@ public partial class MainWindow : Window
 
     private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
     {
-        SerialPort port = SerialPortInstance.Default.Instance;
+        SerialPort port = SerialInstance.Default.Instance;
         byte[] buffer = new byte[port.BytesToRead];
         _ = port.Read(buffer, 0, buffer.Length);
 
@@ -152,7 +152,16 @@ public partial class MainWindow : Window
     {
         if (build is not UIAction action) return;
 
-        action.CreateCommand();
+        try
+        {
+            action.CreateCommand();
+        }
+        catch (Exception e)
+        {
+            LoggerHelper.WriteLog(e.Message, e);
+            HandyControls.Growl.Warning(e.Message);
+            return;
+        }
 
         if (action.IsConfirmed
             && HandyControls.MessageBox.Show(
@@ -174,14 +183,14 @@ public partial class MainWindow : Window
             && !string.IsNullOrWhiteSpace(linkerItem.Handler))
         {
             actionHandler = linkerItem.CreateHandler();
-            actionHandler.Completed += () => Dispatcher.Invoke(new Action(() =>
+            actionHandler.Completed += () => Dispatcher.Invoke(() =>
             {
                 actionHandler = null;
                 _main.ClearAppStatus();
-            }));
+            });
             actionHandler.Initialize();
             _locator.Serial.TrySend(linkerItem.Command);
-            _main.SetAppStatus($"{linkerItem.Display()}");
+            _main.SetAppStatus(linkerItem.Display());
         }
         else
         {
@@ -200,6 +209,7 @@ public partial class MainWindow : Window
             && tab.Build() is StackPanel panel
             && TabContainer.Content != panel)
         {
+            tab.Executed -= AutoUI_Executed;
             tab.Executed += AutoUI_Executed;
             TabContainer.Content = panel;
         }
