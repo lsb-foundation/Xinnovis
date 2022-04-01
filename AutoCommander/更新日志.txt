@@ -5,7 +5,7 @@
 4. 新增一个可复用的高效率字符串解析模块Collector<T>；
 5. 集成自动标定核心功能，新增自动标定数据处理程序AutoCalibrationHandler；
 6. 手持仪表导出数据处理程序HandHeldMeterExporter接入Collector<T>模块，界面适配；
-7. 引入Microsoft AppCenter用于跟踪及报告程序奔溃；
+7. 引入Microsoft AppCenter用于跟踪及报告程序崩溃；
 8. 将MvvmLight组件更换为推荐的Microsoft.Toolkit.Mvvm组件；
 9. IOC容器现在使用微软轻量级的ServiceCollection组件；
 10. DotNetFramework版本升级到4.8。

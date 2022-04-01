@@ -15,7 +15,7 @@ public class SerialPortViewModel : ObservableObject
     public SerialPortViewModel()
     {
         SerialPortNames = new ObservableCollection<string>();
-        SwitchPortCommand = new RelayCommand(SwitchPort);
+        SwitchPortCommand = new RelayCommand(() => SwitchPort());
         foreach (string portName in SerialPort.GetPortNames())
         {
             SerialPortNames.Add(portName);
@@ -54,29 +54,28 @@ public class SerialPortViewModel : ObservableObject
     public ObservableCollection<string> SerialPortNames { get; }
     public List<int> SerialBaudRates { get; } = BaudRateCode.GetBaudRates();
 
-    private void SwitchPort()
-    {
-        var instance = SerialInstance.Default.Instance;
-        if (instance.IsOpen) instance.Close();
-        else instance.Open();
-        OnPropertyChanged(nameof(IsOpen));
-        OnPropertyChanged(nameof(CanPortModify));
-    }
-
-    public void TrySend<T>(T data)
+    private bool SwitchPort()
     {
         try
         {
             var instance = SerialInstance.Default.Instance;
-            if (!instance.IsOpen) instance.Open();
+            if (instance.IsOpen) instance.Close();
+            else instance.Open();
             OnPropertyChanged(nameof(IsOpen));
             OnPropertyChanged(nameof(CanPortModify));
-            SerialInstance.Default.Send(data);
+            return true;
         }
         catch (Exception e)
         {
-            LoggerHelper.WriteLog(e.Message, e);
+            LoggerHelper.Error(e);
             HandyControl.Controls.Growl.Warning(e.Message);
+            return false;
         }
+    }
+
+    public void TrySend<T>(T data)
+    {
+        if (!SwitchPort()) return;
+        SerialInstance.Default.Send(data);
     }
 }

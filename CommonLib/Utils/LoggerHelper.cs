@@ -22,5 +22,7 @@ namespace CommonLib.Utils
         {
             _logger.Error(ex, info);
         }
+
+        public static void Error(Exception e) => _logger.Error(e, e.Message);
     }
 }
