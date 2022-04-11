@@ -18,6 +18,9 @@ namespace MFCSoftware.Utils
 
         [ResolveAction("获取基本信息")]
         BaseInfoData,
+        
+        [ResolveAction("获取版本号")]
+        ReadVersion,
 
         [ResolveAction("读取流量")]
         ReadFlow,

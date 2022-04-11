@@ -47,6 +47,7 @@ namespace MFCSoftware.ViewModels
         public SolidColorBrush StatusColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
 
         public BaseInformation BaseInfo { get; private set; }
+        public DeviceVersion Version { get; private set; }
         public FlowData Flow { get; private set; } = new FlowData();
 
         private uint _insertInterval = 30;
@@ -95,10 +96,12 @@ namespace MFCSoftware.ViewModels
             }
         }
 
-        public Visibility TemperetureVisibility => AppSettings.ReadTemperature? Visibility.Visible : Visibility.Collapsed;
+        public Visibility TemperetureVisibility => 
+            AppSettings.ReadTemperature? Visibility.Visible : Visibility.Collapsed;
 
         public SerialCommand<byte[]> ReadFlowBytes { get; private set; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get; private set; }
+        public SerialCommand<byte[]> ReadVersion { get; private set; }
         public SerialCommand<byte[]> ClearAccuFlowBytes { get; private set; }
         public SerialCommand<byte[]> WriteFlowBytes { get; private set; }
         public SerialCommand<byte[]> WriteValveBytes { get; private set; }
@@ -107,26 +110,35 @@ namespace MFCSoftware.ViewModels
 
         private void SetCommands()
         {
-            byte[] bytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
-            int responseLength = 27;
-            if (AppSettings.ReadTemperature)
-            {
-                bytes = new byte[] { 0x03, 0x00, 0x15, 0x00, 0x0C };
-                responseLength = 29;
-            }
-            ReadFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ReadFlow, responseLength);
+            //2022.04.11 读取流量不再区分是否读取温度，配置项仅影响显示
+            ReadFlowBytes = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x03, 0x00, 0x14, 0x00, 0x0D },
+                type: SerialCommandType.ReadFlow,
+                responseLength: 31);
+            
+            ReadBaseInfoBytes = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 }, 
+                type: SerialCommandType.BaseInfoData, 
+                responseLength: 37);
 
-            bytes = new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 };
-            ReadBaseInfoBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.BaseInfoData, 37);
+            ReadVersion = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x03, 0x00, 0x28, 0x00, 0x0A },
+                type: SerialCommandType.ReadVersion,
+                responseLength: 25);
 
-            bytes = new byte[] { 0x10, 0x00, 0x18, 0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; //修改为标准modbus协议 2021.09.01
-            ClearAccuFlowBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ClearAccuFlowData, 8);
+            //修改为标准modbus协议 2021.09.01
+            ClearAccuFlowBytes = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x10, 0x00, 0x18, 0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 
+                type: SerialCommandType.ClearAccuFlowData, 
+                responseLength: 8);
 
-            bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 };
-            ZeroPointCalibrationBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.ZeroPointCalibration);
+            ZeroPointCalibrationBytes = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x06, 0x00, 0x25, 0x00, 0x01 },
+                type: SerialCommandType.ZeroPointCalibration);
 
-            bytes = new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 };
-            FactoryRecoveryBytes = GetSerialCommandFromBytes(bytes, SerialCommandType.FactoryRecovery);
+            FactoryRecoveryBytes = GetSerialCommandFromBytes(
+                bytes: new byte[] { 0x06, 0x00, 0x25, 0x00, 0x02 },
+                type: SerialCommandType.FactoryRecovery);
         }
 
         public void SetBaseInfomation(BaseInformation info)
@@ -144,6 +156,13 @@ namespace MFCSoftware.ViewModels
             UpdateYAxisMaxValue(info.Range * 1.1D);
 
             OnPropertyChanged(nameof(BaseInfo));
+            WhenSuccess();
+        }
+
+        public void SetVersion(DeviceVersion version)
+        {
+            Version = version;
+            OnPropertyChanged(nameof(Version));
             WhenSuccess();
         }
 
@@ -348,17 +367,6 @@ namespace MFCSoftware.ViewModels
                 .WithResponseLength(responseLength)
                 .Build();
         }
-
-        //private SerialCommand<byte[]> GetSerialCommandFromBytes(List<byte[]> bytesList ,SerialCommandType type, int responseLength = 7)
-        //{
-        //    SerialCommandBuilder builder = new SerialCommandBuilder(type).AppendAddress(Address);
-        //    foreach(byte[] bytes in bytesList)
-        //    {
-        //        builder.AppendBytes(bytes);
-        //    }
-        //    builder.AppendCrc16();
-        //    return builder.ToSerialCommand(responseLength);
-        //}
     }
 
     public enum ControlSelector

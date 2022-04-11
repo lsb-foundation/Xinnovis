@@ -110,6 +110,7 @@ namespace MFCSoftware.Views
             _controlList.AddLast(channel);
             mainVm.ChannelCount++;
             await SendResolveAsync(channel, channel.ReadBaseInfoBytes); //添加通道后读取基本信息
+            await SendResolveAsync(channel, channel.ReadVersion); //添加通道后读取版本信息
         }
 
         private async Task SendResolveAsync(ChannelUserControl channel, SerialCommand<byte[]> command)

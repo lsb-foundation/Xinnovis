@@ -65,6 +65,7 @@ public class FileReader : IAutoBuild<Button>
             foreach (var cref in area.GetAllReferencedCells().OrderBy(c => c.Row).ThenBy(c => c.Col))
             {
                 var cell = sheet?.GetCell(cref.Row, cref.Col);
+                if (cell is null) continue;
                 var value = cell.CellType switch
                 {
                     CellType.Numeric => cell.NumericCellValue.ToString("f5"),

@@ -202,6 +202,7 @@
     </ApplicationDefinition>
     <Compile Include="Common\AppSettings.cs" />
     <Compile Include="Models\ChannelSaveModel.cs" />
+    <Compile Include="Models\DeviceVersion.cs" />
     <Compile Include="ViewModels\ExportSelectWindowViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\AddChannelWindow.xaml.cs">

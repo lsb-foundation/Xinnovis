@@ -48,12 +48,16 @@
             </Button>
 
             <md:ColorZone Grid.ColumnSpan="2" Mode="Inverted" Background="DarkBlue">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
                     <StackPanel.Resources>
                         <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
                             <Setter Property="Margin" Value="0,8,8,0"/>
                         </Style>
                     </StackPanel.Resources>
+                    <StackPanel VerticalAlignment="Center" Margin="16,8,16,0">
+                        <TextBlock Text="{Binding Version.Model, Mode=OneWay}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Version.Version, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    </StackPanel>
                     <TextBox Text="{Binding Address, Mode=OneWay}" 
                          md:HintAssist.Hint="地址" Width="100"/>
                     <TextBox Text="{Binding BaseInfo.SN, Mode=OneWay}"
@@ -141,7 +145,7 @@
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>当前流量</TextBlock>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Flow.CurrentFlow, StringFormat={}{0:N2}}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding Flow.CurrentFlow}" Style="{StaticResource ValueTextStyle}"/>
                             <TextBlock Text="{Binding DisplayUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
                         </StackPanel>
                     </StackPanel>

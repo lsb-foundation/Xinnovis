@@ -30,7 +30,7 @@ public class AutoCalibrationCollector
             string ln when ln.StartsWith("HIGH") => DataContainer.Parse(ln, TemperatureType.High),
             string ln when ln.StartsWith("MID") => DataContainer.Parse(ln, TemperatureType.Mid),
             string ln when ln.StartsWith("LOW") => DataContainer.Parse(ln, TemperatureType.Low),
-            string ln when ln.StartsWith("CALIBRATION_OVER!") => CalibrationOver(),
+            string ln when ln.Contains("CALIBRATION_OVER!") => CalibrationOver(),
             _ => null
         };
 

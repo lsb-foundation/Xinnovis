@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Threading.Tasks;
 using CommonLib.Utils;
 using MFCSoftware.Utils;
+using System.Text;
 
 namespace MFCSoftware.Views
 {
@@ -41,6 +42,7 @@ namespace MFCSoftware.Views
         public int Address { get => _viewModel.Address; }
         public SerialCommand<byte[]> ReadFlowBytes { get => _viewModel.ReadFlowBytes; }
         public SerialCommand<byte[]> ReadBaseInfoBytes { get => _viewModel.ReadBaseInfoBytes; }
+        public SerialCommand<byte[]> ReadVersion { get => _viewModel.ReadVersion; }
 
         private void Closed(object sender, RoutedEventArgs e)
         {
@@ -61,12 +63,13 @@ namespace MFCSoftware.Views
                     switch (type)
                     {
                         case SerialCommandType.BaseInfoData:
-                            ResolveBaseInfoData(data);
+                            HandleBaseInformation(data);
+                            break;
+                        case SerialCommandType.ReadVersion:
+                            HandleVersionData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            var flow = FlowData.ResolveFromBytes(data, readTemperature: AppSettings.ReadTemperature);
-                            flow.Address = Address;
-                            flow.Unit = _viewModel.BaseInfo?.Unit?.Unit;
+                            var flow = GetFlow(data);
                             _viewModel.SetFlow(flow);
                             _viewModel.UpdateSeries();
                             await _flowDataSaver.InsertFlowAsync(flow);
@@ -89,7 +92,7 @@ namespace MFCSoftware.Views
             });
         }
 
-        private void ResolveBaseInfoData(byte[] data)
+        private void HandleBaseInformation(byte[] data)
         {
             int gas = data.SubArray(3, 2).ToInt32(0, 2);
             int range = data.SubArray(5, 2).ToInt32(0, 2);
@@ -104,6 +107,63 @@ namespace MFCSoftware.Views
                 Unit = UnitCode.GetUnitCodesFromConfiguration()?.FirstOrDefault(u => u.Code == unit)
             };
             _viewModel.SetBaseInfomation(info);
+        }
+
+        private void HandleVersionData(byte[] data)
+        {
+            var version = new DeviceVersion();
+            var originModel = Encoding.ASCII.GetString(data.SubArray(3, 10));
+            var index = originModel.IndexOf('\0');
+            version.Model = index > -1 ? originModel.Substring(0, index) : originModel;
+            var originVersion = Encoding.ASCII.GetString(data.SubArray(13, 10));
+            index = originVersion.IndexOf('\0');
+            version.Version = index > -1 ? originVersion.Substring(0, index) : originVersion;
+            _viewModel.SetVersion(version);
+        }
+
+        public  FlowData GetFlow(byte[] data)
+        {
+            Span<byte> dataSpan = data.AsSpan();
+
+            var pointBit = dataSpan.Slice(3, 2).ToInt32();  //小数位数
+
+            var temperatureSpan = dataSpan.Slice(5, 2);
+            temperatureSpan.Reverse();
+            var temperature = BitConverter.ToInt16(temperatureSpan.ToArray(), 0) / 10.0f;
+
+            float flow = pointBit switch
+            {
+                0 => dataSpan.Slice(7, 4).ToInt32() * 0.01f,    //两位小数
+                1 => dataSpan.Slice(7, 4).ToInt32() * 0.001f,   //三位小数
+                2 => dataSpan.Slice(7, 4).ToInt32(),            //整数
+                3 => dataSpan.Slice(7, 4).ToInt32() * 0.1f,     //一位小数
+                _ => 0
+            };
+
+            Span<byte> accuSpan = dataSpan.Slice(11, 8);
+            accuSpan.Reverse();
+            float accuFlow = BitConverter.ToInt64(accuSpan.ToArray(), 0) / 1000.0f;
+
+            int unitCode = dataSpan.Slice(19, 2).ToInt32();
+            int days = dataSpan.Slice(21, 2).ToInt32();
+            int hours = dataSpan.Slice(23, 2).ToInt32();
+            int mins = dataSpan.Slice(25, 2).ToInt32();
+            int secs = dataSpan.Slice(27, 2).ToInt32();
+            
+            return new()
+            {
+                Address = Address,
+                Unit = _viewModel.BaseInfo?.Unit?.Unit,
+                CollectTime = DateTime.Now,
+                CurrentFlow = flow,
+                AccuFlow = accuFlow,
+                Temperature = temperature,
+                AccuFlowUnit = unitCode == 0 ? "L" : (unitCode == 1 ? "m³" : string.Empty),
+                Days = days,
+                Hours = hours,
+                Minutes = mins,
+                Seconds = secs
+            };
         }
 
         public void WhenTimeOut()
