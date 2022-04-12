@@ -44,11 +44,11 @@ namespace MFCSoftware.ViewModels
             set => SetProperty(ref _displayUnit, value);
         }
 
-        public SolidColorBrush StatusColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
+        public SolidColorBrush StatusColor { get; private set; } = new(Colors.Transparent);
 
         public BaseInformation BaseInfo { get; private set; }
         public DeviceVersion Version { get; private set; }
-        public FlowData Flow { get; private set; } = new FlowData();
+        public FormattedFlow FormattedFlow { get; private set; } = new();
 
         private uint _insertInterval = 30;
         public uint InsertInterval
@@ -179,33 +179,37 @@ namespace MFCSoftware.ViewModels
             return builder.ToString();
         }
 
-        public void SetFlow(FlowData flow)
+        public void SetFlow(FlowData flow, int bit)
         {
-            if (Flow == null)
+            var value = (BaseInfo?.Unit?.Unit, DisplayUnit) switch
             {
-                Flow = new FlowData();
-            }
+                ("SCCM", "SLM") => flow.CurrentFlow * 0.001,
+                ("SLM", "SCCM") => flow.CurrentFlow * 1000,
+                (_, "%F.S") => flow.CurrentFlow / BaseInfo.Range * 100,
+                _ => flow.CurrentFlow
+            };
 
-            SetCurrentFlowByUnit(flow.CurrentFlow);
-            Flow.AccuFlow = flow.AccuFlow;
-            Flow.AccuFlowUnit = flow.AccuFlowUnit;
-            Flow.Days = flow.Days;
-            Flow.Hours = flow.Hours;
-            Flow.Minutes = flow.Minutes;
-            Flow.Seconds = flow.Seconds;
-            Flow.Temperature = flow.Temperature;
-
-            OnPropertyChanged(nameof(Flow));
+            FormattedFlow.Origin = flow;
+            FormattedFlow.Value = bit switch
+            {
+                0 => value.ToString("F2"),      //两位小数
+                1 => value.ToString("F3"),      //三位小数
+                2 => value.ToString("F0"),      //整数
+                3 => value.ToString("F1"),      //一位小数
+                _ => value.ToString()
+            };
+            
+            OnPropertyChanged(nameof(FormattedFlow));
             WhenSuccess();
         }
-
-        public void UpdateSeries()
+        
+        public void UpdateSeries(float value)
         {
             lock (SeriesPlotModel.SyncRoot)
             {
                 var s = (OxyPlot.Series.LineSeries)SeriesPlotModel.Series[0];
                 double x = DateTimeAxis.ToDouble(DateTime.Now);
-                double y = Flow.CurrentFlow;
+                double y = value;
                 s.Points.Add(new DataPoint(x, y));
 
                 if (s.Points.Count > SeriesPointNumber)
@@ -223,7 +227,7 @@ namespace MFCSoftware.ViewModels
             var dateTimeAxis = new DateTimeAxis
             {
                 Title = "时间",
-                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                Position = AxisPosition.Bottom,
                 IntervalType = DateTimeIntervalType.Seconds,
                 IsZoomEnabled = false,
                 IsPanEnabled = false,
@@ -239,7 +243,7 @@ namespace MFCSoftware.ViewModels
                 LabelFormatter = num => $"{num:N2}",
                 IsZoomEnabled = false,
                 IsPanEnabled = false,
-                Position = OxyPlot.Axes.AxisPosition.Left,
+                Position = AxisPosition.Left,
                 TitleFontSize = 16
             };
             SeriesPlotModel.Axes.Add(valueAxis);
@@ -263,36 +267,6 @@ namespace MFCSoftware.ViewModels
                 {
                     axis.Maximum = yMax;
                     //RaiseProperty(nameof(SeriesPlotModel));
-                }
-            }
-        }
-
-        private void SetCurrentFlowByUnit(float flow)
-        {
-            //UCCM和CCM与SCCM等价，因此均按照SCCM进行处理
-            string meterUnit = BaseInfo?.Unit?.Unit == "SLM" ? "SLM" : "SCCM";
-            Flow.CurrentFlow = flow;       //默认不转换
-
-            if (meterUnit == "SCCM")
-            {
-                if (DisplayUnit == "SLM")           //SCCM->SLM
-                {
-                    Flow.CurrentFlow = flow / 1000;
-                }
-                else if (DisplayUnit == "%F.S")     //SCCM->%F.S
-                {
-                    Flow.CurrentFlow = flow / BaseInfo.Range * 100;
-                }
-            }
-            else
-            {
-                if (DisplayUnit == "SCCM")          //SLM->SCCM
-                {
-                    Flow.CurrentFlow = flow * 1000;
-                }
-                else if (DisplayUnit == "%F.S")     //SLM->%F.S
-                {
-                    Flow.CurrentFlow = flow / BaseInfo.Range * 100;
                 }
             }
         }

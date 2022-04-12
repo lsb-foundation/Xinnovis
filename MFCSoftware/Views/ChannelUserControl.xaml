@@ -145,24 +145,24 @@
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>当前流量</TextBlock>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Flow.CurrentFlow}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding FormattedFlow.Value}" Style="{StaticResource ValueTextStyle}"/>
                             <TextBlock Text="{Binding DisplayUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>累积流量</TextBlock>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Flow.AccuFlow, StringFormat={}{0:N3}}" Style="{StaticResource ValueTextStyle}"/>
-                            <TextBlock Text="{Binding Flow.AccuFlowUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding FormattedFlow.Origin.AccuFlow, StringFormat={}{0:N3}}" Style="{StaticResource ValueTextStyle}"/>
+                            <TextBlock Text="{Binding FormattedFlow.Origin.AccuFlowUnit}" Margin="4,0,0,0" Style="{StaticResource ValueTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Margin="16,8,0,0">
                         <TextBlock>累积时间</TextBlock>
-                        <TextBlock Text="{Binding Flow, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding FormattedFlow.Origin, Mode=OneWay, Converter={StaticResource FlowToTimeConverter}}" Style="{StaticResource ValueTextStyle}"/>
                     </StackPanel>
                     <StackPanel Margin="16,8,0,0" Visibility="{Binding TemperetureVisibility}">
                         <TextBlock>温度</TextBlock>
-                        <TextBlock Text="{Binding Flow.Temperature, Mode=OneWay}" Style="{StaticResource ValueTextStyle}"/>
+                        <TextBlock Text="{Binding FormattedFlow.Origin.Temperature, Mode=OneWay}" Style="{StaticResource ValueTextStyle}"/>
                     </StackPanel>
                 </StackPanel>
 

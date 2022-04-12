@@ -69,9 +69,7 @@ namespace MFCSoftware.Views
                             HandleVersionData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            var flow = GetFlow(data);
-                            _viewModel.SetFlow(flow);
-                            _viewModel.UpdateSeries();
+                            var flow = HandleFlowData(data);
                             await _flowDataSaver.InsertFlowAsync(flow);
                             break;
                         case SerialCommandType.ClearAccuFlowData:
@@ -120,12 +118,12 @@ namespace MFCSoftware.Views
             version.Version = index > -1 ? originVersion.Substring(0, index) : originVersion;
             _viewModel.SetVersion(version);
         }
-
-        public  FlowData GetFlow(byte[] data)
+        
+        public FlowData HandleFlowData(byte[] data)
         {
             Span<byte> dataSpan = data.AsSpan();
 
-            var pointBit = dataSpan.Slice(3, 2).ToInt32();  //小数位数
+            var pointBit = dataSpan.Slice(3, 2).ToInt32(); //小数位数
 
             var temperatureSpan = dataSpan.Slice(5, 2);
             temperatureSpan.Reverse();
@@ -150,7 +148,7 @@ namespace MFCSoftware.Views
             int mins = dataSpan.Slice(25, 2).ToInt32();
             int secs = dataSpan.Slice(27, 2).ToInt32();
             
-            return new()
+            var flowData = new FlowData()
             {
                 Address = Address,
                 Unit = _viewModel.BaseInfo?.Unit?.Unit,
@@ -164,6 +162,10 @@ namespace MFCSoftware.Views
                 Minutes = mins,
                 Seconds = secs
             };
+
+            _viewModel.SetFlow(flowData, pointBit);
+            _viewModel.UpdateSeries(flow);
+            return flowData;
         }
 
         public void WhenTimeOut()
