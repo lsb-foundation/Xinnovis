@@ -60,7 +60,11 @@ namespace VirtualSerialPortClient
             //    return;
 
             byte[] dataToSend;
-            if (buffer[3] == 0x14 && buffer[4] == 0x00 && buffer[5] == 0x0D)
+            if (buffer[3] == 0x16 && buffer[4] == 0x00 && buffer[5] == 0x0B)
+                dataToSend = GetFlow(buffer[0]);
+            else if (buffer[3] == 0x15 && buffer[4] == 0x00 && buffer[5] == 0x0C)
+                dataToSend = GetFlowWithTemperatureOrigin(buffer[0]);
+            else if (buffer[3] == 0x14 && buffer[4] == 0x00 && buffer[5] == 0x0D)
                 dataToSend = GetFlowWithTemperature(buffer[0]);
             else if (buffer[3] == 0x03 && buffer[4] == 0x00 && buffer[5] == 0x10)
                 dataToSend = GetBaseInfo(buffer[0]);
@@ -152,7 +156,74 @@ namespace VirtualSerialPortClient
             ret[31] = crc[1];
             return ret;
         }
-        
+
+        private static byte[] GetFlowWithTemperatureOrigin(byte addr)
+        {
+            byte[] ret = new byte[29];
+            ret[0] = addr;
+            ret[1] = 0x03;
+            ret[2] = 0x16;
+            ret[3] = 0x00;
+            ret[4] = 0xFD;
+            Random random = new Random();
+            float flow = ((float)random.NextDouble() * 50 + 400) * 100;
+            byte[] flowBytes = BitConverter.GetBytes((int)flow);
+            //52.32 * 100 = 5232 = 0x1600
+            ret[5] = flowBytes[3];
+            ret[6] = flowBytes[2];
+            ret[7] = flowBytes[1];
+            ret[8] = flowBytes[0];
+            //52.32 * 1000 = 52320 = 0xDC00
+            for (int i = 9; i <= 14; i++)
+                ret[i] = 0x00;
+            ret[15] = 0xDC;
+            ret[16] = 0x00;
+
+            ret[17] = 0x00;
+            ret[18] = 0x01;
+
+            for (int i = 19; i <= 26; i++)
+                ret[i] = 0x00;
+            byte[] crc = ret.GetCRC16(ret.Length - 2);
+            ret[27] = crc[0];
+            ret[28] = crc[1];
+            return ret;
+        }
+
+        private static byte[] GetFlow(byte addr)
+        {
+            //addr 0x03 0x16 FLOW1 FLOW2 FLOW3 FLOW4
+            //ACCMULATE1 ACCMULATE2 ACCMULATE3 ACCMULATE4 ACCMULATE5 ACCMULATE6 ACCMULATE7 ACCMULATE8
+            //UNIT1 UNIT2 DAY1 DAY2 HOUR1 HOUR2 MIN1 MIN2 SEC1 SEC2
+            //CRCL CRCH
+            byte[] ret = new byte[27];
+            ret[0] = addr;
+            ret[1] = 0x03;
+            ret[2] = 0x16;
+            float flow = ((float)_random.NextDouble() * 50 + 400) * 100;
+            byte[] flowBytes = BitConverter.GetBytes((int)flow);
+            //52.32 * 100 = 5232 = 0x1600
+            ret[3] = flowBytes[3];
+            ret[4] = flowBytes[2];
+            ret[5] = flowBytes[1];
+            ret[6] = flowBytes[0];
+            //52.32 * 1000 = 52320 = 0xDC00
+            for (int i = 7; i <= 12; i++)
+                ret[i] = 0x00;
+            ret[13] = 0xDC;
+            ret[14] = 0x00;
+
+            ret[15] = 0x00;
+            ret[16] = 0x01;
+
+            for (int i = 17; i <= 24; i++)
+                ret[i] = 0x00;
+            byte[] crc = ret.GetCRC16(ret.Length - 2);
+            ret[25] = crc[0];
+            ret[26] = crc[1];
+            return ret;
+        }
+
         private static byte[] GetVersion(byte addr)
         {
             var bytes = new List<byte>();

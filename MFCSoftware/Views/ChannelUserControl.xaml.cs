@@ -69,7 +69,10 @@ namespace MFCSoftware.Views
                             HandleVersionData(data);
                             break;
                         case SerialCommandType.ReadFlow:
-                            var flow = HandleFlowData(data);
+                            //var flow = HandleFlowData(data);
+                            var flow = FlowData.ResolveFromBytes(data, AppSettings.ReadTemperature);
+                            _viewModel.SetFlow(flow);
+                            _viewModel.UpdateSeries(flow.CurrentFlow);
                             await _flowDataSaver.InsertFlowAsync(flow);
                             break;
                         case SerialCommandType.ClearAccuFlowData:
@@ -119,7 +122,7 @@ namespace MFCSoftware.Views
             _viewModel.SetVersion(version);
         }
         
-        public FlowData HandleFlowData(byte[] data)
+        private FlowData HandleFlowData(byte[] data)
         {
             Span<byte> dataSpan = data.AsSpan();
 

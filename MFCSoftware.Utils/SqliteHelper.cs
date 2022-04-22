@@ -60,18 +60,26 @@ namespace MFCSoftware.Utils
         public static async Task<bool> InsertFlowsBatchAsync(List<FlowData> flows)
         {
             using var connection = new SQLiteConnection(_connectionString);
+            var transaction = connection.BeginTransaction();
             try
             {
                 await connection.ExecuteAsync(
                         @"insert into tb_flow(address, collect_time, curr_flow, unit, accu_flow, accu_unit, temperature) 
                               values (@Address, @CollectTime, @CurrentFlow, @Unit, @AccuFlow, @AccuFlowUnit, @Temperature);",
                          flows);
+                transaction.Commit();
                 return true;
             }
             catch (SQLiteException e) //客户反馈此处发生SqliteException异常(经核实，偶尔会出现attempt to write a readonly database异常，频率较低)
             {
+                transaction.Rollback();
                 LoggerHelper.WriteLog(e.Message, e);
-                return false;
+                throw e;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
             }
         }
 

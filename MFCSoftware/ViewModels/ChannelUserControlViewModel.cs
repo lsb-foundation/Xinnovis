@@ -110,12 +110,22 @@ namespace MFCSoftware.ViewModels
 
         private void SetCommands()
         {
-            //2022.04.11 读取流量不再区分是否读取温度，配置项仅影响显示
-            ReadFlowBytes = GetSerialCommandFromBytes(
-                bytes: new byte[] { 0x03, 0x00, 0x14, 0x00, 0x0D },
-                type: SerialCommandType.ReadFlow,
-                responseLength: 31);
-            
+            //2022.04.20 读取流量再次修改为原指令
+            if (AppSettings.ReadTemperature)
+            {
+                ReadFlowBytes = GetSerialCommandFromBytes(
+                    bytes: new byte[] { 0x03, 0x00, 0x15, 0x00, 0x0C },
+                    type: SerialCommandType.ReadFlow,
+                    responseLength: 29);
+            }
+            else
+            {
+                ReadFlowBytes = GetSerialCommandFromBytes(
+                    bytes: new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B },
+                    type: SerialCommandType.ReadFlow,
+                    responseLength: 27);
+            }
+
             ReadBaseInfoBytes = GetSerialCommandFromBytes(
                 bytes: new byte[] { 0x03, 0x00, 0x03, 0x00, 0x10 }, 
                 type: SerialCommandType.BaseInfoData, 
@@ -199,6 +209,32 @@ namespace MFCSoftware.ViewModels
                 _ => value.ToString()
             };
             
+            OnPropertyChanged(nameof(FormattedFlow));
+            WhenSuccess();
+        }
+
+        public void SetFlow(FlowData flow)
+        {
+            var value = (BaseInfo?.Unit?.Unit, DisplayUnit) switch
+            {
+                ("SCCM", "SLM") => flow.CurrentFlow * 0.001,
+                ("SLM", "SCCM") => flow.CurrentFlow * 1000,
+                (_, "%F.S") => flow.CurrentFlow / BaseInfo.Range * 100,
+                _ => flow.CurrentFlow
+            };
+
+            FormattedFlow.Origin = flow;
+            //2022.04.20 显示的小数点位数修改为根据流量值和单位确定
+            //乘以100转换为解析前的原始值
+            FormattedFlow.Value = (BaseInfo?.Unit?.Unit, flow.CurrentFlow * 100) switch
+            {
+                ("SCCM", float f) when f <= 100 => value.ToString("F2"),       //两位小数
+                ("SCCM", float f) when f <= 1000 => value.ToString("F1"),      //一位小数
+                ("SCCM", float f) when f <= 5000 => value.ToString("F0"),      //整数
+                ("SLM", _) => value.ToString("F2"),
+                _ => value.ToString()
+            };
+
             OnPropertyChanged(nameof(FormattedFlow));
             WhenSuccess();
         }

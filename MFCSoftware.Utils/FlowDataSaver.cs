@@ -1,5 +1,4 @@
-﻿using CommonLib.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
@@ -36,7 +35,7 @@ namespace MFCSoftware.Utils
 
         static FlowDataPersistenceTask()
         {
-            _channel = Channel.CreateBounded<FlowData>(32);
+            _channel = Channel.CreateUnbounded<FlowData>();
             _flowBuffers = new List<FlowData>();
             _cancel = new CancellationTokenSource();
 
@@ -48,7 +47,6 @@ namespace MFCSoftware.Utils
         public static async Task InsertFlowAsync(FlowData flow)
         {
             await _channel.Writer.WaitToWriteAsync();
-            //LoggerHelper.WriteLog($"[QueueAdd]{flow.Address} {flow.CurrentFlow}");
             await _channel.Writer.WriteAsync(flow);
         }
 
@@ -63,7 +61,7 @@ namespace MFCSoftware.Utils
                     _flowBuffers.Add(flow);
 
                     //修改为500毫秒执行一次写入，使用事务提升写入速度
-                    if (DateTime.Now - _lastUpdateTime > TimeSpan.FromMilliseconds(500) &&
+                    if (DateTime.Now - _lastUpdateTime > TimeSpan.FromMilliseconds(5000) &&
                         _flowBuffers.Count > 0)
                     {
                         if (await SqliteHelper.InsertFlowsBatchAsync(_flowBuffers))
