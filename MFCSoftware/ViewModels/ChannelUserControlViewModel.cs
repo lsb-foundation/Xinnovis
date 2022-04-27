@@ -296,7 +296,7 @@ namespace MFCSoftware.ViewModels
         public void SetWriteFlowBytes()
         {
             //addr 0x06 0x00 0x21 0x00 0x00 [FLOW_1] {FLOW_2] {FLOW_3] {FLOW_4] CRCL CRCH
-            int flowIntValue = ParseFloatToInt32(FlowValue * 100);
+            int flowIntValue = ParseFloatToInt32(FlowValue * 1000);
             WriteFlowBytes = new SerialCommandBuilder(SerialCommandType.SetFlow)
                 .AppendAddress(Address)
                 //.AppendBytes(new byte[] { 0x10, 0x00, 0x21, 0x00, 0x04, 0x08, 0x00, 0x00 }) //针对客户的修改 2021.08.17
