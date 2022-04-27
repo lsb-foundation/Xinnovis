@@ -222,15 +222,14 @@ namespace MFCSoftware.ViewModels
                 (_, "%F.S") => flow.CurrentFlow / BaseInfo.Range * 100,
                 _ => flow.CurrentFlow
             };
-
+            
             FormattedFlow.Origin = flow;
-            //2022.04.20 显示的小数点位数修改为根据流量值和单位确定
-            //乘以100转换为解析前的原始值
-            FormattedFlow.Value = (BaseInfo?.Unit?.Unit, flow.CurrentFlow * 100) switch
+            //2022.04.22 显示的小数点位数修改为根据量程确定
+            FormattedFlow.Value = (BaseInfo?.Unit?.Unit, BaseInfo?.Range) switch
             {
-                ("SCCM", float f) when f <= 100 => value.ToString("F2"),       //两位小数
-                ("SCCM", float f) when f <= 1000 => value.ToString("F1"),      //一位小数
-                ("SCCM", float f) when f <= 5000 => value.ToString("F0"),      //整数
+                ("SCCM", int range) when range <= 100 => value.ToString("F2"),       //两位小数
+                ("SCCM", int range) when range <= 1000 => value.ToString("F1"),      //一位小数
+                ("SCCM", int range) when range <= 5000 => value.ToString("F0"),      //整数
                 ("SLM", _) => value.ToString("F2"),
                 _ => value.ToString()
             };
