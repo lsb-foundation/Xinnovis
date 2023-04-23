@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComSharingService.cs" />
+    <Compile Include="CupDeviceExtras.cs" />
     <Compile Include="SqliteHelper.cs" />
     <Compile Include="FlowData.cs" />
     <Compile Include="FlowDataSaver.cs" />

@@ -3,7 +3,7 @@ using System;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftwareForCUP.ViewModels
 {

@@ -26,6 +26,7 @@ namespace MFCSoftware.Utils
             CreateFlowTable();
             CreatePasswordTable();
             CreateSettingsTable();
+            CreateDeviceExtrasTable();
         }
 
         private async static void CreateFlowTable()
@@ -55,6 +56,12 @@ namespace MFCSoftware.Utils
         {
             using var connection = new SQLiteConnection(_connectionString);
             await connection.ExecuteAsync("create table if not exists tb_settings(s_key varchar(32), s_value varchar(32));");
+        }
+
+        private async static void CreateDeviceExtrasTable()
+        {
+            using var connection = new SQLiteConnection(_connectionString);
+            await connection.ExecuteAsync("create table if not exists tb_device_extras(address int, floor varchar(128), room varchar(128), gas_type varchar(128));");
         }
 
         public static async Task<bool> InsertFlowsBatchAsync(List<FlowData> flows)
@@ -170,6 +177,25 @@ namespace MFCSoftware.Utils
                         new { value, key });
                 }
             }
+        }
+
+        public static async Task UpdateCupDeviceExtras(List<CupDeviceExtras> deviceExtras)
+        {
+            using var connection = new SQLiteConnection(_connectionString);
+            //先删除，后重新插入
+            await connection.ExecuteAsync("delete from tb_device_extras");
+            await connection.ExecuteAsync(
+                    @"insert into tb_device_extras(address, floor, room, gas_type) 
+                          values (@Address, @Floor, @Room, @GasType);",
+                     deviceExtras);
+        }
+
+        public static async Task<List<CupDeviceExtras>> GetDeviceExtrasAsync()
+        {
+            using var connection = new SQLiteConnection(_connectionString);
+            var deviceExtras = await connection.QueryAsync<CupDeviceExtras>(
+                "select address as Address, floor as Floor, room as Room, gas_type as GasType from tb_device_extras");
+            return deviceExtras.AsList();
         }
     }
 }

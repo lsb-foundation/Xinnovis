@@ -1,8 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MFCSoftwareForCUP.Models
+namespace MFCSoftware.Utils
 {
-    public class DeviceExtras : ObservableObject
+    public class CupDeviceExtras
     {
         public int Address { get; set; }
         public string Floor { get; set; }

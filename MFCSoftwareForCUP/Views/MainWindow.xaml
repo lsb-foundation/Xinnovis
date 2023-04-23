@@ -6,7 +6,7 @@
         xmlns:metro="clr-namespace:AduSkin.Controls.Metro;assembly=AduSkin"
         xmlns:local="clr-namespace:MFCSoftwareForCUP" Background="#f0f0f0"
         Icon="../icon.ico"
-        mc:Ignorable="d" Closed="AppClosed" Loaded="AppLoaded"
+        mc:Ignorable="d" Closing="AppClosing" Loaded="AppLoaded"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
         Title="MFCSoftwareForCUP" Height="600" Width="960">
     <Window.Resources>

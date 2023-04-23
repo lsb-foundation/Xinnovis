@@ -1,6 +1,6 @@
 ﻿using MFCSoftware.Utils;
 using System.Threading.Tasks;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MFCSoftwareForCUP.ViewModels
 {

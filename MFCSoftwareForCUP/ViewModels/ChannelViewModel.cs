@@ -1,5 +1,5 @@
 ﻿using MFCSoftwareForCUP.Models;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Configuration;
 using System.Windows.Media;
 

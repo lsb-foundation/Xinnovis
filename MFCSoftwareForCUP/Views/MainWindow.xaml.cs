@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace MFCSoftwareForCUP.Views
 {
@@ -151,7 +152,7 @@ namespace MFCSoftwareForCUP.Views
             }
         }
 
-        private void AppClosed(object sender, EventArgs e)
+        private async void AppClosing(object sender, CancelEventArgs e)
         {
             _cancel.Cancel();
             AppJsonModel model = new()
@@ -165,12 +166,12 @@ namespace MFCSoftwareForCUP.Views
             {
                 model.Devices.Add(uc.DeviceExtras);
             }
-            model.Save();
+            await model.SaveAsync();
         }
 
         private async void AppLoaded(object sender, RoutedEventArgs e)
         {
-            if (await AppJsonModel.ReadFromFileAsync() is AppJsonModel model)
+            if (await AppJsonModel.LoadAsync() is AppJsonModel model)
             {
                 _main.PortName = model.PortName;
                 _main.MaxDeviceCount = model.DeviceMaxCount;
