@@ -24,7 +24,8 @@ namespace MFCSoftwareForCUP.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _main;
-        private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 };
+        //private readonly byte[] _clearFlowBytes = new byte[] { 0x06, 0x00, 0x18, 0x00, 0x00 }; //原指令，返回长度为7
+        private readonly byte[] _clearFlowBytes = new byte[] { 0x10, 0x00, 0x18, 0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; //2023.04.28 新指令，返回长度为8
         private readonly byte[] _readFlowBytes = new byte[] { 0x03, 0x00, 0x16, 0x00, 0x0B };
         private readonly CancellationTokenSource _cancel = new();
 
@@ -86,7 +87,8 @@ namespace MFCSoftwareForCUP.Views
                 .AppendAddress(address)
                 .AppendBytes(_clearFlowBytes)
                 .AppendCrc16()
-                .WithResponseLength(7)
+                //.WithResponseLength(7)
+                .WithResponseLength(8)
                 .Build();
         }
 

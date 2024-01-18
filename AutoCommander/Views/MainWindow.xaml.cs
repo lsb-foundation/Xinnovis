@@ -235,6 +235,7 @@ public partial class MainWindow : Window
 
     private void CopyButton_Click(object sender, RoutedEventArgs e)
     {
-        Clipboard.SetText(ResultTextBox.Text);
+        //Clipboard.SetText(ResultTextBox.Text);
+        Clipboard.SetDataObject(ResultTextBox.Text);
     }
 }
